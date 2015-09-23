@@ -1,0 +1,21 @@
+﻿Build started 9/22/2015 11:07:10 PM.
+     1>Project "C:\Users\enricotj\documents\visual studio 2013\Projects\QuadcopterVision\QuadcopterVision\QuadcopterVision.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV\build\include /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt main.cpp
+         main.cpp
+     1>main.cpp(40): warning C4305: '=' : truncation from 'double' to 'float'
+     1>main.cpp(44): warning C4305: '=' : truncation from 'double' to 'float'
+     1>main.cpp(48): warning C4305: '=' : truncation from 'double' to 'float'
+     1>main.cpp(66): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>main.cpp(67): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>main.cpp(105): warning C4244: '=' : conversion from 'float' to 'uchar', possible loss of data
+     1>main.cpp(106): warning C4244: '=' : conversion from 'float' to 'uchar', possible loss of data
+     1>main.cpp(107): warning C4244: '=' : conversion from 'float' to 'uchar', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\enricotj\documents\visual studio 2013\Projects\QuadcopterVision\x64\Debug\QuadcopterVision.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\OpenCV\build\x64\vc12\lib opencv_ts300.lib opencv_ts300d.lib opencv_world300.lib opencv_world300d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\enricotj\documents\visual studio 2013\Projects\QuadcopterVision\x64\Debug\QuadcopterVision.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\enricotj\documents\visual studio 2013\Projects\QuadcopterVision\x64\Debug\QuadcopterVision.lib" /MACHINE:X64 x64\Debug\main.obj
+         QuadcopterVision.vcxproj -> C:\Users\enricotj\documents\visual studio 2013\Projects\QuadcopterVision\x64\Debug\QuadcopterVision.exe
+     1>Done Building Project "C:\Users\enricotj\documents\visual studio 2013\Projects\QuadcopterVision\QuadcopterVision\QuadcopterVision.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:05.58
