@@ -25,20 +25,42 @@ void findObject() {
 	float min = -1;
 	int xTrackIndex = 0;
 	int yTrackIndex = 0;
-	for (int a = yIndex - 5; a < yIndex + 5; a++) {
-		for (int b = xIndex - 5; b < xIndex + 5; b++) {
+	int range = 5;
+	int rows = trackMatrix.rows;
+	int cols = trackMatrix.cols;
+	int yDiff = rows/25;
+	int xDiff = cols/25;
+	for (int a = yIndex - range; a < yIndex + range; a++) {
+		/*if ((a + rows) >= highY){
+			break;
+		}*/
+		for (int b = xIndex - range; b < xIndex + range; b++) {
+			if (a < 0){
+				a = 0;
+			}if (b < 0){
+				b = 0;
+			}
+			/*if ((b +cols) >= highX) {
+				break;
+			}*/
 			float diff = 0;
 			//printf("x: %d, y: %d, d:%f\n", b, a, min);
-			for (int y = 0; y < trackMatrix.rows; y++)
+			bool ex = false;
+			for (int y = 0; y < rows; y+=yDiff)
 			{
-				for (int x = 0; x < trackMatrix.cols; x++)
+				for (int x = 0; x < cols; x+=xDiff)
 				{
-					Vec3b imgColor = imgOriginal.at<Vec3b>(Point(b+x, a+y));
-					Vec3b color = trackMatrix.at<Vec3b>(Point(x, y));
-					diff += abs(imgColor[0] - color[0]) + abs(imgColor[1] - color[1]) + abs(imgColor[2] - color[2]);
+					try {
+						Vec3b imgColor = imgOriginal.at<Vec3b>(Point(b + x, a + y));
+						Vec3b color = trackMatrix.at<Vec3b>(Point(x, y));
+						diff += abs(imgColor[0] - color[0]) + abs(imgColor[1] - color[1]) + abs(imgColor[2] - color[2]);
+					}
+					catch (Exception e) {
+						ex = true;
+					}
 				}
 			}
-			if (min == -1 || diff < min) {
+			if ((min == -1 || diff < min) && !ex) {
 				min = diff;
 				xTrackIndex = b;
 				yTrackIndex = a;
