@@ -16,6 +16,10 @@ Mat imgOriginal;
 Mat trackMatrix;
 int xIndex;
 int yIndex;
+
+int px = -1;
+int py = -1;
+
 void SaveState(int state, void*) {
 	trackMatrix = imgOriginal.adjustROI(highY, lowY, lowX, highX);
 	track = true;
@@ -25,7 +29,7 @@ void findObject() {
 	float min = -1;
 	int xTrackIndex = 0;
 	int yTrackIndex = 0;
-	int range = 5;
+	int range = (trackMatrix.rows + trackMatrix.cols) / 4;
 	int rows = trackMatrix.rows;
 	int cols = trackMatrix.cols;
 	int yDiff = rows/25;
@@ -53,7 +57,7 @@ void findObject() {
 					try {
 						Vec3b imgColor = imgOriginal.at<Vec3b>(Point(b + x, a + y));
 						Vec3b color = trackMatrix.at<Vec3b>(Point(x, y));
-						diff += abs(imgColor[0] - color[0]) + abs(imgColor[1] - color[1]) + abs(imgColor[2] - color[2]);
+						diff += abs(imgColor[0] - color[0])*4 + abs(imgColor[1] - color[1]) + abs(imgColor[2] - color[2]);
 					}
 					catch (Exception e) {
 						ex = true;
@@ -118,6 +122,8 @@ int main(int argc, char** argv)
 			trackMatrix = imgHSV(Rect(lowX, lowY, highX - lowX, highY - lowY));
 			xIndex = lowX;
 			yIndex = lowY;
+			px = lowX;
+			py = lowY;
 			track =true;
 		}
 		//cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
@@ -130,8 +136,17 @@ int main(int argc, char** argv)
 		Point high = Point(highX, highY);
 		if (track) {
 			findObject();
+			int dx = xIndex - px;
+			int dy = yIndex - py;
+			if (sqrt(pow(dx, 2) + pow(dy, 2)) > 1)
+			{
+				xIndex += (xIndex - px) / 2;
+				yIndex += (yIndex - py) / 2;
+			}
 			low = Point(xIndex, yIndex);
 			high = Point(xIndex + (highX - lowX), yIndex + (highY - lowY));
+			px = xIndex;
+			py = yIndex;
 		}
 		Mat rectImg;
 		imgOriginal.copyTo(rectImg);
