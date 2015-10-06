@@ -23,10 +23,16 @@ int num;
 Mat imgOriginal;
 Mat trackMatrix;
 
+int camWidth;
+int camHeight;
+
+Point low;
+Point high;
+
 /* I'm hardcoding this at 400. But you should make this a #define so that you can
 * change the number of features you use for an accuracy/speed tradeoff analysis.
 */
-static const int number_of_features = 100;
+static const int number_of_features = 200;
 
 inline static double square(int a)
 {
@@ -73,8 +79,10 @@ int main(void)
 
 	/* Set the default frame size. */
 	CvSize frame_size;
-	frame_size.height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
-	frame_size.width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+	camWidth = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+	camHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+	frame_size.width = camWidth;
+	frame_size.height = camHeight;
 
 	/* Make the tracking box control window */
 	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
@@ -135,9 +143,9 @@ int main(void)
 				fprintf(stderr, "Error: Hmm. The end came sooner than we thought.\n");
 				return -1;
 			}
-			image = image(Rect(lowX, lowY, highX - lowX, highY - lowY));
 
-			*frame = image;
+			*frame = image(Rect(low.x, low.y, high.x - low.x, high.y - low.y));
+
 			/* Allocate another image if not already allocated.
 			* Image has ONE challenge of color (ie: monochrome) with 8-bit "color" depth.
 			* This is the image format OpenCV algorithms actually operate on (mostly).
@@ -161,8 +169,7 @@ int main(void)
 				fprintf(stderr, "Error: Hmm. The end came sooner than we thought.\n");
 				return -1;
 			}
-			image = image(Rect(lowX, lowY, highX - lowX, highY - lowY));
-			*frame = image;
+			*frame = image(Rect(low.x, low.y, high.x - low.x, high.y - low.y));
 			allocateOnDemand(&frame2_1C, frame_size, IPL_DEPTH_8U, 1);
 			cvConvertImage(frame, frame2_1C, NULL);
 			/* Shi and Tomasi Feature Tracking! */
@@ -252,6 +259,9 @@ int main(void)
 				optical_flow_termination_criteria, 0);
 
 			/* For fun (and debugging :)), let's draw the flow field. */
+			CvPoint v;
+			v.x = 0;
+			v.y = 0;
 			for (int i = 0; i < number_of_features; i++)
 			{
 				/* If Pyramidal Lucas Kanade didn't really find the feature, skip it. */
@@ -286,6 +296,17 @@ int main(void)
 				* "0" means no fractional bits in the center cooridinate or radius.
 				*/
 				cvLine(frame1, p, q, line_color, line_thickness, CV_AA, 0);
+
+				int dx = q.x - p.x;
+				int dy = q.y - p.y;
+				int mag = sqrt(pow(dx, 2) + pow(dy, 2));
+				int highThresh = max(frame_size.height, frame_size.width);
+				if (mag > 8)
+				{
+					v.x += q.x - p.x;
+					v.y += q.y - p.y;
+				}
+
 				/* Now draw the tips of the arrow. I do some scaling so that the
 				* tips look proportional to the main line of the arrow.
 				*/
@@ -296,13 +317,44 @@ int main(void)
 				p.y = (int)(q.y + 9 * sin(angle - pi / 4));
 				cvLine(frame1, p, q, line_color, line_thickness, CV_AA, 0);
 			}
+
+			CvPoint center;
+			center.x = frame_size.width / 2;
+			center.y = frame_size.height / 2;
+
+			v.x = (v.x / number_of_features);
+			v.y = (v.y / number_of_features);
+
+			//if (sqrt(pow(v.x, 2) + pow(v.y, 2)) > 8)
+			//{
+				low.x += v.x * 2;
+				low.y += v.y * 2;
+
+				int lx = low.x + frame_size.width;
+				low.x = lx >= camWidth ? lx - 1 : low.x;
+				low.x = low.x < 0 ? 0 : low.x;
+
+				int ly = low.y + frame_size.height;
+				low.y = ly >= camHeight ? ly - 1 : low.y;
+				low.y = low.y < 0 ? 0 : low.y;
+
+				high.x = low.x + frame_size.width;
+				high.y = low.y + frame_size.height;
+			//}
+
+			v.x = v.x * 3 + center.x;
+			v.y = v.y * 3 + center.y;
+
+			cvLine(frame1, center, v, CV_RGB(0, 0, 200), 2, CV_AA, 0);
+
 			/* Now display the image we drew on. Recall that "Optical Flow" is the name of
 			* the window we created above.
 			*/
 			cvShowImage("Optical Flow", frame1);
 			Mat imgOriginal;
 			cap.read(imgOriginal);
-			imshow("Original", imgOriginal); //show the original image
+			cv::rectangle(imgOriginal, low, high, Scalar(0, 0, 255), 1, 8, 0);
+			imshow("Original Image", imgOriginal); //show the thresholded image
 			//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			
 			#pragma endregion
@@ -317,7 +369,9 @@ int main(void)
 				fprintf(stderr, "Error: Hmm. The end came sooner than we thought.\n");
 				return -1;
 			}
-			cv::rectangle(rectImg, Point(lowX, lowY), Point(highX, highY), Scalar(0, 0, 255), 1, 8, 0);
+			low = Point(lowX, lowY);
+			high = Point(highX, highY);
+			cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
 			imshow("Original Image", rectImg); //show the thresholded image
 		}
 		/* And wait for the user to press a key (so the user has time to look at the
