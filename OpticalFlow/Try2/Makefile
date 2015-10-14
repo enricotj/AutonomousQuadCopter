@@ -1,0 +1,1 @@
+all: libs = $pkg-config
