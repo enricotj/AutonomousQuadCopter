@@ -78,19 +78,20 @@ void findObject() {
 int main(int argc, char** argv)
 {
 	VideoCapture cap(0); //capture the video from web cam
-	lowX = 0;
-	highX = 500;
-	lowY = 0;
-	highY = 500;
+	lowX = 319 - 32;
+	highX = 319 + 32;
+	lowY = 239 - 32;
+	highY = 239 + 32;
 	track = false;
-	num = 0;
+	num = -200;
 	if (!cap.isOpened())  // if not success, exit program
 	{
 		cout << "Cannot open the web cam" << endl;
 		return -1;
 	}
 
-	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+
+	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
 	//Create trackbars in "Control" window
 	bool first = false;
@@ -104,6 +105,7 @@ int main(int argc, char** argv)
 			cout << "Cannot read a frame from video stream" << endl;
 			break;
 		}
+		/*
 		if (!first) {
 			cvCreateTrackbar("Low X", "Control", &lowX, imgOriginal.cols); //Hue (0 - 179)
 			cvCreateTrackbar("High x", "Control", &highX, imgOriginal.cols);
@@ -116,6 +118,7 @@ int main(int argc, char** argv)
 			//cvCreateButton("Track", SaveState, NULL, CV_PUSH_BUTTON, 1);
 			//createButton("Track", SaveState, NULL, 0, false);
 		}
+		*/
 		if (num == 1 && !track) {
 			Mat imgHSV;
 			imgOriginal.copyTo(imgHSV);
@@ -126,11 +129,14 @@ int main(int argc, char** argv)
 			py = lowY;
 			track =true;
 		}
+		else
+		{
+			num++;
+		}
 		//cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
-
 		
 
-		imshow("Original", imgOriginal); //show the original image
+		//imshow("Original", imgOriginal); //show the original image
 		
 		Point low = Point(lowX, lowY);
 		Point high = Point(highX, highY);
@@ -152,7 +158,7 @@ int main(int argc, char** argv)
 		imgOriginal.copyTo(rectImg);
 		cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
 		imshow("Rectangle Image", rectImg); //show the thresholded image
-		if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		{
 			cout << "esc key is pressed by user" << endl;
 			break;
