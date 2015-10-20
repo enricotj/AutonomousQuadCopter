@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 {
 	system("sudo modprobe bcm2835-v4l2");
 	system("sudo modprobe v4l2-common");
-	system("v4l2-ctl --overlay=1");
+	//system("v4l2-ctl --overlay=1");
 	VideoCapture cap(0); //capture the video from web cam
 	lowX = 319 - 32;
 	highX = 319 + 32;
@@ -95,7 +95,8 @@ int main(int argc, char** argv)
 
 
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
-	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
+	namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
+	
 	//Create trackbars in "Control" window
 	bool first = false;
 
