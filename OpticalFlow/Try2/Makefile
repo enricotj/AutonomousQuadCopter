@@ -1,0 +1,1 @@
+g++ Source.cpp -o optflow $(pkg-config opencv --cflags --libs)
