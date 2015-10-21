@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 	int i = 0;
 	while(true){
 		i++;
-		if(i>13000) break;
+		if(i>130000000) break;
 	}
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
@@ -180,6 +180,7 @@ int main(int argc, char** argv)
 		Mat rectImg;
 		imgOriginal.copyTo(rectImg);
 		cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
+		rectImg.convertTo(rectImg, CV_8UC3, 255.0);
 		imwrite("raspicam_cv_image.jpg", rectImg);
 		//imshow("Rectangle Image", rectImg); //show the thresholded image
 		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
