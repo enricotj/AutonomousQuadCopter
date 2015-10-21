@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 	//system("v4l2-ctl --overlay=1");
 	raspicam::RaspiCam_Cv Camera; //Cmaera object
 	// Open Camera
-	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC1);   
+	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);   
 	if (!Camera.open())
 	{
 		cout << "Cannot open the web cam" << endl;
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 		Mat rectImg;
 		imgOriginal.copyTo(rectImg);
 		cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
-		rectImg.convertTo(rectImg, CV_8UC3, 255.0);
+		//rectImg.convertTo(rectImg, CV_8UC3, 255.0);
 		imwrite("raspicam_cv_image.jpg", rectImg);
 		//imshow("Rectangle Image", rectImg); //show the thresholded image
 		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
