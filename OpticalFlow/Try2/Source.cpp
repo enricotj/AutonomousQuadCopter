@@ -83,6 +83,7 @@ int main(int argc, char** argv)
 	//system("v4l2-ctl --overlay=1");
 	raspicam::RaspiCam_Cv Camera; //Cmaera object
 	// Open Camera
+	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC1);   
 	if (!Camera.open())
 	{
 		cout << "Cannot open the web cam" << endl;
