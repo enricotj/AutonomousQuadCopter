@@ -5,6 +5,7 @@
 
 using namespace cv;
 using namespace std;
+using namespace raspicam;
 
 
 int lowX;
