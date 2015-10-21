@@ -104,7 +104,11 @@ int main(int argc, char** argv)
 	highY = 239 + 32;
 	track = false;
 	num = -200;
-	waitKey(3000);
+	int i = 0;
+	while(true){
+		i++;
+		if(i>13000) break;
+	}
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
 	
