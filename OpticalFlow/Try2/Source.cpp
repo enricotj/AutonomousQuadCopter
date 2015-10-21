@@ -95,6 +95,7 @@ int main(int argc, char** argv)
 	cout << "Cannot open the web cam" << endl;
 	return -1;
 	}
+
 	*/
 	lowX = 319 - 32;
 	highX = 319 + 32;
@@ -102,7 +103,7 @@ int main(int argc, char** argv)
 	highY = 239 + 32;
 	track = false;
 	num = -200;
-
+	waitKey(3000);
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
 	
