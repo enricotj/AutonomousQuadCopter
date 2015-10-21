@@ -182,6 +182,7 @@ int main(int argc, char** argv)
 			Camera.release();
 			break;
 		}
+		break;
 	}
 
 	return 0;
