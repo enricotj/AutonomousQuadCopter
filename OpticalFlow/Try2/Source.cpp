@@ -1,4 +1,5 @@
 #include <iostream>
+#include <raspicam/raspicam.h>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -77,22 +78,31 @@ void findObject() {
 }
 int main(int argc, char** argv)
 {
-	system("sudo modprobe bcm2835-v4l2");
-	system("sudo modprobe v4l2-common");
+	//system("sudo modprobe bcm2835-v4l2");
+	//system("sudo modprobe v4l2-common");
 	//system("v4l2-ctl --overlay=1");
-	VideoCapture cap(0); //capture the video from web cam
+
+	raspicam::RaspiCam Camera; //Cmaera object
+	// Open Camera
+	if (!Camera.open())
+	{
+		cout << "Cannot open the web cam" << endl;
+		return -1;
+	}
+
+	/*VideoCapture cap(0); //capture the video from web cam
+	if (!cap.isOpened())  // if not success, exit program
+	{
+	cout << "Cannot open the web cam" << endl;
+	return -1;
+	}
+	*/
 	lowX = 319 - 32;
 	highX = 319 + 32;
 	lowY = 239 - 32;
 	highY = 239 + 32;
 	track = false;
 	num = -200;
-	if (!cap.isOpened())  // if not success, exit program
-	{
-		cout << "Cannot open the web cam" << endl;
-		return -1;
-	}
-
 
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
@@ -102,13 +112,17 @@ int main(int argc, char** argv)
 
 	while (true)
 	{
-		bool bSuccess = cap.read(imgOriginal); // read a new frame from video
-
+		/*bool bSuccess = cap.read(imgOriginal); // read a new frame from video
 		if (!bSuccess) //if not success, break loop
 		{
 			cout << "Cannot read a frame from video stream" << endl;
 			break;
 		}
+		*/
+		
+		Camera.grab();
+		Camera.retrieve(imgOriginal);
+
 		/*
 		if (!first) {
 			cvCreateTrackbar("Low X", "Control", &lowX, imgOriginal.cols); //Hue (0 - 179)
@@ -161,10 +175,12 @@ int main(int argc, char** argv)
 		Mat rectImg;
 		imgOriginal.copyTo(rectImg);
 		cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
-		//imshow("Rectangle Image", rectImg); //show the thresholded image
+		imwrite("raspicam_cv_image.jpg", rectImg);
+		imshow("Rectangle Image", rectImg); //show the thresholded image
 		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		{
 			cout << "esc key is pressed by user" << endl;
+			Camera.release();
 			break;
 		}
 	}
