@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 	num = -200;
 
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
-	namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
+	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
 	
 	//Create trackbars in "Control" window
 	bool first = false;
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
 		imgOriginal.copyTo(rectImg);
 		cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
 		imwrite("raspicam_cv_image.jpg", rectImg);
-		imshow("Rectangle Image", rectImg); //show the thresholded image
+		//imshow("Rectangle Image", rectImg); //show the thresholded image
 		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		{
 			cout << "esc key is pressed by user" << endl;
