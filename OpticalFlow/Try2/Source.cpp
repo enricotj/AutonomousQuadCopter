@@ -1,11 +1,10 @@
 #include <iostream>
-#include <raspicam/raspicam.h>
+#include <raspicam/raspicam_cv.h>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
 using namespace cv;
 using namespace std;
-using namespace raspicam;
 
 
 int lowX;
@@ -82,8 +81,7 @@ int main(int argc, char** argv)
 	//system("sudo modprobe bcm2835-v4l2");
 	//system("sudo modprobe v4l2-common");
 	//system("v4l2-ctl --overlay=1");
-
-	raspicam::RaspiCam Camera; //Cmaera object
+	raspicam::RaspiCam_Cv Camera; //Cmaera object
 	// Open Camera
 	if (!Camera.open())
 	{
