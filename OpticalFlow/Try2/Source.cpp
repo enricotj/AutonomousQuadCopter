@@ -116,7 +116,7 @@ void findObject() {
 }
 int main(int argc, char** argv)
 {
-	wiringPiSetup();
+/*	wiringPiSetup();
 	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 
 	for (int i = 0; i<25; i++)
@@ -134,13 +134,15 @@ int main(int argc, char** argv)
 	}
 
 	delay(5000);
-
+*/
 	//system("sudo modprobe bcm2835-v4l2");
 	//system("sudo modprobe v4l2-common");
 	//system("v4l2-ctl --overlay=1");
 	raspicam::RaspiCam_Cv Camera; //Cmaera object
 	// Open Camera
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);   
+Camera.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 	if (!Camera.open())
 	{
 		cout << "Cannot open the web cam" << endl;
@@ -167,7 +169,7 @@ int main(int argc, char** argv)
 		if(i>13000000) break;
 	}
 
-	VideoWriter video("out.avi",CV_FOURCC('M','J','P','G'),10,Size(1280,960),true);
+	VideoWriter video("out.avi",CV_FOURCC('M','J','P','G'),10,Size(640,480),true);
 
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
