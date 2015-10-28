@@ -13,7 +13,7 @@ LDFLAGS += `pkg-config --libs opencv`
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv
+	$(CC) $(OBJECTS) -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv -lwiringPi
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
