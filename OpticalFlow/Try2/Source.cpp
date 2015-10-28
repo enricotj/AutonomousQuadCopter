@@ -52,6 +52,8 @@ Mat trackMatrix;
 int xIndex;
 int yIndex;
 
+vector<Mat> frames;
+
 int px = -1;
 int py = -1;
 
@@ -130,9 +132,6 @@ int main(int argc, char** argv)
 	{
 		moveServo(0);
 	}
-
-
-	
 
 	delay(5000);
 
@@ -242,8 +241,9 @@ int main(int argc, char** argv)
 		imgOriginal.copyTo(rectImg);
 		cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
 		//rectImg.convertTo(rectImg, CV_8UC3, 255.0);
-		imwrite("raspicam_cv_image.jpg", rectImg);
-		video.write(rectImg);
+		frames.push_back(rectImg);
+		//imwrite("raspicam_cv_image.jpg", rectImg);
+		//video.write(rectImg);
 		//imshow("Rectangle Image", rectImg); //show the thresholded image
 		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		{
@@ -253,6 +253,12 @@ int main(int argc, char** argv)
 		}
 		i++;
 	}
+
+	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
+	{
+		video.write(*it);
+	}
+
 	Camera.release();
 	return 0;
 
