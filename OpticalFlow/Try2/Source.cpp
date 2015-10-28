@@ -2,10 +2,40 @@
 #include <raspicam/raspicam_cv.h>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include "WiringPi-master/wiringPi/wiringPi.h"
+#include "WiringPi-master/wiringPi/softServo.h"
 
 using namespace cv;
 using namespace std;
 
+void moveServo(int rot)
+{
+	switch (rot)
+	{
+		// move left
+		case -1:
+			softServoWrite(0, 300);
+			delay(50);
+			softServoWrite(0, 425);
+			break;
+		// stop
+		case 0:
+			softServoWrite(0, 425);
+			delay(50);
+			break;
+		// move right
+		case 1:
+			softServoWrite(0, 700);
+			delay(50);
+			softServoWrite(0, 425);
+			break;
+		// stop
+		default:
+			softServoWrite(0, 425);
+			delay(50);
+			break;
+	}
+}
 
 int lowX;
 int highX;
@@ -20,6 +50,8 @@ int yIndex;
 
 int px = -1;
 int py = -1;
+
+
 
 void SaveState(int state, void*) {
 	trackMatrix = imgOriginal.adjustROI(highY, lowY, lowX, highX);
@@ -78,6 +110,20 @@ void findObject() {
 }
 int main(int argc, char** argv)
 {
+	wiringPiSetup();
+	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+
+	for (int i = 0; i<5; i++)
+	{
+		moveServo(-1);
+	}
+
+	moveServo(1);
+	moveServo(-1);
+	moveServo(1);
+
+	delay(5000);
+
 	//system("sudo modprobe bcm2835-v4l2");
 	//system("sudo modprobe v4l2-common");
 	//system("v4l2-ctl --overlay=1");
