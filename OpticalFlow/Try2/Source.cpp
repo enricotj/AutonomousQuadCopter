@@ -2,6 +2,7 @@
 #include <raspicam/raspicam_cv.h>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <raspicam/raspicam.h>
 
 using namespace cv;
 using namespace std;
@@ -107,15 +108,18 @@ int main(int argc, char** argv)
 	int i = 0;
 	while(true){
 		i++;
-		if(i>130000000) break;
+		if(i>13000000) break;
 	}
+
+	VideoWriter video("out.avi",CV_FOURCC('M','J','P','G'),10,Size(1280,960),true);
+
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
 	
 	//Create trackbars in "Control" window
 	bool first = false;
-
-	while (true)
+	i =0;
+	while (i<20)
 	{
 		/*bool bSuccess = cap.read(imgOriginal); // read a new frame from video
 		if (!bSuccess) //if not success, break loop
@@ -182,6 +186,7 @@ int main(int argc, char** argv)
 		cv::rectangle(rectImg, low, high, Scalar(0, 0, 255), 1, 8, 0);
 		//rectImg.convertTo(rectImg, CV_8UC3, 255.0);
 		imwrite("raspicam_cv_image.jpg", rectImg);
+		video.write(rectImg);
 		//imshow("Rectangle Image", rectImg); //show the thresholded image
 		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		{
@@ -189,9 +194,9 @@ int main(int argc, char** argv)
 			Camera.release();
 			break;
 		}
-		break;
+		i++;
 	}
-
+	Camera.release();
 	return 0;
 
 }
