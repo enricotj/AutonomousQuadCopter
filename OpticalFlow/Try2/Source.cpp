@@ -162,7 +162,7 @@ Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 	lowY = 239 - 32;
 	highY = 239 + 32;
 	track = false;
-	num = -200;
+	num = 1;
 	int i = 0;
 	while(true){
 		i++;
@@ -213,10 +213,6 @@ Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 			px = lowX;
 			py = lowY;
 			track =true;
-		}
-		else
-		{
-			num++;
 		}
 		//cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
 		
