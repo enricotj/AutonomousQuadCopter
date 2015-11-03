@@ -22,7 +22,7 @@ void moveServo(int rot)
 			break;
 		// stop
 		case 0:
-			softServoWrite(0, 500);
+			softServoWrite(0, 400);
 			break;
 		// move right
 		case 1:
@@ -30,7 +30,7 @@ void moveServo(int rot)
 			break;
 		// stop
 		default:
-			softServoWrite(0, 500);
+			softServoWrite(0, 400);
 			break;
 	}
 }
@@ -106,10 +106,10 @@ void findObject() {
 		
 	}
 	
-	if(xTrackIndex < xIndex) {
+	if(xTrackIndex <= xIndex - range + 1) {
 		moveServo(1);
 		cout<<"move right"<<endl;
-	} else if (xTrackIndex == xIndex) {
+	} else if (xTrackIndex < xIndex + range - 1) {
 		moveServo(0);
 		cout<<"stop"<<endl;	
 	}else{
