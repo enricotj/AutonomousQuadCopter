@@ -20,8 +20,7 @@ Mat image;
 
 bool backprojMode = false;
 bool selectObject = false;
-int trackObject = 0;
-bool showHist = true;
+int trackObject = -1;
 Point origin;
 Rect selection;
 int vmin = 10, vmax = 256, smin = 30;
@@ -29,7 +28,7 @@ int vmin = 10, vmax = 256, smin = 30;
 using namespace cv;
 using namespace std;
 
-void moveServo(int rot)
+/*void moveServo(int rot)
 {
 	switch (rot)
 	{
@@ -51,7 +50,7 @@ void moveServo(int rot)
 		break;
 	}
 }
-
+*/
 int lowX;
 int highX;
 int lowY;
@@ -59,14 +58,15 @@ int highY;
 vector<Mat> frames;
 int main(int argc, char** argv)
 {
-	wiringPiSetup();
-	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+	//wiringPiSetup();
+	//softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 
 	raspicam::RaspiCam_Cv Camera; //Cmaera object
 	// Open Camera
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, 640);
 	Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+	namedWindow("Test", 0);
 	if (!Camera.open())
 	{
 		cout << "Cannot open the web cam" << endl;
@@ -76,12 +76,7 @@ int main(int argc, char** argv)
 	highX = 319 + 32;
 	lowY = 239 - 32;
 	highY = 239 + 32;
-	selection.x = MIN(highX, lowX);
-	selection.y = MIN(highY, lowY);
-	selection.width = std::abs(highX - lowX);
-	selection.height = std::abs(highY - lowY);
-
-	selection &= Rect(0, 0, image.cols, image.rows);
+	
 	Rect trackWindow;
 	int hsize = 16;
 	float hranges[] = { 0, 180 };
@@ -91,7 +86,7 @@ int main(int argc, char** argv)
 		i++;
 		if (i > 13000000) break;
 	}
-	Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(200, 320, CV_8UC3), backproj;
+	Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(640, 480, CV_8UC3), backproj;
 	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(640, 480), true);
 
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
@@ -112,7 +107,13 @@ int main(int argc, char** argv)
 		Camera.grab();
 		Camera.retrieve(image);
 		cvtColor(image, hsv, COLOR_BGR2HSV);
+		frames.push_back(image);
+		selection.x = MIN(highX, lowX);
+		selection.y = MIN(highY, lowY);
+		selection.width = std::abs(highX - lowX);
+		selection.height = std::abs(highY - lowY);
 
+		selection &= Rect(0, 0, image.cols, image.rows);
 		int _vmin = vmin, _vmax = vmax;
 
 		inRange(hsv, Scalar(0, smin, MIN(_vmin, _vmax)),
@@ -157,12 +158,10 @@ int main(int argc, char** argv)
 				trackWindow.x + r, trackWindow.y + r) &
 				Rect(0, 0, cols, rows);
 		}
-
-		if (backprojMode)
-			cvtColor(backproj, image, COLOR_GRAY2BGR);
+		//Mat showingImage;
 		ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
-		//cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
-
+		//cvtColor(image, showingImage, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
+		
 
 		frames.push_back(image);
 		i++;
@@ -174,7 +173,7 @@ int main(int argc, char** argv)
 		video.write(*it);
 	}
 
-	//Camera.release();
+	Camera.release();
 	return 0;
 
 }
