@@ -1,9 +1,9 @@
 #include <iostream>
-//#include <raspicam/raspicam_cv.h>
+#include <raspicam/raspicam_cv.h>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-//#include <raspicam/raspicam.h>
+#include <raspicam/raspicam.h>
 
 #include "WiringPi-master/wiringPi/wiringPi.h"
 #include "WiringPi-master/wiringPi/softServo.h"
