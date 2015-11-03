@@ -18,8 +18,6 @@ using namespace std;
 
 Mat image;
 
-bool backprojMode = false;
-bool selectObject = false;
 int trackObject = -1;
 Point origin;
 Rect selection;
@@ -103,9 +101,10 @@ int main(int argc, char** argv)
 		break;
 		}
 		*/
-
+		Mat frame;
 		Camera.grab();
-		Camera.retrieve(image);
+		Camera.retrieve(frame);
+		frame.copyTo(image);
 		cvtColor(image, hsv, COLOR_BGR2HSV);
 
 		selection.x = MIN(highX, lowX);
@@ -165,11 +164,6 @@ int main(int argc, char** argv)
 
 		frames.push_back(image);
 		i++;
-		if (selectObject && selection.width > 0 && selection.height > 0)
-		{
-			Mat roi(image, selection);
-			bitwise_not(roi, roi);
-		}
 		cout << "loop" << endl;
 	}
 
