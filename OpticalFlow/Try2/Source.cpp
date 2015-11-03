@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, 640);
 	Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
-	namedWindow("Test", 0);
+	
 	if (!Camera.open())
 	{
 		cout << "Cannot open the web cam" << endl;
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 		Camera.grab();
 		Camera.retrieve(image);
 		cvtColor(image, hsv, COLOR_BGR2HSV);
-		frames.push_back(image);
+
 		selection.x = MIN(highX, lowX);
 		selection.y = MIN(highY, lowY);
 		selection.width = std::abs(highX - lowX);
@@ -165,6 +165,11 @@ int main(int argc, char** argv)
 
 		frames.push_back(image);
 		i++;
+		if (selectObject && selection.width > 0 && selection.height > 0)
+		{
+			Mat roi(image, selection);
+			bitwise_not(roi, roi);
+		}
 		cout << "loop" << endl;
 	}
 
