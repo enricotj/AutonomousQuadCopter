@@ -18,25 +18,19 @@ void moveServo(int rot)
 	{
 		// move left
 		case -1:
-			softServoWrite(0, 300);
-			delay(50);
-			softServoWrite(0, 425);
+			softServoWrite(0, 0);
 			break;
 		// stop
 		case 0:
-			softServoWrite(0, 425);
-			delay(50);
+			softServoWrite(0, 500);
 			break;
 		// move right
 		case 1:
-			softServoWrite(0, 700);
-			delay(50);
-			softServoWrite(0, 425);
+			softServoWrite(0, 1000);
 			break;
 		// stop
 		default:
-			softServoWrite(0, 425);
-			delay(50);
+			softServoWrite(0, 500);
 			break;
 	}
 }
@@ -68,11 +62,11 @@ void findObject() {
 	float min = -1;
 	int xTrackIndex = 0;
 	int yTrackIndex = 0;
-	int range = (trackMatrix.rows + trackMatrix.cols) / 4;
+	int range = 5; //(trackMatrix.rows + trackMatrix.cols) / 4;
 	int rows = trackMatrix.rows;
 	int cols = trackMatrix.cols;
-	int yDiff = rows/25;
-	int xDiff = cols/25;
+	int yDiff = rows/50;
+	int xDiff = cols/50;
 	for (int a = yIndex - range; a < yIndex + range; a++) {
 		/*if ((a + rows) >= highY){
 			break;
@@ -111,14 +105,25 @@ void findObject() {
 		}
 		
 	}
-	xIndex = xTrackIndex;
+	
+	if(xTrackIndex < xIndex) {
+		moveServo(1);
+		cout<<"move right"<<endl;
+	} else if (xTrackIndex == xIndex) {
+		moveServo(0);
+		cout<<"stop"<<endl;	
+	}else{
+		moveServo(-1);
+		cout<<"move left"<<endl;	
+	}
+
 	yIndex = yTrackIndex;
 }
 int main(int argc, char** argv)
 {
-/*	wiringPiSetup();
+	wiringPiSetup();
 	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
-
+/*
 	for (int i = 0; i<25; i++)
 	{
 		moveServo(-1);
@@ -169,7 +174,7 @@ Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 		if(i>13000000) break;
 	}
 
-	VideoWriter video("out.avi",CV_FOURCC('M','J','P','G'),10,Size(640,480),true);
+	VideoWriter video("out.avi",CV_FOURCC('M','J','P','G'),24,Size(640,480),true);
 
 	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	//namedWindow("Rectangle Image", CV_WINDOW_KEEPRATIO);
@@ -177,7 +182,7 @@ Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 	//Create trackbars in "Control" window
 	bool first = false;
 	i =0;
-	while (i<20)
+	while (i<100)
 	{
 		/*bool bSuccess = cap.read(imgOriginal); // read a new frame from video
 		if (!bSuccess) //if not success, break loop
@@ -243,13 +248,14 @@ Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 		//imwrite("raspicam_cv_image.jpg", rectImg);
 		//video.write(rectImg);
 		//imshow("Rectangle Image", rectImg); //show the thresholded image
-		if (waitKey(10) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
-		{
-			cout << "esc key is pressed by user" << endl;
-			Camera.release();
-			break;
-		}
+	
+
+
+
+
+
 		i++;
+		cout <<"loop"<<endl;
 	}
 
 	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
