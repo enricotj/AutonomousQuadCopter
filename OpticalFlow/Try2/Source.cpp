@@ -4,6 +4,10 @@
 #include "opencv2/videoio.hpp"
 #include "opencv2/highgui.hpp"
 
+/*#include <raspicam/raspicam.h>
+#include <raspicam/raspicam_cv.h>
+#include "WiringPi-master/wiringPi/wiringPi.h"
+#include "WiringPi-master/wiringPi/softServo.h"*/
 #include <iostream>
 #include <ctype.h>
 
@@ -19,7 +23,33 @@ bool showHist = true;
 Point origin;
 Rect selection;
 int vmin = 10, vmax = 256, smin = 30;
+int frameMax = 100;
 
+vector<Mat> frames;
+/*
+void moveServo(int rot)
+{
+	switch (rot)
+	{
+		// move left
+	case -1:
+		softServoWrite(0, 0);
+		break;
+		// stop
+	case 0:
+		softServoWrite(0, 400);
+		break;
+		// move right
+	case 1:
+		softServoWrite(0, 1000);
+		break;
+		// stop
+	default:
+		softServoWrite(0, 400);
+		break;
+	}
+}
+*/
 static void onMouse(int event, int x, int y)
 {
 	if (selectObject)
@@ -46,33 +76,48 @@ static void onMouse(int event, int x, int y)
 		break;
 	}
 }
-
 int main(int argc, const char** argv)
 {
-
-	VideoCapture cap;
+	//wiringPiSetup();
+	//softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 	Rect trackWindow;
 	int hsize = 16;
 	float hranges[] = { 0, 180 };
 	const float* phranges = hranges;
 	int camNum = 0;
 	int i = 0;
-	cap.open(camNum);
 
+	VideoCapture cap;
+	cap.open(camNum);
+	
 	if (!cap.isOpened())
 	{
 		cout << "***Could not initialize capturing...***\n";
 		cout << "Current parameter's value: \n";
 		return -1;
 	}
-
+	/*raspicam::RaspiCam_Cv Camera; //Cmaera object
+	// Open Camera
+	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
+	Camera.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+	Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+	if (!Camera.open())
+	{
+	cout << "Cannot open the web cam" << endl;
+	return -1;
+	}
+	*/
 	Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(200, 320, CV_8UC3), backproj;
 	bool paused = false;
-
-	for (;;)
+	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(640, 480), true);
+	int frameCounter = 0;
+	while (frameCounter < frameMax)
 	{
+		frameCounter++;
 		if (!paused)
 		{
+			/*Camera.grab();
+			Camera.retrieve(frame);*/
 			cap >> frame;
 			if (frame.empty())
 				break;
@@ -140,7 +185,9 @@ int main(int argc, const char** argv)
 			paused = false;
 
 		imshow("Track", image);
-
+		Mat temp;
+		image.copyTo(temp);
+		frames.push_back(temp);
 		char c = (char)waitKey(10);
 		//printf("Selection x: %d, y: %d, width: %d, height: %d\n", selection.x, selection.y, selection.width, selection.height);
 		//printf("TrackWind x: %d, y: %d, width: %d, height: %d\n", trackWindow.x, trackWindow.y, trackWindow.width, trackWindow.height);
@@ -154,5 +201,11 @@ int main(int argc, const char** argv)
 		}
 	}
 
+	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
+	{
+		video.write(*it);
+	}
+
+	//Camera.release();
 	return 0;
 }
