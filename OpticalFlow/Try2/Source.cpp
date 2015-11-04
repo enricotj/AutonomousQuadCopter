@@ -97,11 +97,11 @@ void aimServoTowards(Point p)
 	cout<<"x :" << p.x << endl;
 	if (p.x > cx + SERVO_AIM_THRESH)
 	{
-		moveServo(SERVO_RIGHT);
+		moveServo(SERVO_LEFT);
 	}
 	else if (p.x < cx - SERVO_AIM_THRESH)
 	{
-		moveServo(SERVO_LEFT);
+		moveServo(SERVO_RIGHT);
 	}
 	else
 	{
