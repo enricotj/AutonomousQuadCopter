@@ -4,10 +4,10 @@
 #include "opencv2/videoio.hpp"
 #include "opencv2/highgui.hpp"
 
-/*#include <raspicam/raspicam.h>
+#include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
 #include "WiringPi-master/wiringPi/wiringPi.h"
-#include "WiringPi-master/wiringPi/softServo.h"*/
+#include "WiringPi-master/wiringPi/softServo.h"
 #include <iostream>
 #include <ctype.h>
 
@@ -78,8 +78,8 @@ static void onMouse(int event, int x, int y)
 }
 int main(int argc, const char** argv)
 {
-	//wiringPiSetup();
-	//softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+	wiringPiSetup();
+	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 	Rect trackWindow;
 	int hsize = 16;
 	float hranges[] = { 0, 180 };
@@ -87,7 +87,7 @@ int main(int argc, const char** argv)
 	int camNum = 0;
 	int i = 0;
 
-	VideoCapture cap;
+	/*VideoCapture cap;
 	cap.open(camNum);
 	
 	if (!cap.isOpened())
@@ -96,7 +96,8 @@ int main(int argc, const char** argv)
 		cout << "Current parameter's value: \n";
 		return -1;
 	}
-	/*raspicam::RaspiCam_Cv Camera; //Cmaera object
+	*/
+	raspicam::RaspiCam_Cv Camera; //Cmaera object
 	// Open Camera
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, 640);
@@ -106,7 +107,7 @@ int main(int argc, const char** argv)
 	cout << "Cannot open the web cam" << endl;
 	return -1;
 	}
-	*/
+	
 	Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(200, 320, CV_8UC3), backproj;
 	bool paused = false;
 	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(640, 480), true);
@@ -116,11 +117,11 @@ int main(int argc, const char** argv)
 		frameCounter++;
 		if (!paused)
 		{
-			/*Camera.grab();
-			Camera.retrieve(frame);*/
-			cap >> frame;
+			Camera.grab();
+			Camera.retrieve(frame);
+			/*cap >> frame;
 			if (frame.empty())
-				break;
+				break;*/
 		}
 
 		frame.copyTo(image);
@@ -184,7 +185,7 @@ int main(int argc, const char** argv)
 		else if (trackObject < 0)
 			paused = false;
 
-		imshow("Track", image);
+		//imshow("Track", image);
 		Mat temp;
 		image.copyTo(temp);
 		frames.push_back(temp);
@@ -194,9 +195,9 @@ int main(int argc, const char** argv)
 		if (i < 2) {
 			waitKey(200);
 			if (i == 0) 
-			onMouse(1, 100, 50);
+			onMouse(1, 295, 215);
 			if (i==1)
-			onMouse(4, 300, 300);
+			onMouse(4, 345, 265);
 			i++;
 		}
 	}
@@ -206,6 +207,6 @@ int main(int argc, const char** argv)
 		video.write(*it);
 	}
 
-	//Camera.release();
+	Camera.release();
 	return 0;
 }
