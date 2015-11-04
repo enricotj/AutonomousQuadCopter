@@ -30,8 +30,8 @@ vector<Mat> frames;
 const int CAM_W = 640;
 const int CAM_H = 480;
 
-const int SERVO_LEFT = -1;
-const int SERVO_RIGHT = 1;
+const int SERVO_LEFT = 1;
+const int SERVO_RIGHT = -1;
 const int SERVO_STOP = 0;
 const int SERVO_AIM_THRESH = 32;
 
@@ -56,6 +56,9 @@ void moveServo(int rot)
 		softServoWrite(0, 400);
 		break;
 	}
+	cout<<"direction : " << rot << endl;
+	delay(20);
+	softServoWrite(0, 400);
 }
 
 const int SELECTION_EVENT_A = 0;
@@ -91,13 +94,12 @@ void initSelection(int event, int x, int y)
 void aimServoTowards(Point p)
 {
 	int cx = CAM_W / 2;
-	int dx = p.x - cx;
-
-	if (dx > cx + SERVO_AIM_THRESH)
+	cout<<"x :" << p.x << endl;
+	if (p.x > cx + SERVO_AIM_THRESH)
 	{
 		moveServo(SERVO_RIGHT);
 	}
-	else if (dx < cx - SERVO_AIM_THRESH)
+	else if (p.x < cx - SERVO_AIM_THRESH)
 	{
 		moveServo(SERVO_LEFT);
 	}
@@ -118,6 +120,8 @@ int main(int argc, const char** argv)
 	const float* phranges = hranges;
 	int camNum = 0;
 	int i = 0;
+	
+	moveServo(SERVO_STOP);
 
 	/*VideoCapture cap;
 	cap.open(camNum);
@@ -225,7 +229,7 @@ int main(int argc, const char** argv)
 		Mat temp;
 		image.copyTo(temp);
 		frames.push_back(temp);
-		char c = (char)waitKey(10);
+		//char c = (char)waitKey(10);
 		//printf("Selection x: %d, y: %d, width: %d, height: %d\n", selection.x, selection.y, selection.width, selection.height);
 		//printf("TrackWind x: %d, y: %d, width: %d, height: %d\n", trackWindow.x, trackWindow.y, trackWindow.width, trackWindow.height);
 		if (i < 2) {
@@ -237,10 +241,11 @@ int main(int argc, const char** argv)
 			i++;
 		}
 
-		if (c == 'q')
+		/*if (c == 'q')
+
 		{
 			break;
-		}
+		}*/
 	}
 
 	moveServo(SERVO_STOP);
