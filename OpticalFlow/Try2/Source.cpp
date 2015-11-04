@@ -30,10 +30,10 @@ vector<Mat> frames;
 const int CAM_W = 640;
 const int CAM_H = 480;
 
-const int SERVO_LEFT = 1;
-const int SERVO_RIGHT = -1;
+const int SERVO_LEFT = -1;
+const int SERVO_RIGHT = 1;
 const int SERVO_STOP = 0;
-const int SERVO_AIM_THRESH = 32;
+const int SERVO_AIM_THRESH = 100;
 
 void moveServo(int rot)
 {
