@@ -109,6 +109,7 @@ void aimServoTowards(Point p)
 
 int main(int argc, const char** argv)
 {
+
 	wiringPiSetup();
 	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 	Rect trackWindow;
@@ -135,13 +136,15 @@ int main(int argc, const char** argv)
 	Camera.set(CV_CAP_PROP_FRAME_HEIGHT, CAM_H);
 	if (!Camera.open())
 	{
-	cout << "Cannot open the web cam" << endl;
-	return -1;
+		cout << "Cannot open the web cam" << endl;
+		return -1;
 	}
 	
+	moveServo(SERVO_STOP);
+
 	Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(200, 320, CV_8UC3), backproj;
 	bool paused = false;
-	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(640, 480), true);
+	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
 	int frameCounter = 0;
 	while (frameCounter < frameMax)
 	{
@@ -233,7 +236,14 @@ int main(int argc, const char** argv)
 				initSelection(i, 345, 265);
 			i++;
 		}
+
+		if (c == 'q')
+		{
+			break;
+		}
 	}
+
+	moveServo(SERVO_STOP);
 
 	Camera.release();
 
