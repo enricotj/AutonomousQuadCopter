@@ -26,21 +26,29 @@ int vmin = 10, vmax = 256, smin = 30;
 int frameMax = 100;
 
 vector<Mat> frames;
-/*
+
+const int CAM_W = 640;
+const int CAM_H = 480;
+
+const int SERVO_LEFT = -1;
+const int SERVO_RIGHT = 1;
+const int SERVO_STOP = 0;
+const int SERVO_AIM_THRESH = 32;
+
 void moveServo(int rot)
 {
 	switch (rot)
 	{
 		// move left
-	case -1:
+	case SERVO_LEFT:
 		softServoWrite(0, 0);
 		break;
 		// stop
-	case 0:
+	case SERVO_STOP:
 		softServoWrite(0, 400);
 		break;
 		// move right
-	case 1:
+	case SERVO_RIGHT:
 		softServoWrite(0, 1000);
 		break;
 		// stop
@@ -49,8 +57,11 @@ void moveServo(int rot)
 		break;
 	}
 }
-*/
-static void onMouse(int event, int x, int y)
+
+const int SELECTION_EVENT_A = 0;
+const int SELECTION_EVENT_B = 1;
+
+void initSelection(int event, int x, int y)
 {
 	if (selectObject)
 	{
@@ -64,18 +75,38 @@ static void onMouse(int event, int x, int y)
 
 	switch (event)
 	{
-	case EVENT_LBUTTONDOWN:
+	case SELECTION_EVENT_A:
 		origin = Point(x, y);
 		selection = Rect(x, y, 0, 0);
 		selectObject = true;
 		break;
-	case EVENT_LBUTTONUP:
+	case SELECTION_EVENT_B:
 		selectObject = false;
 		if (selection.width > 0 && selection.height > 0)
 			trackObject = -1;
 		break;
 	}
 }
+
+void aimServoTowards(Point p)
+{
+	int cx = CAM_W / 2;
+	int dx = p.x - cx;
+
+	if (dx > cx + SERVO_AIM_THRESH)
+	{
+		moveServo(SERVO_RIGHT);
+	}
+	else if (dx < cx - SERVO_AIM_THRESH)
+	{
+		moveServo(SERVO_LEFT);
+	}
+	else
+	{
+		moveServo(SERVO_STOP);
+	}
+}
+
 int main(int argc, const char** argv)
 {
 	wiringPiSetup();
@@ -100,8 +131,8 @@ int main(int argc, const char** argv)
 	raspicam::RaspiCam_Cv Camera; //Cmaera object
 	// Open Camera
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
-	Camera.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-	Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+	Camera.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
+	Camera.set(CV_CAP_PROP_FRAME_HEIGHT, CAM_H);
 	if (!Camera.open())
 	{
 	cout << "Cannot open the web cam" << endl;
@@ -180,6 +211,8 @@ int main(int argc, const char** argv)
 				if (backprojMode)
 					cvtColor(backproj, image, COLOR_GRAY2BGR);
 				ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
+
+				aimServoTowards(trackBox.center);
 			}
 		}
 		else if (trackObject < 0)
@@ -195,18 +228,19 @@ int main(int argc, const char** argv)
 		if (i < 2) {
 			waitKey(200);
 			if (i == 0) 
-			onMouse(1, 295, 215);
+				initSelection(i, 295, 215);
 			if (i==1)
-			onMouse(4, 345, 265);
+				initSelection(i, 345, 265);
 			i++;
 		}
 	}
+
+	Camera.release();
 
 	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
 	{
 		video.write(*it);
 	}
 
-	Camera.release();
 	return 0;
 }
