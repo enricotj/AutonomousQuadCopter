@@ -7,8 +7,8 @@
 //#include <thread>
 #include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
-#include "wiringPi-d795066/wiringPi/wiringPi.h"
-#include "wiringPi-d795066/wiringPi/softServo.h"
+#include "wiringPi/wiringPi/wiringPi.h"
+#include "wiringPi/wiringPi/softServo.h"
 #include <iostream>
 #include <ctype.h>
 
