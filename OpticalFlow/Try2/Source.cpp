@@ -4,10 +4,11 @@
 #include "opencv2/videoio.hpp"
 #include "opencv2/highgui.hpp"
 
+//#include <thread>
 #include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
-#include "WiringPi-master/wiringPi/wiringPi.h"
-#include "WiringPi-master/wiringPi/softServo.h"
+#include "wiringPi-d795066/wiringPi/wiringPi.h"
+#include "wiringPi-d795066/wiringPi/softServo.h"
 #include <iostream>
 #include <ctype.h>
 
@@ -33,7 +34,7 @@ const int CAM_H = 480;
 const int SERVO_LEFT = -1;
 const int SERVO_RIGHT = 1;
 const int SERVO_STOP = 0;
-const int SERVO_AIM_THRESH = 100;
+const int SERVO_AIM_THRESH = 75;
 
 void moveServo(int rot)
 {
@@ -41,7 +42,7 @@ void moveServo(int rot)
 	{
 		// move left
 	case SERVO_LEFT:
-		softServoWrite(0, 0);
+		softServoWrite(0, 345);
 		break;
 		// stop
 	case SERVO_STOP:
@@ -49,16 +50,15 @@ void moveServo(int rot)
 		break;
 		// move right
 	case SERVO_RIGHT:
-		softServoWrite(0, 1000);
+		softServoWrite(0, 440);
 		break;
 		// stop
 	default:
 		softServoWrite(0, 400);
 		break;
 	}
-	cout<<"direction : " << rot << endl;
-	delay(20);
-	softServoWrite(0, 400);
+	delay(10);
+	//softServoWrite(0, 400);
 }
 
 const int SELECTION_EVENT_A = 0;
