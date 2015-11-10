@@ -34,27 +34,31 @@ const int CAM_H = 480;
 const int SERVO_LEFT = -1;
 const int SERVO_RIGHT = 1;
 const int SERVO_STOP = 0;
-const int SERVO_AIM_THRESH = 75;
+const int SERVO_AIM_THRESH = 60;
+int prevRot = 99999;
 
 void moveServo(int rot)
 {
+	if(prevRot==rot) return;
+	prevRot = rot;
+	cout << "turn: " << rot << endl;
 	switch (rot)
 	{
 		// move left
 	case SERVO_LEFT:
-		softServoWrite(0, 345);
+		softServoWrite(0, 375);
 		break;
 		// stop
 	case SERVO_STOP:
-		softServoWrite(0, 400);
+		softServoWrite(0, 425);
 		break;
 		// move right
 	case SERVO_RIGHT:
-		softServoWrite(0, 440);
+		softServoWrite(0, 475);
 		break;
 		// stop
 	default:
-		softServoWrite(0, 400);
+		softServoWrite(0, 425);
 		break;
 	}
 	delay(10);
@@ -91,6 +95,14 @@ void initSelection(int event, int x, int y)
 	}
 }
 
+void servoTest(){
+	int i = 0;
+	while(i<10){
+		moveServo(SERVO_STOP);
+		i++;
+	}
+}
+
 void aimServoTowards(Point p)
 {
 	int cx = CAM_W / 2;
@@ -123,6 +135,7 @@ int main(int argc, const char** argv)
 	
 	moveServo(SERVO_STOP);
 
+//	servoTest();
 	/*VideoCapture cap;
 	cap.open(camNum);
 	
