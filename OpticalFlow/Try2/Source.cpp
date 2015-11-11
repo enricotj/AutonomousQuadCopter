@@ -216,7 +216,7 @@ int main(int argc, const char** argv)
 
 	//cap.release();
 	Camera.release();
-
+	imwrite("firstFrame.jpg", frames.front());
 	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
 	{
 		video.write(*it);
