@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -c -Wall
+CFLAGS = -c -Wall -pthread
 LDFLAGS =
 
 SOURCES = Source.cpp
@@ -13,7 +13,7 @@ LDFLAGS += `pkg-config --libs opencv`
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) MotionTracker.cpp MeanShiftTracker.cpp wiringPi/wiringPi/softServo.c -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv -lwiringPi -lwiringPiDev
+	$(CC) $(OBJECTS) MotionTracker.cpp MeanShiftTracker.cpp -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv -lpigpio -lrt
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

@@ -18,20 +18,20 @@
 using namespace cv;
 using namespace std;
 
-int frameMax = 50;
+int frameMax = 500;
 
 vector<Mat> frames;
 
-const int CAM_W = 640;
-const int CAM_H = 480;
+const int CAM_W = 320;
+const int CAM_H = 240;
 
 const int SERVO_LEFT = -1; //clockwise
 const int SERVO_RIGHT = 1; //counterclockwise
 const int SERVO_UP = -1;
 const int SERVO_DOWN = 1;
 const int SERVO_STOP = 0;
-const int SERVO_AIM_THRESH_X = 70;
-const int SERVO_AIM_THRESH_Y = 70;
+const int SERVO_AIM_THRESH_X = 25;
+const int SERVO_AIM_THRESH_Y = 25;
 int prevRotX = 99999;
 int prevRotY = 99999;
 
@@ -45,7 +45,7 @@ void moveServoX(int rot)
 		// move left
 	case SERVO_LEFT:
 //		softServoWrite(0, 375);
-		gpioServo(17,1000);
+		gpioServo(17,1450);
 		break;
 		// stop
 	case SERVO_STOP:
@@ -54,7 +54,7 @@ void moveServoX(int rot)
 		break;
 		// move right
 	case SERVO_RIGHT:
-	gpioServo(17,2000);
+	gpioServo(17,1550);
 //		softServoWrite(0, 525);
 		break;
 		// stop
@@ -75,17 +75,17 @@ void moveServoY(int rot)
 		// move left
 
 	case SERVO_UP:
-		gpioServo(18,1000);
+		gpioServo(18,1425);
 //		softServoWrite(1, 375);
 		break;
 		// stop
 	case SERVO_STOP:
-		gpioServo(18,1500);
+		gpioServo(18,1475);
 //		digitalWrite(1,0);	
 		break;
 		// move right
 	case SERVO_DOWN:
-		gpioServo(18,2000);
+		gpioServo(18,1525);
 //		softServoWrite(1, 500);
 		break;
 		// stop
@@ -96,11 +96,11 @@ void moveServoY(int rot)
 	//softServoWrite(0, 400);
 }
 
-void servoTest(){
+void servoTest(int rot){
 	int i = 0;
 	while(i<50){
-		moveServoY(SERVO_DOWN);
-		delay(10);
+		moveServoX(rot);
+		gpioDelay(10000);
 		i++;
 	}
 }
@@ -135,12 +135,23 @@ void aimServoTowards(Point p)
 	{
 		moveServoY(SERVO_STOP);
 	}
-	delay(10);
+	gpioDelay(9000);
 }
 
 int main(int argc, const char** argv)
 {
 	gpioInitialise();
+
+	moveServoX(0);
+	moveServoY(0);
+
+	/*servoTest(0);
+	servoTest(-1);
+	servoTest(0);
+	servoTest(1);
+	servoTest(0);
+	gpioTerminate();
+	return 0;*/
 	/*
 	int camNum = 0;
 	VideoCapture cap;
@@ -205,7 +216,7 @@ int main(int argc, const char** argv)
 				if(initServoFlag==1){
 					cout << "init servos:" << endl;
 //					wiringPiSetup();
-//					softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+					//softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 					gpioSetMode(17, PI_OUTPUT);
 					gpioSetMode(18, PI_OUTPUT);
 					initServoFlag =0;
@@ -226,7 +237,7 @@ int main(int argc, const char** argv)
 	moveServoX(SERVO_STOP);
 	moveServoY(SERVO_STOP);
 
-	softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
+	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
 	//cap.release();
 	Camera.release();
 	imwrite("firstFrame.jpg", frames.front());
@@ -237,6 +248,6 @@ int main(int argc, const char** argv)
 
 	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();
-	gpioTerminate()
+	gpioTerminate();
 	return 0;
 }
