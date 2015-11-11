@@ -56,13 +56,29 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 
 	if (objectDetected)
 	{
+		for (vector< vector<Point> >::iterator it = contours.begin(); it != contours.end(); ++it)
+		{
+			vector< vector<Point> > largestContourVec;
+			largestContourVec.push_back(*it);
+			Rect objRect = boundingRect(largestContourVec.at(0));
+			rectangle(frame1, objRect, Scalar(0, 0, 255));
+		}
 		//the largest contour is found at the end of the contours vector
 		//we will simply assume that the biggest contour is the object we are looking for.
 		vector< vector<Point> > largestContourVec;
+		if (contours.size() < 2) {
+			return;
+		}
+		largestContourVec.push_back(contours.at(contours.size() - 2));
 		largestContourVec.push_back(contours.at(contours.size() - 1));
 		//make a bounding rectangle around the largest contour then find its centroid
 		//this will be the object's final estimated position.
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
+		if (objectCaptured())  {
+			objectBoundingRectangle = boundingRect(largestContourVec.at(1));
+		}
+		//make a bounding rectangle around the largest contour then find its centroid
+		//this will be the object's final estimated position.
 		int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
 		int ypos = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
 
