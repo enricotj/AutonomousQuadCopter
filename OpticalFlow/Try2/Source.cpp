@@ -7,11 +7,11 @@
 //#include <thread>
 #include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
-#include "wiringPi/wiringPi/wiringPi.h"
-#include "wiringPi/wiringPi/softServo.h"
+//#include "wiringPi/wiringPi/wiringPi.h"
+//#include "wiringPi/wiringPi/softServo.h"
 #include <iostream>
 #include <ctype.h>
-
+#include <pigpio.h>
 #include "MeanShiftTracker.h"
 #include "MotionTracker.h"
 
@@ -44,19 +44,22 @@ void moveServoX(int rot)
 	{
 		// move left
 	case SERVO_LEFT:
-		softServoWrite(0, 375);
+//		softServoWrite(0, 375);
+		gpioServo(17,1000);
 		break;
 		// stop
 	case SERVO_STOP:
-		digitalWrite(0,0);	
+		gpioServo(17,1500);
+//		digitalWrite(0,0);	
 		break;
 		// move right
 	case SERVO_RIGHT:
-		softServoWrite(0, 525);
+	gpioServo(17,2000);
+//		softServoWrite(0, 525);
 		break;
 		// stop
 	default:
-		digitalWrite(0,0);	
+//		digitalWrite(0,0);	
 		break;
 	}
 	//softServoWrite(0, 400);
@@ -72,19 +75,22 @@ void moveServoY(int rot)
 		// move left
 
 	case SERVO_UP:
-		softServoWrite(1, 375);
+		gpioServo(18,1000);
+//		softServoWrite(1, 375);
 		break;
 		// stop
 	case SERVO_STOP:
-		digitalWrite(1,0);	
+		gpioServo(18,1500);
+//		digitalWrite(1,0);	
 		break;
 		// move right
 	case SERVO_DOWN:
-		softServoWrite(1, 500);
+		gpioServo(18,2000);
+//		softServoWrite(1, 500);
 		break;
 		// stop
 	default:
-		digitalWrite(1,0);	
+//		digitalWrite(1,0);	
 		break;
 	}
 	//softServoWrite(0, 400);
@@ -134,6 +140,7 @@ void aimServoTowards(Point p)
 
 int main(int argc, const char** argv)
 {
+	gpioInitialise();
 	/*
 	int camNum = 0;
 	VideoCapture cap;
@@ -197,8 +204,10 @@ int main(int argc, const char** argv)
 			if(p.x != 0 || p.y!= 0){
 				if(initServoFlag==1){
 					cout << "init servos:" << endl;
-					wiringPiSetup();
-					softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+//					wiringPiSetup();
+//					softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+					gpioSetMode(17, PI_OUTPUT);
+					gpioSetMode(18, PI_OUTPUT);
 					initServoFlag =0;
 				}
 
@@ -228,6 +237,6 @@ int main(int argc, const char** argv)
 
 	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();
-
+	gpioTerminate()
 	return 0;
 }
