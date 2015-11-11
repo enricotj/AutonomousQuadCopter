@@ -10,7 +10,7 @@ const int BLUR_SIZE = 30;
 //and keep track of its position.
 Point theObject = Point(0, 0);
 
-int sizeThreshLow = 100*100;
+int sizeThreshLow = 64*64;
 int sizeThreshHigh = 0.75 * 320 * 240;
 int dthresh = 32;
 
@@ -90,7 +90,8 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 					minY = max(tempRect.y, objectBoundingRectangle.y);
 					maxY = minY + min(tempRect.height, objectBoundingRectangle.height);
 					objectBoundingRectangle = Rect(minX, minY, maxX - minX, maxY - minY);
-
+				}
+		}
 		
 		//make a bounding rectangle around the largest contour then find its centroid
 		//this will be the object's final estimated position.
