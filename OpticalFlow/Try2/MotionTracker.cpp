@@ -1,5 +1,22 @@
 #include "MotionTracker.h"
 
+Mat frame1, frame2, grayImage1, grayImage2, thresholdImage, differenceImage;
+Rect objectBoundingRectangle;
+//our sensitivity value to be used in the absdiff() function
+const int SENSITIVITY_VALUE = 35;
+//size of blur used to smooth the intensity image output from absdiff() function
+const int BLUR_SIZE = 25;
+//we'll have just one object to search for
+//and keep track of its position.
+Point theObject = Point(0, 0);
+
+int sizeThreshLow = 128 * 128;
+int sizeThreshHigh = 0.75 * 640 * 480;
+int dthresh = 64;
+
+//some boolean variables for added functionality
+bool objectDetected = false;
+
 MotionTracker::MotionTracker(Mat initFrame)
 {
 	initFrame.copyTo(frame1);
