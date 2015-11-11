@@ -48,7 +48,7 @@ void moveServoX(int rot)
 		break;
 		// stop
 	case SERVO_STOP:
-		softServoWrite(0, 450);
+		digitalWrite(0,0);	
 		break;
 		// move right
 	case SERVO_RIGHT:
@@ -56,7 +56,7 @@ void moveServoX(int rot)
 		break;
 		// stop
 	default:
-		softServoWrite(0, 450);
+		digitalWrite(0,0);	
 		break;
 	}
 	//softServoWrite(0, 400);
@@ -76,7 +76,7 @@ void moveServoY(int rot)
 		break;
 		// stop
 	case SERVO_STOP:
-		softServoWrite(1, 440);
+		digitalWrite(1,0);	
 		break;
 		// move right
 	case SERVO_DOWN:
@@ -84,7 +84,7 @@ void moveServoY(int rot)
 		break;
 		// stop
 	default:
-		softServoWrite(1, 440);
+		digitalWrite(1,0);	
 		break;
 	}
 	//softServoWrite(0, 400);
@@ -164,7 +164,7 @@ int main(int argc, const char** argv)
 	Camera.grab();
 	Camera.retrieve(frame);
 	MotionTracker motionTracker = MotionTracker(frame);
-	
+	int initServoFlag = 1;	
 	//waitKey(10);
 	
 	bool start = false;
@@ -187,20 +187,23 @@ int main(int argc, const char** argv)
 			{
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
-				
-				// set up servos
-				wiringPiSetup();
-				softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
-				moveServoX(SERVO_STOP);
-				moveServoY(SERVO_STOP);
-				delay(50);
 			}
 		}
 		
 		if (start)
 		{
 			image = meanShiftTracker.process(frame);
-			aimServoTowards(meanShiftTracker.getObject().center);
+			Point p = meanShiftTracker.getObject().center;
+			if(p.x != 0 || p.y!= 0){
+				if(initServoFlag==1){
+					cout << "init servos:" << endl;
+					wiringPiSetup();
+					softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+					initServoFlag =0;
+				}
+
+				aimServoTowards(p);
+			}
 		}
 
 		//imshow("Track", image);
@@ -214,6 +217,7 @@ int main(int argc, const char** argv)
 	moveServoX(SERVO_STOP);
 	moveServoY(SERVO_STOP);
 
+	softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
 	//cap.release();
 	Camera.release();
 	imwrite("firstFrame.jpg", frames.front());
