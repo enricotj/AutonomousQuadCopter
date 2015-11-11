@@ -134,14 +134,6 @@ void aimServoTowards(Point p)
 
 int main(int argc, const char** argv)
 {
-	// set up servos
-	wiringPiSetup();
-	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
-	moveServoX(SERVO_STOP);
-	moveServoY(SERVO_STOP);
-	delay(50);
-	//servoTest();
-
 	/*
 	int camNum = 0;
 	VideoCapture cap;
@@ -195,6 +187,13 @@ int main(int argc, const char** argv)
 			{
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
+				
+				// set up servos
+				wiringPiSetup();
+				softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+				moveServoX(SERVO_STOP);
+				moveServoY(SERVO_STOP);
+				delay(50);
 			}
 		}
 		
