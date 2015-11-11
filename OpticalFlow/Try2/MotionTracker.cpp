@@ -73,9 +73,17 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		largestContourVec.push_back(contours.at(contours.size() - 1));
 		//make a bounding rectangle around the largest contour then find its centroid
 		//this will be the object's final estimated position.
+		Rect temp = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
 		if (objectCaptured())  {
 			objectBoundingRectangle = boundingRect(largestContourVec.at(1));
+			if (objectCaptured()) {
+				int minX = min(temp.x, objectBoundingRectangle.x);
+				int minY = min(temp.y, objectBoundingRectangle.y);
+				int maxX = max(temp.x + temp.width, objectBoundingRectangle.x + objectBoundingRectangle.width);
+				int maxY = max(temp.y + temp.height, objectBoundingRectangle.y + objectBoundingRectangle.height);
+				objectBoundingRect = Rect(minX, minY, maxX - minX, maxY - minY);
+			}
 		}
 		//make a bounding rectangle around the largest contour then find its centroid
 		//this will be the object's final estimated position.
