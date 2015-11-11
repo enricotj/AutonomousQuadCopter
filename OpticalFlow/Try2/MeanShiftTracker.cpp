@@ -12,7 +12,6 @@ Rect selection, trackWindow;
 RotatedRect trackBox;
 
 int vmin = 10, vmax = 256, smin = 30;
-int frameMax = 100;
 
 int hsize = 16;
 float* phranges;

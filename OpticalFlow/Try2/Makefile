@@ -13,7 +13,7 @@ LDFLAGS += `pkg-config --libs opencv`
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) wiringPi/wiringPi/softServo.c -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv -lwiringPi -lwiringPiDev
+	$(CC) $(OBJECTS) MotionTracker.cpp MeanShiftTracker.cpp wiringPi/wiringPi/softServo.c -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv -lwiringPi -lwiringPiDev
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

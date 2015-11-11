@@ -37,10 +37,9 @@ int prevRotY = 99999;
 
 void moveServoX(int rot)
 {
-return;
 	if(prevRotX==rot) return;
 	prevRotX = rot;
-	cout << "turn: " << rot << endl;
+	cout << "turn x: " << rot << endl;
 	switch (rot)
 	{
 		// move left
@@ -49,15 +48,15 @@ return;
 		break;
 		// stop
 	case SERVO_STOP:
-		softServoWrite(0, 425);
+		softServoWrite(0, 450);
 		break;
 		// move right
 	case SERVO_RIGHT:
-		softServoWrite(0, 550);
+		softServoWrite(0, 525);
 		break;
 		// stop
 	default:
-		softServoWrite(0, 425);
+		softServoWrite(0, 450);
 		break;
 	}
 	//softServoWrite(0, 400);
@@ -67,7 +66,7 @@ void moveServoY(int rot)
 {
 	if(prevRotY==rot) return;
 	prevRotY = rot;
-	cout << "turn: " << rot << endl;
+	cout << "turn y: " << rot << endl;
 	switch (rot)
 	{
 		// move left
@@ -77,15 +76,15 @@ void moveServoY(int rot)
 		break;
 		// stop
 	case SERVO_STOP:
-		softServoWrite(1, 425);
+		softServoWrite(1, 440);
 		break;
 		// move right
 	case SERVO_DOWN:
-		softServoWrite(1, 475);
+		softServoWrite(1, 500);
 		break;
 		// stop
 	default:
-		softServoWrite(1, 425);
+		softServoWrite(1, 440);
 		break;
 	}
 	//softServoWrite(0, 400);
@@ -137,10 +136,10 @@ int main(int argc, const char** argv)
 {
 	// set up servos
 	wiringPiSetup();
-	softServoSetup(-1, 1, 2, 3, 4, 5, 6, 7);
+	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 	moveServoX(SERVO_STOP);
 	moveServoY(SERVO_STOP);
-
+	delay(50);
 	//servoTest();
 
 	/*
@@ -202,6 +201,7 @@ int main(int argc, const char** argv)
 		if (start)
 		{
 			image = meanShiftTracker.process(frame);
+			aimServoTowards(meanShiftTracker.getObject().center);
 		}
 
 		//imshow("Track", image);
