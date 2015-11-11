@@ -24,23 +24,28 @@ bool showHist = true;
 Point origin;
 Rect selection;
 int vmin = 10, vmax = 256, smin = 30;
-int frameMax = 100;
+int frameMax = 50;
 
 vector<Mat> frames;
 
 const int CAM_W = 640;
 const int CAM_H = 480;
 
-const int SERVO_LEFT = -1;
-const int SERVO_RIGHT = 1;
+const int SERVO_LEFT = -1; //clockwise
+const int SERVO_RIGHT = 1; //counterclockwise
+const int SERVO_UP = -1;
+const int SERVO_DOWN = 1;
 const int SERVO_STOP = 0;
-const int SERVO_AIM_THRESH = 60;
-int prevRot = 99999;
+const int SERVO_AIM_THRESH_X = 70;
+const int SERVO_AIM_THRESH_Y = 70;
+int prevRotX = 99999;
+int prevRotY = 99999;
 
-void moveServo(int rot)
+void moveServoX(int rot)
 {
-	if(prevRot==rot) return;
-	prevRot = rot;
+return;
+	if(prevRotX==rot) return;
+	prevRotX = rot;
 	cout << "turn: " << rot << endl;
 	switch (rot)
 	{
@@ -54,14 +59,41 @@ void moveServo(int rot)
 		break;
 		// move right
 	case SERVO_RIGHT:
-		softServoWrite(0, 475);
+		softServoWrite(0, 550);
 		break;
 		// stop
 	default:
 		softServoWrite(0, 425);
 		break;
 	}
-	delay(10);
+	//softServoWrite(0, 400);
+}
+
+void moveServoY(int rot)
+{
+	if(prevRotY==rot) return;
+	prevRotY = rot;
+	cout << "turn: " << rot << endl;
+	switch (rot)
+	{
+		// move left
+
+	case SERVO_UP:
+		softServoWrite(1, 375);
+		break;
+		// stop
+	case SERVO_STOP:
+		softServoWrite(1, 425);
+		break;
+		// move right
+	case SERVO_DOWN:
+		softServoWrite(1, 475);
+		break;
+		// stop
+	default:
+		softServoWrite(1, 425);
+		break;
+	}
 	//softServoWrite(0, 400);
 }
 
@@ -97,8 +129,9 @@ void initSelection(int event, int x, int y)
 
 void servoTest(){
 	int i = 0;
-	while(i<10){
-		moveServo(SERVO_STOP);
+	while(i<50){
+		moveServoY(SERVO_DOWN);
+		delay(10);
 		i++;
 	}
 }
@@ -107,25 +140,40 @@ void aimServoTowards(Point p)
 {
 	int cx = CAM_W / 2;
 	cout<<"x :" << p.x << endl;
-	if (p.x > cx + SERVO_AIM_THRESH)
+	if (p.x > cx + SERVO_AIM_THRESH_X)
 	{
-		moveServo(SERVO_LEFT);
+		moveServoX(SERVO_LEFT);
 	}
-	else if (p.x < cx - SERVO_AIM_THRESH)
+	else if (p.x < cx - SERVO_AIM_THRESH_X)
 	{
-		moveServo(SERVO_RIGHT);
+		moveServoX(SERVO_RIGHT);
 	}
 	else
 	{
-		moveServo(SERVO_STOP);
+		moveServoX(SERVO_STOP);
 	}
+	int cy = CAM_H / 2;
+	cout<<"y :" << p.y << endl;
+	if (p.y > cy + SERVO_AIM_THRESH_Y)
+	{
+		moveServoY(SERVO_DOWN);
+	}
+	else if (p.y < cy - SERVO_AIM_THRESH_Y)
+	{
+		moveServoY(SERVO_UP);
+	}
+	else
+	{
+		moveServoY(SERVO_STOP);
+	}
+	delay(10);
 }
 
 int main(int argc, const char** argv)
 {
 
 	wiringPiSetup();
-	softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
+	softServoSetup(-1, 1, 2, 3, 4, 5, 6, 7);
 	Rect trackWindow;
 	int hsize = 16;
 	float hranges[] = { 0, 180 };
@@ -133,9 +181,12 @@ int main(int argc, const char** argv)
 	int camNum = 0;
 	int i = 0;
 	
-	moveServo(SERVO_STOP);
+	moveServoX(SERVO_STOP);
+	moveServoY(SERVO_STOP);
 
-//	servoTest();
+
+	servoTest();
+	return 0;
 	/*VideoCapture cap;
 	cap.open(camNum);
 	
@@ -157,7 +208,6 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 	
-	moveServo(SERVO_STOP);
 
 	Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(200, 320, CV_8UC3), backproj;
 	bool paused = false;
@@ -261,7 +311,9 @@ int main(int argc, const char** argv)
 		}*/
 	}
 
-	moveServo(SERVO_STOP);
+	moveServoX(SERVO_STOP);
+//
+	moveServoY(SERVO_STOP);
 
 	Camera.release();
 
