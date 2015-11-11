@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -c -Wall -pthread
 LDFLAGS =
 
-SOURCES = Source.cpp
+SOURCES = Source.cpp MotionTracker.cpp MeanShiftTracker.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 EXECUTABLE = optFlow
@@ -13,7 +13,7 @@ LDFLAGS += `pkg-config --libs opencv`
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) MotionTracker.cpp MeanShiftTracker.cpp -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv -lpigpio -lrt
+	$(CC) $(OBJECTS) -o $@ $(LDFLAGS) -I/usr/local/include -lraspicam -lraspicam_cv -lpigpio -lrt
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

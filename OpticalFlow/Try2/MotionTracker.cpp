@@ -3,16 +3,16 @@
 Mat frame1, frame2, grayImage1, grayImage2, thresholdImage, differenceImage;
 Rect objectBoundingRectangle;
 //our sensitivity value to be used in the absdiff() function
-const int SENSITIVITY_VALUE = 35;
+const int SENSITIVITY_VALUE = 50;
 //size of blur used to smooth the intensity image output from absdiff() function
-const int BLUR_SIZE = 25;
+const int BLUR_SIZE = 30;
 //we'll have just one object to search for
 //and keep track of its position.
 Point theObject = Point(0, 0);
 
-int sizeThreshLow = 128 * 128;
-int sizeThreshHigh = 0.75 * 640 * 480;
-int dthresh = 64;
+int sizeThreshLow = 100*100;
+int sizeThreshHigh = 0.75 * 320 * 240;
+int dthresh = 32;
 
 //some boolean variables for added functionality
 bool objectDetected = false;
