@@ -19,6 +19,8 @@ float* phranges;
 static const int SELECTION_EVENT_A = 0;
 static const int SELECTION_EVENT_B = 1;
 
+static const float BIGGEST_OBJECT_SIZE = 0.75 * 640 * 480;
+
 MeanShiftTracker::MeanShiftTracker()
 {
 }
@@ -126,6 +128,12 @@ Mat MeanShiftTracker::process(Mat frame)
 		if (backprojMode)
 			cvtColor(backproj, image, COLOR_GRAY2BGR);
 		ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
+	}
+
+	float size = trackWindow.size.area;
+	if (size > BIGGEST_OBJECT_SIZE)
+	{
+		return Mat::zeros(1, 1, CV_8UC1);
 	}
 
 	//imshow("Track", image);

@@ -211,6 +211,11 @@ int main(int argc, const char** argv)
 		if (start)
 		{
 			image = meanShiftTracker.process(frame);
+			if (image.rows == 1 && image.cols == 1)
+			{
+				start = false;
+				continue;
+			}
 			Point p = meanShiftTracker.getObject().center;
 			if(p.x != 0 || p.y!= 0){
 				if(initServoFlag==1){
