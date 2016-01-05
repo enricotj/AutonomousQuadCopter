@@ -24,7 +24,6 @@ MotionTracker::MotionTracker(Mat initFrame)
 	theObject = Point(0, 0);
 }
 
-
 MotionTracker::~MotionTracker()
 {
 	frame1.release();
@@ -114,6 +113,9 @@ Mat MotionTracker::process(Mat frame)
 	cv::cvtColor(frame1, grayImage1, COLOR_BGR2GRAY);
 	//convert frame2 to gray scale for frame differencing
 	cv::cvtColor(frame2, grayImage2, COLOR_BGR2GRAY);
+
+	cv::imshow("Gray Image", grayImage2);
+	//cv::imshow("Threshold Image", thresholdImage);
 
 	//perform frame differencing with the sequential images. This will output an "intensity image"
 	//do not confuse this with a threshold image, we will need to perform thresholding afterwards.

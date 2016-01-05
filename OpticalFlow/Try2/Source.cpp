@@ -1,17 +1,21 @@
+//#undef ON_PI
+#define ON_PI
+
+#ifdef ON_PI
+#include <pigpio.h>
+#include <raspicam/raspicam.h>
+#include <raspicam/raspicam_cv.h>
+#else
+#include <windows.h>
+#endif
+
 #include <opencv2/core/utility.hpp>
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio.hpp"
 #include "opencv2/highgui.hpp"
-
-//#include <thread>
-#include <raspicam/raspicam.h>
-#include <raspicam/raspicam_cv.h>
-//#include "wiringPi/wiringPi/wiringPi.h"
-//#include "wiringPi/wiringPi/softServo.h"
 #include <iostream>
 #include <ctype.h>
-#include <pigpio.h>
 #include "MeanShiftTracker.h"
 #include "MotionTracker.h"
 
@@ -35,6 +39,7 @@ const int SERVO_AIM_THRESH_Y = 25;
 int prevRotX = 99999;
 int prevRotY = 99999;
 
+#ifdef ON_PI
 void moveServoX(int rot)
 {
 	if(prevRotX==rot) return;
@@ -138,34 +143,36 @@ void aimServoTowards(Point p)
 	gpioDelay(9000);
 }
 
-int main(int argc, const char** argv)
+void initializeServos()
 {
 	gpioInitialise();
-
 	moveServoX(0);
 	moveServoY(0);
+}
 
-	/*servoTest(0);
+void testServos()
+{
+	servoTest(0);
 	servoTest(-1);
 	servoTest(0);
 	servoTest(1);
 	servoTest(0);
 	gpioTerminate();
-	return 0;*/
-	/*
-	int camNum = 0;
-	VideoCapture cap;
-	cap.open(camNum);
-	
-	if (!cap.isOpened())
-	{
-		cout << "***Could not initialize capturing...***\n";
-		cout << "Current parameter's value: \n";
-		return -1;
-	}
-	*/
-	raspicam::RaspiCam_Cv Camera; //Cmaera object
-	// Open Camera
+	return 0;
+}
+#endif // ON_PI
+
+
+int main(int argc, const char** argv)
+{
+	Mat frame, image;
+	MeanShiftTracker meanShiftTracker;
+
+#ifdef ON_PI
+
+	initializeServos();
+
+	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
 	Camera.set(CV_CAP_PROP_FRAME_HEIGHT, CAM_H);
@@ -175,27 +182,50 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 
-	Mat frame, image;
-
-	MeanShiftTracker meanShiftTracker;
-	//cap.read(frame);
 	Camera.grab();
 	Camera.retrieve(frame);
+
+	int initServoFlag = 1;
+	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
+
+#else
+	
+	VideoCapture cap;
+	cap.open(0);
+
+	if (!cap.isOpened())
+	{
+		cout << "***Could not initialize capturing...***\n";
+		cout << "Current parameter's value: \n";
+		return -1;
+	}
+	cap >> frame;
+	imshow("Init", frame);
+
+#endif // ON_PI
+
+	if (frame.empty())
+		return 0;
+
 	MotionTracker motionTracker = MotionTracker(frame);
-	int initServoFlag = 1;	
-	//waitKey(10);
+	Sleep(1000);
 	
 	bool start = false;
-	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
 	int frameCounter = 0;
+
 	while (frameCounter < frameMax)
 	{
 		frameCounter++;
+
+#ifdef ON_PI
 		Camera.grab();
 		Camera.retrieve(frame);
-		/*cap >> frame;
+#else
+		cap >> frame;
+#endif // ON_PI
+		
 		if (frame.empty())
-			break;*/
+			break;
 
 		if (!start)
 		{
@@ -216,43 +246,58 @@ int main(int argc, const char** argv)
 				start = false;
 				continue;
 			}
+
+#ifdef ON_PI
 			Point p = meanShiftTracker.getObject().center;
 			if(p.x != 0 || p.y!= 0){
-				if(initServoFlag==1){
+				if (initServoFlag == 1)
+				{
 					cout << "init servos:" << endl;
-//					wiringPiSetup();
+					//wiringPiSetup();
 					//softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
 					gpioSetMode(17, PI_OUTPUT);
 					gpioSetMode(18, PI_OUTPUT);
-					initServoFlag =0;
+					initServoFlag = 0;
 				}
 
 				aimServoTowards(p);
 			}
+#endif // ON_PI
+
 		}
 
-		//imshow("Track", image);
+#ifdef ON_PI
 		Mat temp;
 		image.copyTo(temp);
 		frames.push_back(temp);
+#else
+		imshow("Track", image);
+#endif // ON_PI
 
-		//waitKey(10);
 	}
+
+#ifdef ON_PI
 
 	moveServoX(SERVO_STOP);
 	moveServoY(SERVO_STOP);
-
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
-	//cap.release();
+	
 	Camera.release();
 	imwrite("firstFrame.jpg", frames.front());
 	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
 	{
 		video.write(*it);
 	}
+	gpioTerminate();
+
+#else
+
+	cap.release();
+
+#endif // ON_PI
 
 	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();
-	gpioTerminate();
+	
 	return 0;
 }

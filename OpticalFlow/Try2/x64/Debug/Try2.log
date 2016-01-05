@@ -1,36 +1,16 @@
-﻿Build started 10/20/2015 9:27:11 PM.
-     1>Project "C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\Try2\Try2.vcxproj" on node 2 (Rebuild target(s)).
+﻿Build started 1/4/2016 9:37:28 PM.
+     1>Project "C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\Try2\Try2.vcxproj" on node 2 (Build target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (Try2.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV\build\x64\vc12\..\..\include /Zi /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt "..\..\raspicam-0.1.3\src\private\fake_mmal_dependencies.cpp" "..\..\raspicam-0.1.3\src\private\private_impl.cpp" "..\..\raspicam-0.1.3\src\private\threadcondition.cpp" "..\..\raspicam-0.1.3\src\private_still\private_still_impl.cpp" "..\..\raspicam-0.1.3\src\raspicam.cpp" "..\..\raspicam-0.1.3\src\raspicam_cv.cpp" "..\..\raspicam-0.1.3\src\raspicam_still.cpp" "..\..\raspicam-0.1.3\src\raspicam_still_cv.cpp" Source.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV\build\x64\vc12\..\..\include /Zi /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt Source.cpp
          Source.cpp
-     1>Source.cpp(2): fatal error C1083: Cannot open include file: 'raspicam.h': No such file or directory
-         raspicam_still_cv.cpp
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private_still/private_still_impl.h(41): fatal error C1083: Cannot open include file: 'mmal/mmal.h': No such file or directory
-         raspicam_still.cpp
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private_still/private_still_impl.h(41): fatal error C1083: Cannot open include file: 'mmal/mmal.h': No such file or directory
-         raspicam_cv.cpp
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private/private_impl.h(40): fatal error C1083: Cannot open include file: 'mmal/mmal.h': No such file or directory
-         raspicam.cpp
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private/private_impl.h(40): fatal error C1083: Cannot open include file: 'mmal/mmal.h': No such file or directory
-         private_still_impl.cpp
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private_still\private_still_impl.h(40): fatal error C1083: Cannot open include file: 'raspicamtypes.h': No such file or directory
-         threadcondition.cpp
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private\exceptions.h(108): error C4996: 'vsprintf': This function or variable may be unsafe. Consider using vsprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(356) : see declaration of 'vsprintf'
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private\threadcondition.h(57): warning C4290: C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private\threadcondition.h(60): warning C4290: C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private\threadcondition.h(64): warning C4290: C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
-     1>..\..\raspicam-0.1.3\src\private\threadcondition.cpp(48): warning C4290: C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
-     1>..\..\raspicam-0.1.3\src\private\threadcondition.cpp(56): warning C4290: C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
-     1>..\..\raspicam-0.1.3\src\private\threadcondition.cpp(65): warning C4290: C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
-         private_impl.cpp
-     1>c:\users\enricotj\desktop\autonomousquadcopter\raspicam-0.1.3\src\private\private_impl.h(40): fatal error C1083: Cannot open include file: 'mmal/mmal.h': No such file or directory
-         fake_mmal_dependencies.cpp
-     1>..\..\raspicam-0.1.3\src\private\fake_mmal_dependencies.cpp(1): fatal error C1083: Cannot open include file: 'mmal/util/mmal_default_components.h': No such file or directory
-         Generating Code...
-     1>Done Building Project "C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\Try2\Try2.vcxproj" (Rebuild target(s)) -- FAILED.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\x64\Debug\OpticalFlow.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\OpenCV\build\x64\vc12\lib opencv_ts300d.lib opencv_world300d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\x64\Debug\OpticalFlow.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\x64\Debug\OpticalFlow.lib" /MACHINE:X64 x64\Debug\MeanShiftTracker.obj
+         x64\Debug\MotionTracker.obj
+         x64\Debug\Source.obj
+         Try2.vcxproj -> C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\x64\Debug\OpticalFlow.exe
+     1>Done Building Project "C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\Try2\Try2.vcxproj" (Build target(s)).
 
-Build FAILED.
+Build succeeded.
 
-Time Elapsed 00:00:03.89
+Time Elapsed 00:00:01.32
