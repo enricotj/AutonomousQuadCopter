@@ -1,4 +1,4 @@
-﻿Build started 1/4/2016 9:37:28 PM.
+﻿Build started 1/5/2016 10:45:59 AM.
      1>Project "C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\Try2\Try2.vcxproj" on node 2 (Build target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (Try2.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
@@ -13,4 +13,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.32
+Time Elapsed 00:00:01.33

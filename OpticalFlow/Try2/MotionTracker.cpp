@@ -17,7 +17,7 @@ int dthresh = 32;
 //some boolean variables for added functionality
 bool objectDetected = false;
 
-MotionTracker::MotionTracker(Mat initFrame)
+MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
 	objectBoundingRectangle = Rect(0, 0, 0, 0);
@@ -106,7 +106,7 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 	int y = theObject.y;
 }
 
-Mat MotionTracker::process(Mat frame)
+Mat MotionTracker::process(Mat& frame)
 {
 	frame.copyTo(frame2);
 	// convert frame1 to gray scale for frame differencing
@@ -114,7 +114,7 @@ Mat MotionTracker::process(Mat frame)
 	//convert frame2 to gray scale for frame differencing
 	cv::cvtColor(frame2, grayImage2, COLOR_BGR2GRAY);
 
-	cv::imshow("Gray Image", grayImage2);
+	//cv::imshow("Gray Image", grayImage2);
 	//cv::imshow("Threshold Image", thresholdImage);
 
 	//perform frame differencing with the sequential images. This will output an "intensity image"

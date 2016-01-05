@@ -29,9 +29,9 @@ class MotionTracker
 {
 
 public:
-	MotionTracker(Mat initFrame);
+	MotionTracker(Mat& initFrame);
 	~MotionTracker();
-	Mat process(Mat frame);
+	Mat process(Mat& frame);
 	Rect getObject();
 	bool objectCaptured();
 

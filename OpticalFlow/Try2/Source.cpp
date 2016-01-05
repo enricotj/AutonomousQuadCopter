@@ -42,68 +42,70 @@ int prevRotY = 99999;
 #ifdef ON_PI
 void moveServoX(int rot)
 {
-	if(prevRotX==rot) return;
+	if (prevRotX == rot) return;
 	prevRotX = rot;
 	cout << "turn x: " << rot << endl;
 	switch (rot)
 	{
 		// move left
-	case SERVO_LEFT:
-//		softServoWrite(0, 375);
-		gpioServo(17,1450);
-		break;
-		// stop
-	case SERVO_STOP:
-		gpioServo(17,1500);
-//		digitalWrite(0,0);	
-		break;
-		// move right
-	case SERVO_RIGHT:
-	gpioServo(17,1550);
-//		softServoWrite(0, 525);
-		break;
-		// stop
-	default:
-//		digitalWrite(0,0);	
-		break;
+		case SERVO_LEFT:
+			//		softServoWrite(0, 375);
+			gpioServo(17, 1450);
+			break;
+			// stop
+		case SERVO_STOP:
+			gpioServo(17, 1500);
+			//		digitalWrite(0,0);	
+			break;
+			// move right
+		case SERVO_RIGHT:
+			gpioServo(17, 1550);
+			//		softServoWrite(0, 525);
+			break;
+			// stop
+		default:
+			//		digitalWrite(0,0);	
+			break;
 	}
 	//softServoWrite(0, 400);
 }
 
 void moveServoY(int rot)
 {
-	if(prevRotY==rot) return;
+	if (prevRotY == rot) return;
 	prevRotY = rot;
 	cout << "turn y: " << rot << endl;
 	switch (rot)
 	{
 		// move left
 
-	case SERVO_UP:
-		gpioServo(18,1425);
-//		softServoWrite(1, 375);
-		break;
-		// stop
-	case SERVO_STOP:
-		gpioServo(18,1475);
-//		digitalWrite(1,0);	
-		break;
-		// move right
-	case SERVO_DOWN:
-		gpioServo(18,1525);
-//		softServoWrite(1, 500);
-		break;
-		// stop
-	default:
-//		digitalWrite(1,0);	
-		break;
+		case SERVO_UP:
+			gpioServo(18, 1425);
+			//		softServoWrite(1, 375);
+			break;
+			// stop
+		case SERVO_STOP:
+			gpioServo(18, 1475);
+			//		digitalWrite(1,0);	
+			break;
+			// move right
+		case SERVO_DOWN:
+			gpioServo(18, 1525);
+			//		softServoWrite(1, 500);
+			break;
+			// stop
+		default:
+			//		digitalWrite(1,0);	
+			break;
 	}
 	//softServoWrite(0, 400);
 }
 
-void servoTest(int rot){
+void servoTest(int rot)
+{
 	int i = 0;
-	while(i<50){
+	while (i<50)
+	{
 		moveServoX(rot);
 		gpioDelay(10000);
 		i++;
@@ -113,7 +115,7 @@ void servoTest(int rot){
 void aimServoTowards(Point p)
 {
 	int cx = CAM_W / 2;
-	cout<<"x :" << p.x << endl;
+	cout << "x :" << p.x << endl;
 	if (p.x > cx + SERVO_AIM_THRESH_X)
 	{
 		moveServoX(SERVO_LEFT);
@@ -127,7 +129,7 @@ void aimServoTowards(Point p)
 		moveServoX(SERVO_STOP);
 	}
 	int cy = CAM_H / 2;
-	cout<<"y :" << p.y << endl;
+	cout << "y :" << p.y << endl;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
 		moveServoY(SERVO_DOWN);
@@ -189,7 +191,7 @@ int main(int argc, const char** argv)
 	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
 
 #else
-	
+
 	VideoCapture cap;
 	cap.open(0);
 
@@ -199,8 +201,7 @@ int main(int argc, const char** argv)
 		cout << "Current parameter's value: \n";
 		return -1;
 	}
-	cap >> frame;
-	imshow("Init", frame);
+	cap.read(frame);
 
 #endif // ON_PI
 
@@ -209,7 +210,7 @@ int main(int argc, const char** argv)
 
 	MotionTracker motionTracker = MotionTracker(frame);
 	Sleep(1000);
-	
+
 	bool start = false;
 	int frameCounter = 0;
 
@@ -221,9 +222,9 @@ int main(int argc, const char** argv)
 		Camera.grab();
 		Camera.retrieve(frame);
 #else
-		cap >> frame;
+		cap.read(frame);
 #endif // ON_PI
-		
+
 		if (frame.empty())
 			break;
 
@@ -237,7 +238,7 @@ int main(int argc, const char** argv)
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
 			}
 		}
-		
+
 		if (start)
 		{
 			image = meanShiftTracker.process(frame);
@@ -249,7 +250,8 @@ int main(int argc, const char** argv)
 
 #ifdef ON_PI
 			Point p = meanShiftTracker.getObject().center;
-			if(p.x != 0 || p.y!= 0){
+			if (p.x != 0 || p.y != 0)
+			{
 				if (initServoFlag == 1)
 				{
 					cout << "init servos:" << endl;
@@ -272,6 +274,7 @@ int main(int argc, const char** argv)
 		frames.push_back(temp);
 #else
 		imshow("Track", image);
+		cvWaitKey(20);
 #endif // ON_PI
 
 	}
@@ -281,7 +284,7 @@ int main(int argc, const char** argv)
 	moveServoX(SERVO_STOP);
 	moveServoY(SERVO_STOP);
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
-	
+
 	Camera.release();
 	imwrite("firstFrame.jpg", frames.front());
 	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
@@ -298,6 +301,6 @@ int main(int argc, const char** argv)
 
 	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();
-	
+
 	return 0;
 }
