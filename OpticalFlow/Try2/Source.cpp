@@ -145,11 +145,18 @@ void aimServoTowards(Point p)
 	gpioDelay(9000);
 }
 
-void initializeServos()
+void initializeGpioPort()
 {
 	gpioInitialise();
+	gpioWrite(27,1);
 	moveServoX(0);
 	moveServoY(0);
+}
+
+void toggleGoPro(){
+	gpioWrite(27,0);
+	gpioDelay(3000000);
+	gpioWrite(27,1);
 }
 
 void testServos()
@@ -160,7 +167,6 @@ void testServos()
 	servoTest(1);
 	servoTest(0);
 	gpioTerminate();
-	return 0;
 }
 #endif // ON_PI
 
@@ -172,7 +178,13 @@ int main(int argc, const char** argv)
 
 #ifdef ON_PI
 
-	initializeServos();
+	initializeGpioPort();
+	
+	toggleGoPro();
+
+	gpioDelay(5000000);
+
+	toggleGoPro();
 
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
@@ -209,7 +221,7 @@ int main(int argc, const char** argv)
 		return 0;
 
 	MotionTracker motionTracker = MotionTracker(frame);
-	Sleep(1000);
+	gpioDelay(1000000);
 
 	bool start = false;
 	int frameCounter = 0;
