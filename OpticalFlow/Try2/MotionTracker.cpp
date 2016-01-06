@@ -1,18 +1,25 @@
 #include "MotionTracker.h"
+#include "Globals.h"
 
 Mat frame1, frame2, grayImage1, grayImage2, thresholdImage, differenceImage;
 Rect objectBoundingRectangle;
 //our sensitivity value to be used in the absdiff() function
-const int SENSITIVITY_VALUE = 50;
+const int SENSITIVITY_VALUE = 20;
 //size of blur used to smooth the intensity image output from absdiff() function
-const int BLUR_SIZE = 30;
-//we'll have just one object to search for
-//and keep track of its position.
-Point theObject = Point(0, 0);
+const int BLUR_SIZE = 10;
 
-int sizeThreshLow = 64*64;
-int sizeThreshHigh = 0.75 * 320 * 240;
+int sizeThreshLow = (int)pow(64 * CAM_W / 640, 2);
+int sizeThreshHigh = (int)(0.75 * CAM_W * CAM_H);
 int dthresh = 32;
+
+int prevSize;
+Point prevPos;
+
+const int MAX_SIZE_DIFF_FACTOR = 5;
+const int MAX_POS_DIFF_FACTOR = 2;
+
+int captureThreshold = 1;
+int captureCurrent = -1;
 
 //some boolean variables for added functionality
 bool objectDetected = false;
@@ -21,7 +28,6 @@ MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
 	objectBoundingRectangle = Rect(0, 0, 0, 0);
-	theObject = Point(0, 0);
 }
 
 MotionTracker::~MotionTracker()
@@ -91,19 +97,7 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 					objectBoundingRectangle = Rect(minX, minY, maxX - minX, maxY - minY);
 				}
 		}
-		
-		//make a bounding rectangle around the largest contour then find its centroid
-		//this will be the object's final estimated position.
-		int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
-		int ypos = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
-
-		//update the objects positions by changing the 'theObject' array values
-		theObject.x = xpos;
-		theObject.y = ypos;
 	}
-	//make some temp x and y variables so we dont have to type out so much
-	int x = theObject.x;
-	int y = theObject.y;
 }
 
 Mat MotionTracker::process(Mat& frame)
@@ -140,7 +134,8 @@ Mat MotionTracker::process(Mat& frame)
 	//show our captured frame
 	Mat obj;
 	frame2.copyTo(obj);
-	if (objectCaptured())
+	objectDetected = validObjectFound();
+	if (objectDetected)
 	{
 		rectangle(obj, objectBoundingRectangle, Scalar(0, 0, 255));
 	}
@@ -164,19 +159,53 @@ Rect MotionTracker::getObject()
 
 bool MotionTracker::objectCaptured()
 {
-	int x = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
-	int y = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
-	int cx = frame2.cols / 2;
-	int cy = frame2.rows / 2;
+	return objectDetected;
+}
+
+bool MotionTracker::validObjectFound()
+{
 	int area = objectBoundingRectangle.area();
 
-	if ( // TARGET OBJECT VALIDITY CONDITIONS
-				area > sizeThreshLow
-		&&		area < sizeThreshHigh
-		//&&	sqrt(pow(cx - x, 2) + pow(cy - y, 2)) < dthresh
-		)
+	if (area < sizeThreshLow || area > sizeThreshHigh)
 	{
-		return true;
+		return false;
+	}
+
+	if (captureCurrent == -1)
+	{
+		prevSize = area;
+		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
+		captureCurrent++;
+		captureThreshold = (int)(CAM_W / objectBoundingRectangle.width);
+		return false;
+	}
+
+	int maxSizeDiff = area / MAX_SIZE_DIFF_FACTOR;
+	int sizeDiff = abs(area - prevSize);
+
+	int maxPosDiff = area / MAX_POS_DIFF_FACTOR;
+	int x = objectBoundingRectangle.x;
+	int y = objectBoundingRectangle.y;
+	int px = prevPos.x;
+	int py = prevPos.y;
+	int posDiff = (int)sqrt(pow(x - px, 2) + pow(y - py, 2));
+	
+	if (sizeDiff < maxSizeDiff
+		&& posDiff < maxPosDiff
+		&& area >= sizeThreshLow
+		&& area <= sizeThreshHigh)
+	{
+		captureCurrent++;
+		if (captureCurrent >= captureThreshold)
+		{
+			return true;
+		}
+		prevSize = area;
+		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
+	}
+	else
+	{
+		captureCurrent = -1;
 	}
 
 	return false;

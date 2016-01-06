@@ -5,8 +5,6 @@
 #include <pigpio.h>
 #include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
-#else
-#include <windows.h>
 #endif
 
 #include <opencv2/core/utility.hpp>
@@ -18,6 +16,7 @@
 #include <ctype.h>
 #include "MeanShiftTracker.h"
 #include "MotionTracker.h"
+#include "Globals.h"
 
 using namespace cv;
 using namespace std;
@@ -25,9 +24,6 @@ using namespace std;
 int frameMax = 500;
 
 vector<Mat> frames;
-
-const int CAM_W = 320;
-const int CAM_H = 240;
 
 const int SERVO_LEFT = -1; //clockwise
 const int SERVO_RIGHT = 1; //counterclockwise
@@ -206,6 +202,9 @@ int main(int argc, const char** argv)
 
 	VideoCapture cap;
 	cap.open(0);
+	cap.set(CAP_PROP_FRAME_WIDTH, CAM_W);
+	cap.set(CAP_PROP_FRAME_HEIGHT, CAM_H);
+	cap.set(CAP_PROP_FORMAT, CV_8UC3);
 
 	if (!cap.isOpened())
 	{
@@ -214,6 +213,7 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 	cap.read(frame);
+	cvWaitKey(20);
 
 #endif // ON_PI
 
@@ -221,7 +221,6 @@ int main(int argc, const char** argv)
 		return 0;
 
 	MotionTracker motionTracker = MotionTracker(frame);
-	gpioDelay(1000000);
 
 	bool start = false;
 	int frameCounter = 0;

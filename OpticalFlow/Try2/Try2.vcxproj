@@ -133,6 +133,7 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="MeanShiftTracker.h" />
     <ClInclude Include="MotionTracker.h" />
   </ItemGroup>

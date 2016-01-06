@@ -37,5 +37,6 @@ public:
 
 private:
 	void searchForMovement(Mat thresholdImage);
+	bool validObjectFound();
 };
 

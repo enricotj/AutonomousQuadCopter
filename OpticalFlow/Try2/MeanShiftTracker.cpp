@@ -130,7 +130,7 @@ Mat MeanShiftTracker::process(Mat frame)
 		ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
 	}
 
-	float size = trackWindow.width * trackWindow.height;
+	int size = trackWindow.width * trackWindow.height;
 	if (size > BIGGEST_OBJECT_SIZE)
 	{
 		return Mat::zeros(1, 1, CV_8UC1);
