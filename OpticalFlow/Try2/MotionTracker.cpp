@@ -8,15 +8,15 @@ const int SENSITIVITY_VALUE = 20;
 //size of blur used to smooth the intensity image output from absdiff() function
 const int BLUR_SIZE = 10;
 
-int sizeThreshLow = (int)pow(64 * CAM_W / 640, 2);
-int sizeThreshHigh = (int)(0.75 * CAM_W * CAM_H);
+int sizeThreshLow = (int)pow(32 * CAM_W / 640, 2);
+int sizeThreshHigh = (int)(0.8 * CAM_W * CAM_H);
 int dthresh = 32;
 
 int prevSize;
 Point prevPos;
 
-const int MAX_SIZE_DIFF_FACTOR = 5;
-const int MAX_POS_DIFF_FACTOR = 2;
+const int MAX_SIZE_DIFF_FACTOR = 2;
+const int MAX_POS_DIFF_FACTOR = 1;
 
 int captureThreshold = 1;
 int captureCurrent = -1;
@@ -176,14 +176,14 @@ bool MotionTracker::validObjectFound()
 		prevSize = area;
 		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
 		captureCurrent++;
-		captureThreshold = (int)(CAM_W / objectBoundingRectangle.width);
+		captureThreshold = (int)((CAM_H) / objectBoundingRectangle.width);
 		return false;
 	}
 
 	int maxSizeDiff = area / MAX_SIZE_DIFF_FACTOR;
 	int sizeDiff = abs(area - prevSize);
 
-	int maxPosDiff = area / MAX_POS_DIFF_FACTOR;
+	int maxPosDiff = (objectBoundingRectangle.width + objectBoundingRectangle.height) / MAX_POS_DIFF_FACTOR;
 	int x = objectBoundingRectangle.x;
 	int y = objectBoundingRectangle.y;
 	int px = prevPos.x;

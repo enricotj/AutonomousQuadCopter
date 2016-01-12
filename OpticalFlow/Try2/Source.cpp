@@ -1,5 +1,5 @@
-//#undef ON_PI
-#define ON_PI
+#undef ON_PI
+//#define ON_PI
 
 #ifdef ON_PI
 #include <pigpio.h>
@@ -166,21 +166,19 @@ void testServos()
 }
 #endif // ON_PI
 
-
 int main(int argc, const char** argv)
 {
 	Mat frame, image;
 	MeanShiftTracker meanShiftTracker;
 
+	float sizeThresh = CAM_W * CAM_H * 0.8;
+
 #ifdef ON_PI
 
-	initializeGpioPort();
-	
-	toggleGoPro();
-
-	gpioDelay(5000000);
-
-	toggleGoPro();
+	//initializeGpioPort();
+	//toggleGoPro();
+	//gpioDelay(5000000);
+	//toggleGoPro();
 
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
@@ -256,6 +254,13 @@ int main(int argc, const char** argv)
 			if (image.rows == 1 && image.cols == 1)
 			{
 				start = false;
+				continue;
+			}
+			float objSize = meanShiftTracker.getObject().size.width * meanShiftTracker.getObject().size.height;
+			if (objSize > sizeThresh)
+			{
+				start = false;
+				motionTracker = MotionTracker(frame);
 				continue;
 			}
 
