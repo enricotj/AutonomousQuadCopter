@@ -1,5 +1,5 @@
-#undef ON_PI
-//#define ON_PI
+//#undef ON_PI
+#define ON_PI
 
 #ifdef ON_PI
 #include <pigpio.h>
