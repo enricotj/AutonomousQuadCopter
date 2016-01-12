@@ -1,5 +1,5 @@
-//#undef ON_PI
-#define ON_PI
+#undef ON_PI
+//#define ON_PI
 
 #ifdef ON_PI
 #include <pigpio.h>
@@ -260,7 +260,6 @@ int main(int argc, const char** argv)
 			if (objSize > sizeThresh)
 			{
 				start = false;
-				motionTracker = MotionTracker(frame);
 				continue;
 			}
 
