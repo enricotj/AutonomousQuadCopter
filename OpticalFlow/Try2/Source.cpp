@@ -175,7 +175,7 @@ int main(int argc, const char** argv)
 
 #ifdef ON_PI
 
-	//initializeGpioPort();
+	initializeGpioPort();
 	//toggleGoPro();
 	//gpioDelay(5000000);
 	//toggleGoPro();
