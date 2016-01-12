@@ -140,11 +140,24 @@ Mat MotionTracker::process(Mat& frame)
 	if (objectDetected)
 	{
 		int dw = objectBoundingRectangle.width * 0.25;
-		int w = objectBoundingRectangle.width + dw;
-		int dh = objectBoundingRectangle.height * 0.5;
-		int h = objectBoundingRectangle.height - dh;
-		int x = objectBoundingRectangle.x + -1 * xdir * objectBoundingRectangle.width;
-		int y = objectBoundingRectangle.y + xdir * dh/2;
+		int dh = objectBoundingRectangle.height * 0.25;
+		int w = objectBoundingRectangle.width * 0.75;
+		int h = objectBoundingRectangle.height * 0.75;
+		int x = objectBoundingRectangle.x + xdir * objectBoundingRectangle.width * 0.5;
+		int y = objectBoundingRectangle.y;
+		x += dw / 2;
+		y += dh / 2;
+		if (x < 0)
+		{
+			x = 0;
+		}
+		if (y < 0)
+		{
+			y = 0;
+		}
+		rectangle(obj, objectBoundingRectangle, Scalar(255, 255, 255));
+		objectBoundingRectangle.x += xdir * 4;
+		rectangle(obj, objectBoundingRectangle, Scalar(255, 0, 0));
 		objectBoundingRectangle = Rect(x, y, w, h);
 		rectangle(obj, objectBoundingRectangle, Scalar(0, 0, 255));
 	}
@@ -153,8 +166,7 @@ Mat MotionTracker::process(Mat& frame)
 		rectangle(obj, objectBoundingRectangle, Scalar(255, 255, 0));
 	}
 
-#ifdef ON_PI
-#else
+#ifndef ON_PI
 	imshow("Frame", obj);
 #endif
 
@@ -188,7 +200,8 @@ bool MotionTracker::validObjectFound()
 		prevSize = area;
 		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
 		captureCurrent++;
-		captureThreshold = (int)(CAM_H / (objectBoundingRectangle.width * 1.5));
+		double capthresh = CAM_H / (objectBoundingRectangle.width * 1.5);
+		captureThreshold = (int)capthresh;
 		return false;
 	}
 

@@ -89,27 +89,35 @@ Mat MeanShiftTracker::process(Mat frame)
 
 		if (trackObject < 0)
 		{
-			Mat roi(hue, selection);
-			Mat maskroi(mask, selection);
-			calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
-			normalize(hist, hist, 0, 255, NORM_MINMAX);
-
-			trackWindow = selection;
-			trackObject = 1;
-
-			histimg = Scalar::all(0);
-			int binW = histimg.cols / hsize;
-			Mat buf(1, hsize, CV_8UC3);
-			for (int i = 0; i < hsize; i++)
-				buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180. / hsize), 255, 255);
-			cvtColor(buf, buf, COLOR_HSV2BGR);
-
-			for (int i = 0; i < hsize; i++)
+			try
 			{
-				int val = saturate_cast<int>(hist.at<float>(i)*histimg.rows / 255);
-				rectangle(histimg, Point(i*binW, histimg.rows),
-					Point((i + 1)*binW, histimg.rows - val),
-					Scalar(buf.at<Vec3b>(i)), -1, 8);
+				Mat roi(hue, selection);
+				Mat maskroi(mask, selection);
+
+				calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
+				normalize(hist, hist, 0, 255, NORM_MINMAX);
+
+				trackWindow = selection;
+				trackObject = 1;
+
+				histimg = Scalar::all(0);
+				int binW = histimg.cols / hsize;
+				Mat buf(1, hsize, CV_8UC3);
+				for (int i = 0; i < hsize; i++)
+					buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180. / hsize), 255, 255);
+				cvtColor(buf, buf, COLOR_HSV2BGR);
+
+				for (int i = 0; i < hsize; i++)
+				{
+					int val = saturate_cast<int>(hist.at<float>(i)*histimg.rows / 255);
+					rectangle(histimg, Point(i*binW, histimg.rows),
+						Point((i + 1)*binW, histimg.rows - val),
+						Scalar(buf.at<Vec3b>(i)), -1, 8);
+				}
+			}
+			catch (Exception e)
+			{
+				return image;
 			}
 		}
 
