@@ -244,18 +244,14 @@ int main(int argc, const char** argv)
 		if (frame.empty())
 			break;
 
-		cout << "non empty frame captured" << endl;
-
 		if (!start)
 		{
 			image = motionTracker.process(frame);
 			start = motionTracker.objectCaptured();
-			cout << "motion tracker processed" << endl;
 			if (start)
 			{
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
-				cout << "mean shift tracking started" << endl;
 			}
 		}
 		if (start)
