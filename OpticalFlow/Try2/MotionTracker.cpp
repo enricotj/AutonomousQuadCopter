@@ -15,9 +15,13 @@ int dthresh = 32;
 int prevSize;
 Point prevPos;
 
-const int MAX_SIZE_DIFF_FACTOR = 2;
-const int MAX_POS_DIFF_FACTOR = 1;
-
+#ifdef ON_PI
+const double MAX_SIZE_DIFF_FACTOR = 1;
+const double MAX_POS_DIFF_FACTOR = 1;
+#else
+const double MAX_SIZE_DIFF_FACTOR = 1;
+const double MAX_POS_DIFF_FACTOR = 1;
+#endif
 int captureThreshold = 1;
 int captureCurrent = -1;
 
@@ -138,7 +142,12 @@ Mat MotionTracker::process(Mat& frame)
 	}
 	else
 	{
-		rectangle(obj, objectBoundingRectangle, Scalar(255, 255, 0));
+		Scalar c = Scalar(255, 255, 255);
+		if (captureCurrent >= 1)
+		{
+			c = Scalar(255, 255, 0);
+		}
+		rectangle(obj, objectBoundingRectangle, c);
 	}
 
 #ifndef ON_PI
@@ -159,6 +168,7 @@ Rect MotionTracker::getObject()
 bool MotionTracker::objectCaptured()
 {
 	return objectDetected;
+	//return false;
 }
 
 bool MotionTracker::validObjectFound()
@@ -175,7 +185,7 @@ bool MotionTracker::validObjectFound()
 		prevSize = area;
 		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
 		captureCurrent++;
-		double capthresh = CAM_H / (objectBoundingRectangle.width * 1.5);
+		double capthresh = CAM_H * CAM_W / (objectBoundingRectangle.area());
 		captureThreshold = (int)capthresh;
 		return false;
 	}
@@ -197,6 +207,7 @@ bool MotionTracker::validObjectFound()
 	
 	if (sizeDiff < maxSizeDiff
 		&& posDiff < maxPosDiff
+		&& posDiff > 0
 		&& area >= sizeThreshLow
 		&& area <= sizeThreshHigh)
 	{
