@@ -169,7 +169,7 @@ void testServos()
 int main(int argc, const char** argv)
 {
 	Mat frame, image;
-	MeanShiftTracker meanShiftTracker;
+	MeanShiftTracker meanShiftTracker = MeanShiftTracker();
 
 	float sizeThresh = CAM_W * CAM_H * 0.8;
 
@@ -244,14 +244,18 @@ int main(int argc, const char** argv)
 		if (frame.empty())
 			break;
 
+		cout << "non empty frame captured" << endl;
+
 		if (!start)
 		{
 			image = motionTracker.process(frame);
 			start = motionTracker.objectCaptured();
+			cout << "motion tracker processed" << endl;
 			if (start)
 			{
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
+				cout << "mean shift tracking started" << endl;
 			}
 		}
 		if (start)

@@ -28,6 +28,7 @@ MeanShiftTracker::MeanShiftTracker()
 
 MeanShiftTracker::MeanShiftTracker(Rect window)
 {
+	cout << "Initializing Mean Shift Tracker With Window..." << endl;
 	histimg = Mat::zeros(200, 320, CV_8UC3);
 	trackWindow = window;
 
