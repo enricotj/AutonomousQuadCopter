@@ -1,5 +1,5 @@
-//#undef ON_PI
-#define ON_PI
+#undef ON_PI
+//#define ON_PI
 
 #ifdef ON_PI
 #include <pigpio.h>
@@ -262,6 +262,10 @@ int main(int argc, const char** argv)
 			if (objSize > sizeThresh)
 			{
 				start = false;
+#ifdef ON_PI
+				moveServoX(0);
+				moveServoY(0);
+#endif
 				continue;
 			}
 
