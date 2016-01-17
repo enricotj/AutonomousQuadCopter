@@ -190,12 +190,14 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 
+	cout << "checkpoint A" << endl;
+
 	Camera.grab();
 	Camera.retrieve(frame);
 
 	int initServoFlag = 1;
 	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
-
+	cout << "checkpoint B" << endl;
 #else
 
 	VideoCapture cap;
@@ -247,7 +249,7 @@ int main(int argc, const char** argv)
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
 			}
 		}
-
+		cout << "checkpoint C" << endl;
 		if (start)
 		{
 			image = meanShiftTracker.process(frame);
