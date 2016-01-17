@@ -1,5 +1,5 @@
-#undef ON_PI
-//#define ON_PI
+//#undef ON_PI
+#define ON_PI
 
 #ifdef ON_PI
 #include <pigpio.h>
@@ -190,11 +190,15 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 
+	cout << "Make Pi happy." << endl;
+
 	Camera.grab();
 	Camera.retrieve(frame);
 
 	int initServoFlag = 1;
 	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
+
+	cout << "Make Pi happy." << endl;
 #else
 
 	VideoCapture cap;
