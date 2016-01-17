@@ -24,7 +24,8 @@ int captureCurrent = -1;
 //some boolean variables for added functionality
 bool objectDetected = false;
 
-int xdir = 1;
+int xdir = 0;
+int ydir = 0;
 
 MotionTracker::MotionTracker(Mat& initFrame)
 {
@@ -47,7 +48,6 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 	//notice how we use the '&' operator for objectDetected and cameraFeed. This is because we wish
 	//to take the values passed into the function and manipulate them, rather than just working with a copy.
 	//eg. we draw to the cameraFeed to be displayed in the main() function.
-	bool objectDetected = false;
 	Mat temp;
 	thresholdImage.copyTo(temp);
 	//these two vectors needed for output of findContours
@@ -58,47 +58,16 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 	findContours(temp, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);// retrieves external contours
 
 	//if contours vector is not empty, we have found some objects
-	if (contours.size()>0)objectDetected = true;
-	else objectDetected = false;
-
-	if (objectDetected)
+	if (contours.size()>0)
 	{
-		for (vector< vector<Point> >::iterator it = contours.begin(); it != contours.end(); ++it)
-		{
-			vector< vector<Point> > largestContourVec;
-			largestContourVec.push_back(*it);
-			Rect objRect = boundingRect(largestContourVec.at(0));
-			rectangle(frame1, objRect, Scalar(0, 0, 255));
-		}
 		//the largest contour is found at the end of the contours vector
 		//we will simply assume that the biggest contour is the object we are looking for.
 		vector< vector<Point> > largestContourVec;
-		if (contours.size() < 2) {
-			return;
-		}
-		largestContourVec.push_back(contours.at(contours.size() - 2));
 		largestContourVec.push_back(contours.at(contours.size() - 1));
 		//make a bounding rectangle around the largest contour then find its centroid
 		//this will be the object's final estimated position.
 		Rect tempRect = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
-		if (objectCaptured())  {
-				objectBoundingRectangle = boundingRect(largestContourVec.at(1));
-				if (objectCaptured()) {
-					int minX, maxX, minY, maxY;
-					if (objectBoundingRectangle.x > tempRect.x + tempRect.width) {
-						minX = tempRect.x + tempRect.width;
-						maxX = objectBoundingRectangle.x;
-					}
-					else {
-						minX = objectBoundingRectangle.x + objectBoundingRectangle.width;
-						maxX = tempRect.x;
-					}
-					minY = max(tempRect.y, objectBoundingRectangle.y);
-					maxY = minY + min(tempRect.height, objectBoundingRectangle.height);
-					objectBoundingRectangle = Rect(minX, minY, maxX - minX, maxY - minY);
-				}
-		}
 	}
 }
 
@@ -139,12 +108,21 @@ Mat MotionTracker::process(Mat& frame)
 	objectDetected = validObjectFound();
 	if (objectDetected)
 	{
-		int dw = objectBoundingRectangle.width * 0.25;
-		int dh = objectBoundingRectangle.height * 0.25;
-		int w = objectBoundingRectangle.width * 0.75;
-		int h = objectBoundingRectangle.height * 0.75;
-		int x = objectBoundingRectangle.x + xdir * objectBoundingRectangle.width * 0.5;
-		int y = objectBoundingRectangle.y;
+		double shrink = 0.5;
+		double shrinkInv = 1 - shrink;
+
+		int w = objectBoundingRectangle.width * shrinkInv;
+		int h = objectBoundingRectangle.height * shrinkInv;
+		int m = min(w, h);
+		
+		int dw = objectBoundingRectangle.width * shrink;
+		int dh = objectBoundingRectangle.height * shrink;
+		
+		int whr = w / h;
+
+		int x = objectBoundingRectangle.x + xdir;
+		int y = objectBoundingRectangle.y + ydir;
+		
 		x += dw / 2;
 		y += dh / 2;
 		if (x < 0)
@@ -155,8 +133,6 @@ Mat MotionTracker::process(Mat& frame)
 		{
 			y = 0;
 		}
-		rectangle(obj, objectBoundingRectangle, Scalar(255, 255, 255));
-		objectBoundingRectangle.x += xdir * 4;
 		rectangle(obj, objectBoundingRectangle, Scalar(255, 0, 0));
 		objectBoundingRectangle = Rect(x, y, w, h);
 		rectangle(obj, objectBoundingRectangle, Scalar(0, 0, 255));
@@ -214,15 +190,11 @@ bool MotionTracker::validObjectFound()
 	int px = prevPos.x;
 	int py = prevPos.y;
 	int posDiff = (int)sqrt(pow(x - px, 2) + pow(y - py, 2));
-	int xdif = x - px;
-	if (xdif > 0)
-	{
-		xdir = -1;
-	}
-	else if (xdif < 0)
-	{
-		xdir = 1;
-	}
+	
+	xdir = px - x;
+	ydir = py - y;
+	prevPos = Point(x, y);
+	prevSize = area;
 	
 	if (sizeDiff < maxSizeDiff
 		&& posDiff < maxPosDiff
@@ -234,8 +206,6 @@ bool MotionTracker::validObjectFound()
 		{
 			return true;
 		}
-		prevSize = area;
-		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
 	}
 	else
 	{
