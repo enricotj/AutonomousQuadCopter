@@ -226,6 +226,10 @@ int main(int argc, const char** argv)
 	bool start = false;
 	int frameCounter = 0;
 
+	cout << "**********************" << endl;
+	cout << "Entering main loop:" << endl;
+	cout << "**********************" << endl;
+
 	while (frameCounter < frameMax)
 	{
 		frameCounter++;

@@ -23,6 +23,7 @@ static const float BIGGEST_OBJECT_SIZE = 0.75 * 640 * 480;
 
 MeanShiftTracker::MeanShiftTracker()
 {
+	cout << "Mean Shift Tracker Constructed" << endl;
 }
 
 MeanShiftTracker::MeanShiftTracker(Rect window)
@@ -32,6 +33,7 @@ MeanShiftTracker::MeanShiftTracker(Rect window)
 
 	initSelection(SELECTION_EVENT_A, trackWindow.x, trackWindow.y);
 	initSelection(SELECTION_EVENT_B, trackWindow.x + trackWindow.width, trackWindow.y + trackWindow.height);
+	cout << "Mean Shift Tracker Constructed With Window" << endl;
 }
 
 MeanShiftTracker::~MeanShiftTracker()
@@ -43,6 +45,7 @@ MeanShiftTracker::~MeanShiftTracker()
 	hist.release();
 	histimg.release();
 	backproj.release();
+	cout << "Mean Shift Tracker Destructed" << endl;
 }
 
 void MeanShiftTracker::initSelection(int event, int x, int y)

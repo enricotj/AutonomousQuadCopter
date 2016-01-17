@@ -31,6 +31,7 @@ MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
 	objectBoundingRectangle = Rect(0, 0, 0, 0);
+	cout << "Motion Tracker Constructed" << endl;
 }
 
 MotionTracker::~MotionTracker()
@@ -41,6 +42,7 @@ MotionTracker::~MotionTracker()
 	grayImage2.release();
 	differenceImage.release();
 	thresholdImage.release();
+	cout << "Motion Tracker Destructed" << endl;
 }
 
 void MotionTracker::searchForMovement(Mat thresholdImage)
@@ -113,12 +115,9 @@ Mat MotionTracker::process(Mat& frame)
 
 		int w = objectBoundingRectangle.width * shrinkInv;
 		int h = objectBoundingRectangle.height * shrinkInv;
-		int m = min(w, h);
 		
 		int dw = objectBoundingRectangle.width * shrink;
 		int dh = objectBoundingRectangle.height * shrink;
-		
-		int whr = w / h;
 
 		int x = objectBoundingRectangle.x + xdir;
 		int y = objectBoundingRectangle.y + ydir;
