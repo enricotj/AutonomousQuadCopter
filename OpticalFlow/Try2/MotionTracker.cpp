@@ -150,7 +150,7 @@ Mat MotionTracker::process(Mat& frame)
 		rectangle(obj, objectBoundingRectangle, c);
 	}
 
-#ifndef ON_PI
+#ifdef ON_PI
 //	imshow("Frame", obj);
 #endif
 
