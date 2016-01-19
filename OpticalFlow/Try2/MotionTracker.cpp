@@ -151,7 +151,7 @@ Mat MotionTracker::process(Mat& frame)
 	}
 
 #ifndef ON_PI
-	imshow("Frame", obj);
+//	imshow("Frame", obj);
 #endif
 
 	frame2.copyTo(frame1);

@@ -164,7 +164,7 @@ void testServos()
 	servoTest(0);
 	gpioTerminate();
 }
-#endif // ON_PI
+#endif
 
 int main(int argc, const char** argv)
 {
@@ -172,7 +172,7 @@ int main(int argc, const char** argv)
 	MeanShiftTracker meanShiftTracker = MeanShiftTracker();
 
 	float sizeThresh = CAM_W * CAM_H * 0.8;
-
+	initializeGpioPort();
 #ifdef ON_PI
 
 	initializeGpioPort();
