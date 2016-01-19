@@ -5,7 +5,7 @@
 #include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
 #endif
-
+#include <ctime>
 #include <opencv2/core/utility.hpp>
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/imgproc.hpp"
@@ -192,7 +192,15 @@ int main(int argc, const char** argv)
 	Camera.retrieve(frame);
 
 	int initServoFlag = 1;
-	VideoWriter video("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
+	time_t timeV = time(0);
+
+	std::string out = "out";
+	struct tm  now = *localtime(&timeV); 
+	char buf[80];
+	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &now);
+	std::string name = out + buf + ".avi";	
+
+	VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
 
 	cout << "Make Pi happy." << endl;
 #else
