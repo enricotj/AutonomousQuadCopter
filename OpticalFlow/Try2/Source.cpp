@@ -1,5 +1,4 @@
-//#undef ON_PI
-#define ON_PI
+#include "Globals.h"
 
 #ifdef ON_PI
 #include <pigpio.h>
@@ -16,7 +15,6 @@
 #include <ctype.h>
 #include "MeanShiftTracker.h"
 #include "MotionTracker.h"
-#include "Globals.h"
 
 using namespace cv;
 using namespace std;
@@ -172,9 +170,7 @@ int main(int argc, const char** argv)
 	MeanShiftTracker meanShiftTracker = MeanShiftTracker();
 
 	float sizeThresh = CAM_W * CAM_H * 0.8;
-	initializeGpioPort();
 #ifdef ON_PI
-
 	initializeGpioPort();
 	//toggleGoPro();
 	//gpioDelay(5000000);
