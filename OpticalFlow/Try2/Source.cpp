@@ -199,7 +199,7 @@ int main(int argc, const char** argv)
 	std::string out = "out";
 	struct tm  now = *localtime(&timeV); 
 	char buf[80];
-	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &now);
+	strftime(buf, sizeof(buf), "%Y-%m-%d_%H-%M-%S", &now);
 	std::string name = out + buf + ".avi";	
 
 	VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
