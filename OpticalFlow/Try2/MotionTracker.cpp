@@ -167,8 +167,8 @@ Rect MotionTracker::getObject()
 
 bool MotionTracker::objectCaptured()
 {
-	return objectDetected;
-	//return false;
+	//return objectDetected;
+	return false;
 }
 
 bool MotionTracker::validObjectFound()

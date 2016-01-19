@@ -162,6 +162,8 @@ void testServos()
 	servoTest(0);
 	gpioTerminate();
 }
+#else
+int winDelay = 50;
 #endif
 
 int main(int argc, const char** argv)
@@ -218,7 +220,7 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 	cap.read(frame);
-	cvWaitKey(20);
+	cvWaitKey(winDelay);
 
 #endif // ON_PI
 
@@ -303,7 +305,7 @@ int main(int argc, const char** argv)
 		frames.push_back(temp);
 #else
 		imshow("Track", image);
-		cvWaitKey(20);
+		cvWaitKey(winDelay);
 #endif // ON_PI
 
 	}
