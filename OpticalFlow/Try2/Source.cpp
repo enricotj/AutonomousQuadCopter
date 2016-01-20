@@ -188,8 +188,6 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 
-	cout << "Make Pi happy." << endl;
-
 	Camera.grab();
 	Camera.retrieve(frame);
 
@@ -203,8 +201,6 @@ int main(int argc, const char** argv)
 	std::string name = out + buf + ".avi";	
 
 	VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
-
-	cout << "Make Pi happy." << endl;
 #else
 
 	VideoCapture cap;

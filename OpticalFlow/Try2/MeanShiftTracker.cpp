@@ -6,15 +6,13 @@ bool initialze = true;
 bool backprojMode = false;
 bool selectObject = false;
 int trackObject = 0;
-bool showHist = true;
 Point origin;
 Rect selection, trackWindow;
 RotatedRect trackBox;
 
-int vmin = 10, vmax = 256, smin = 30;
+int vmin = 50, vmax = 238, smin = 50;
 
-int hsize = 16;
-float* phranges;
+int hsize = 32;
 
 static const int SELECTION_EVENT_A = 0;
 static const int SELECTION_EVENT_B = 1;
@@ -86,7 +84,7 @@ Mat MeanShiftTracker::process(Mat frame)
 		int _vmin = vmin, _vmax = vmax;
 
 		inRange(hsv, Scalar(0, smin, MIN(_vmin, _vmax)),
-			Scalar(180, 256, MAX(_vmin, _vmax)), mask);
+			Scalar(360, 256, MAX(_vmin, _vmax)), mask);
 		int ch[] = { 0, 0 };
 		hue.create(hsv.size(), hsv.depth());
 		mixChannels(&hsv, 1, &hue, 1, ch, 1);
@@ -100,15 +98,16 @@ Mat MeanShiftTracker::process(Mat frame)
 
 				calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
 				normalize(hist, hist, 0, 255, NORM_MINMAX);
-
 				trackWindow = selection;
 				trackObject = 1;
-
+				/*
 				histimg = Scalar::all(0);
 				int binW = histimg.cols / hsize;
 				Mat buf(1, hsize, CV_8UC3);
-				for (int i = 0; i < hsize; i++)
+				for (int i = 0; i < hsize; i++) 
+				{
 					buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180. / hsize), 255, 255);
+				}
 				cvtColor(buf, buf, COLOR_HSV2BGR);
 
 				for (int i = 0; i < hsize; i++)
@@ -118,13 +117,13 @@ Mat MeanShiftTracker::process(Mat frame)
 						Point((i + 1)*binW, histimg.rows - val),
 						Scalar(buf.at<Vec3b>(i)), -1, 8);
 				}
+				*/
 			}
 			catch (Exception e)
 			{
 				return image;
 			}
 		}
-
 		calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
 		backproj &= mask;
 		trackBox = CamShift(backproj, trackWindow,
