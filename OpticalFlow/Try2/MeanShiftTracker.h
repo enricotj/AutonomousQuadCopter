@@ -23,6 +23,8 @@ public:
 	Mat process(Mat frame);
 	RotatedRect getObject();
 
+	bool isObjectLost();
+
 private:
 	void initSelection(int event, int x, int y);
 };

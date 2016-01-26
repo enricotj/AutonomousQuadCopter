@@ -1,9 +1,18 @@
-﻿Build started 1/25/2016 10:13:59 PM.
+﻿Build started 1/25/2016 10:33:14 PM.
      1>Project "C:\Users\enricotj\Desktop\AutonomousQuadCopter\OpticalFlow\Try2\Try2.vcxproj" on node 2 (Build target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (Try2.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV\build\x64\vc12\..\..\include /Zi /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt MeanShiftTracker.cpp Source.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV\build\x64\vc12\..\..\include /Zi /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt MeanShiftTracker.cpp MotionTracker.cpp Source.cpp
          Source.cpp
+         Generating Code...
+         Compiling...
+         MotionTracker.cpp
+     1>MotionTracker.cpp(120): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>MotionTracker.cpp(121): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>MotionTracker.cpp(123): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>MotionTracker.cpp(124): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>MotionTracker.cpp(193): warning C4244: 'initializing' : conversion from 'const double' to 'int', possible loss of data
+     1>MotionTracker.cpp(196): warning C4244: 'initializing' : conversion from 'const double' to 'int', possible loss of data
          MeanShiftTracker.cpp
          Generating Code...
        Link:
@@ -15,4 +24,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.95
+Time Elapsed 00:00:02.36

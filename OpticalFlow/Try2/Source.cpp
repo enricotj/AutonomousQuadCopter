@@ -256,20 +256,14 @@ int main(int argc, const char** argv)
 			{
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
-				imwrite("selection.jpg", frame(motionTracker.getObject()));
-				break;
 			}
 		}
 		if (start)
 		{
 			image = meanShiftTracker.process(frame);
-			if (image.rows == 1 && image.cols == 1)
-			{
-				start = false;
-				continue;
-			}
 			float objSize = meanShiftTracker.getObject().size.width * meanShiftTracker.getObject().size.height;
-			if (objSize > sizeThresh)
+			if ((image.rows == 1 && image.cols == 1) || meanShiftTracker.isObjectLost()
+					|| objSize > sizeThresh)
 			{
 				start = false;
 #ifdef ON_PI

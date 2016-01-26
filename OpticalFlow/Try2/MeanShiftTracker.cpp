@@ -21,10 +21,13 @@ static const float BIGGEST_OBJECT_SIZE = 0.75 * CAM_H * CAM_W;
 
 float initWidthHeightRatio = -1.0f;
 
+bool objLost = false;
+
 MeanShiftTracker::MeanShiftTracker()
 {
 	cout << "Mean Shift Tracker Constructed" << endl;
 	initWidthHeightRatio = -1.0f;
+	objLost = false;
 }
 
 MeanShiftTracker::MeanShiftTracker(Rect window)
@@ -38,6 +41,8 @@ MeanShiftTracker::MeanShiftTracker(Rect window)
 	cout << "Mean Shift Tracker Constructed With Window" << endl;
 
 	initWidthHeightRatio = -1.0f;
+
+	objLost = false;
 }
 
 MeanShiftTracker::~MeanShiftTracker()
@@ -110,6 +115,7 @@ Mat MeanShiftTracker::process(Mat frame)
 			}
 			catch (Exception e)
 			{
+				objLost = true;
 				return image;
 			}
 		}
@@ -127,7 +133,16 @@ Mat MeanShiftTracker::process(Mat frame)
 
 		if (backprojMode)
 			cvtColor(backproj, image, COLOR_GRAY2BGR);
-		ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
+		try
+		{
+			ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
+		}
+		catch (Exception e)
+		{
+			objLost = true;
+			return image;
+		}
+		
 	}
 
 	int size = trackWindow.width * trackWindow.height;
@@ -142,4 +157,10 @@ Mat MeanShiftTracker::process(Mat frame)
 RotatedRect MeanShiftTracker::getObject()
 {
 	return trackBox;
+}
+
+
+bool MeanShiftTracker::isObjectLost()
+{
+	return objLost;
 }
