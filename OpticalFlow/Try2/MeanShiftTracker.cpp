@@ -12,16 +12,19 @@ RotatedRect trackBox;
 
 int vmin = 50, vmax = 238, smin = 50;
 
-int hsize = 32;
+int hsize = 64;
 
 static const int SELECTION_EVENT_A = 0;
 static const int SELECTION_EVENT_B = 1;
 
-static const float BIGGEST_OBJECT_SIZE = 0.75 * 640 * 480;
+static const float BIGGEST_OBJECT_SIZE = 0.75 * CAM_H * CAM_W;
+
+float initWidthHeightRatio = -1.0f;
 
 MeanShiftTracker::MeanShiftTracker()
 {
 	cout << "Mean Shift Tracker Constructed" << endl;
+	initWidthHeightRatio = -1.0f;
 }
 
 MeanShiftTracker::MeanShiftTracker(Rect window)
@@ -33,6 +36,8 @@ MeanShiftTracker::MeanShiftTracker(Rect window)
 	initSelection(SELECTION_EVENT_A, trackWindow.x, trackWindow.y);
 	initSelection(SELECTION_EVENT_B, trackWindow.x + trackWindow.width, trackWindow.y + trackWindow.height);
 	cout << "Mean Shift Tracker Constructed With Window" << endl;
+
+	initWidthHeightRatio = -1.0f;
 }
 
 MeanShiftTracker::~MeanShiftTracker()
@@ -74,7 +79,7 @@ void MeanShiftTracker::initSelection(int event, int x, int y)
 
 Mat MeanShiftTracker::process(Mat frame)
 {
-	float hranges[] = { 0, 180 };
+	float hranges[] = { 0, 360 };
 	const float* phranges = hranges;
 	frame.copyTo(image);
 	cvtColor(image, hsv, COLOR_BGR2HSV);
@@ -83,8 +88,10 @@ Mat MeanShiftTracker::process(Mat frame)
 	{
 		int _vmin = vmin, _vmax = vmax;
 
-		inRange(hsv, Scalar(0, smin, MIN(_vmin, _vmax)),
-			Scalar(360, 256, MAX(_vmin, _vmax)), mask);
+		inRange(hsv,
+			Scalar(0, smin, _vmin),
+			Scalar(360, 256, _vmax),
+			mask);
 		int ch[] = { 0, 0 };
 		hue.create(hsv.size(), hsv.depth());
 		mixChannels(&hsv, 1, &hue, 1, ch, 1);
@@ -100,34 +107,16 @@ Mat MeanShiftTracker::process(Mat frame)
 				normalize(hist, hist, 0, 255, NORM_MINMAX);
 				trackWindow = selection;
 				trackObject = 1;
-				/*
-				histimg = Scalar::all(0);
-				int binW = histimg.cols / hsize;
-				Mat buf(1, hsize, CV_8UC3);
-				for (int i = 0; i < hsize; i++) 
-				{
-					buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180. / hsize), 255, 255);
-				}
-				cvtColor(buf, buf, COLOR_HSV2BGR);
-
-				for (int i = 0; i < hsize; i++)
-				{
-					int val = saturate_cast<int>(hist.at<float>(i)*histimg.rows / 255);
-					rectangle(histimg, Point(i*binW, histimg.rows),
-						Point((i + 1)*binW, histimg.rows - val),
-						Scalar(buf.at<Vec3b>(i)), -1, 8);
-				}
-				*/
 			}
 			catch (Exception e)
 			{
 				return image;
 			}
 		}
-		calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
+		calcBackProject(&hue, 1, 0, hist, backproj, &phranges, 0.5);
 		backproj &= mask;
 		trackBox = CamShift(backproj, trackWindow,
-			TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
+			TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 5, 1));
 		if (trackWindow.area() <= 1)
 		{
 			int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5) / 6;
@@ -146,8 +135,6 @@ Mat MeanShiftTracker::process(Mat frame)
 	{
 		return Mat::zeros(1, 1, CV_8UC1);
 	}
-
-	//imshow("Track", image);
 
 	return image;
 }

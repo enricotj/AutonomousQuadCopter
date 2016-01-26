@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <ctype.h>
+#include "Globals.h"
 
 using namespace cv;
 using namespace std;

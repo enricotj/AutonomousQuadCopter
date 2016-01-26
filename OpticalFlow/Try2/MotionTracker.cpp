@@ -114,7 +114,7 @@ Mat MotionTracker::process(Mat& frame)
 	objectDetected = validObjectFound();
 	if (objectDetected)
 	{
-		double shrink = 0.65;
+		double shrink = 0.4;
 		double shrinkInv = 1 - shrink;
 
 		int w = objectBoundingRectangle.width * shrinkInv;
@@ -185,7 +185,7 @@ bool MotionTracker::validObjectFound()
 		prevSize = area;
 		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
 		captureCurrent++;
-		double capthresh = CAM_H * CAM_W / (objectBoundingRectangle.area() * 4);
+		double capthresh = CAM_H * CAM_W / (objectBoundingRectangle.area() * 16);
 		captureThreshold = (int)capthresh;
 		return false;
 	}
@@ -207,7 +207,7 @@ bool MotionTracker::validObjectFound()
 	
 	if (sizeDiff < maxSizeDiff
 		&& posDiff < maxPosDiff
-		&& posDiff > 0
+		//&& posDiff > 0
 		&& area >= sizeThreshLow
 		&& area <= sizeThreshHigh)
 	{

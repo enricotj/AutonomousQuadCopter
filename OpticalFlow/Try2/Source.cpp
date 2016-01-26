@@ -216,6 +216,7 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 	cap.read(frame);
+
 	cvWaitKey(winDelay);
 
 #endif // ON_PI
@@ -232,7 +233,8 @@ int main(int argc, const char** argv)
 	cout << "Entering main loop:" << endl;
 	cout << "**********************" << endl;
 
-	while (frameCounter < frameMax)
+	//while (frameCounter < frameMax)
+	while (true)
 	{
 		frameCounter++;
 
