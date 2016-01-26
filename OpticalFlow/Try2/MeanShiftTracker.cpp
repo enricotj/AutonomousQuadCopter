@@ -12,7 +12,7 @@ RotatedRect trackBox;
 
 int vmin = 50, vmax = 238, smin = 50;
 
-int hsize = 64;
+int hsize = 16;
 
 static const int SELECTION_EVENT_A = 0;
 static const int SELECTION_EVENT_B = 1;

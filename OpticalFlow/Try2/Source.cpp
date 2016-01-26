@@ -163,7 +163,7 @@ void testServos()
 	gpioTerminate();
 }
 #else
-int winDelay = 50;
+int winDelay = 125;
 #endif
 
 int main(int argc, const char** argv)
@@ -233,8 +233,8 @@ int main(int argc, const char** argv)
 	cout << "Entering main loop:" << endl;
 	cout << "**********************" << endl;
 
-	//while (frameCounter < frameMax)
-	while (true)
+	while (frameCounter < frameMax)
+	//while (true)
 	{
 		frameCounter++;
 
@@ -256,6 +256,8 @@ int main(int argc, const char** argv)
 			{
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
+				imwrite("selection.jpg", frame(motionTracker.getObject()));
+				break;
 			}
 		}
 		if (start)
