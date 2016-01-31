@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include "MeanShiftTracker.h"
 #include "MotionTracker.h"
-
+#include <curl/curl.h>
 using namespace cv;
 using namespace std;
 
@@ -34,17 +34,42 @@ int prevRotX = 99999;
 int prevRotY = 99999;
 
 #ifdef ON_PI
+void startRecording() {
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if(curl){
+		curl_easy_setopt(curl, CURLOPT_URL, "http://10.5.5.9/bacpac/SH?t=goprohero&p=%01");
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+		res = curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
+	}
+}
+void stopRecording() {
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if(curl){
+		curl_easy_setopt(curl, CURLOPT_URL, "http://10.5.5.9/bacpac/SH?t=goprohero&p=%00");
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+		res = curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
+	}
+}
+
 void moveServoX(int rot)
-{
-	if (prevRotX == rot) return;
-	prevRotX = rot;
-	cout << "turn x: " << rot << endl;
-	switch (rot)
-	{
-		// move left
-		case SERVO_LEFT:
-			//		softServoWrite(0, 375);
-			gpioServo(17, 1450);
+    {
+    	if (prevRotX == rot) return;
+    	prevRotX = rot;
+    	cout << "turn x: " << rot << endl;
+    	switch (rot)
+    	{
+    		// move left
+    		case SERVO_LEFT:
+		//		softServoWrite(0, 375);
+    			gpioServo(17, 1450);
 			break;
 			// stop
 		case SERVO_STOP:
