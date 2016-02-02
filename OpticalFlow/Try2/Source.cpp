@@ -34,6 +34,7 @@ int prevRotX = 99999;
 int prevRotY = 99999;
 
 #ifdef ON_PI
+bool recording = false;
 void startRecording() {
 	CURL *curl;
 	CURLcode res;
@@ -45,6 +46,7 @@ void startRecording() {
 		res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 	}
+	recording = true;
 }
 void stopRecording() {
 	CURL *curl;
@@ -57,6 +59,7 @@ void stopRecording() {
 		res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 	}
+	recording = false;
 }
 
 void moveServoX(int rot)
@@ -281,6 +284,9 @@ int main(int argc, const char** argv)
 			{
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
+#ifdef ON_PI
+				startRecording();
+#endif // ON_PI
 			}
 		}
 		if (start)
@@ -294,6 +300,7 @@ int main(int argc, const char** argv)
 #ifdef ON_PI
 				moveServoX(0);
 				moveServoY(0);
+				stopRecording();
 #endif
 				continue;
 			}
@@ -330,6 +337,11 @@ int main(int argc, const char** argv)
 	}
 
 #ifdef ON_PI
+
+	if (recording) 
+	{
+		stopRecording();
+	}
 
 	moveServoX(SERVO_STOP);
 	moveServoY(SERVO_STOP);
