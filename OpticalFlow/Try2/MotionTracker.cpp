@@ -31,6 +31,8 @@ bool objectDetected = false;
 int xdir = 0;
 int ydir = 0;
 
+int minContourSize = 1*1;
+
 MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
@@ -63,6 +65,20 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 	//findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE );// retrieves all contours
 	findContours(temp, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);// retrieves external contours
 
+	/// Find the convex hull object for each contour
+	/*
+	vector<vector<Point> >hull(contours.size());
+	for (int i = 0; i < contours.size(); i++)
+	{
+		if (contours[i].size() > minContourSize)
+		{
+			convexHull(Mat(contours[i]), hull[i], false);
+			drawContours(drawing, hull, i, Scalar(0, 255, 0), 1, 8, vector<Vec4i>(), 0, Point());
+			drawContours(drawing, contours, i, Scalar(255, 0, 255), 1, 8, vector<Vec4i>(), 0, Point());
+		}
+	}
+	*/
+
 	//if contours vector is not empty, we have found some objects
 	if (contours.size()>0)
 	{
@@ -74,6 +90,20 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		//this will be the object's final estimated position.
 		Rect tempRect = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
+
+		Moments m = moments(largestContourVec.at(0), false);
+		int cx = m.m10 / m.m00;
+		int cy = m.m01 / m.m00;
+		
+
+		Mat drawing = Mat::zeros(temp.size(), temp.type());
+		vector<vector<Point>> hull(1);
+		convexHull(Mat(largestContourVec.at(0)), hull[0]);
+		drawContours(drawing, hull, 0, Scalar(255), CV_FILLED, 8, vector<Vec4i>(), 0, Point());
+		//drawContours(drawing, largestContourVec, 0, Scalar(255, 0, 255), 1, 8, vector<Vec4i>(), 0, Point());
+		frame2.copyTo(drawing, drawing);
+		circle(drawing, Point(cx, cy), 16, Scalar(0, 0, 255), 2, 8, 0);
+		imshow("Object", drawing);
 	}
 }
 
@@ -86,7 +116,6 @@ Mat MotionTracker::process(Mat& frame)
 	cv::cvtColor(frame2, grayImage2, COLOR_BGR2GRAY);
 
 	//cv::imshow("Gray Image", grayImage2);
-	//cv::imshow("Threshold Image", thresholdImage);
 
 	//perform frame differencing with the sequential images. This will output an "intensity image"
 	//do not confuse this with a threshold image, we will need to perform thresholding afterwards.
@@ -104,12 +133,12 @@ Mat MotionTracker::process(Mat& frame)
 	cv::threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
 
 	//show the threshold image after it's been "blurred"
-	//imshow("Final Threshold Image", thresholdImage);
+	imshow("Final Threshold Image", thresholdImage);
 
 	searchForMovement(thresholdImage);
 
-	//show our captured frame
 	Mat obj;
+	//show our captured frame
 	frame2.copyTo(obj);
 	objectDetected = validObjectFound();
 	if (objectDetected)
@@ -123,8 +152,8 @@ Mat MotionTracker::process(Mat& frame)
 		int dw = objectBoundingRectangle.width * shrink;
 		int dh = objectBoundingRectangle.height * shrink;
 
-		int x = objectBoundingRectangle.x + xdir;
-		int y = objectBoundingRectangle.y + ydir;
+		int x = objectBoundingRectangle.x;
+		int y = objectBoundingRectangle.y;
 		
 		x += dw / 2;
 		y += dh / 2;
@@ -136,6 +165,7 @@ Mat MotionTracker::process(Mat& frame)
 		{
 			y = 0;
 		}
+
 		rectangle(obj, objectBoundingRectangle, Scalar(255, 0, 0));
 		objectBoundingRectangle = Rect(x, y, w, h);
 		rectangle(obj, objectBoundingRectangle, Scalar(0, 0, 255));
@@ -167,8 +197,8 @@ Rect MotionTracker::getObject()
 
 bool MotionTracker::objectCaptured()
 {
-	return objectDetected;
-	//return false;
+	//return objectDetected;
+	return false;
 }
 
 bool MotionTracker::validObjectFound()
@@ -180,22 +210,25 @@ bool MotionTracker::validObjectFound()
 		return false;
 	}
 
+	int w = objectBoundingRectangle.width;
+	int h = objectBoundingRectangle.height;
+	int x = objectBoundingRectangle.x + w / 2;
+	int y = objectBoundingRectangle.y + h / 2;
+
 	if (captureCurrent == -1)
 	{
 		prevSize = area;
-		prevPos = Point(objectBoundingRectangle.x, objectBoundingRectangle.y);
+		prevPos = Point(x, y);
 		captureCurrent++;
-		double capthresh = CAM_H * CAM_W / (objectBoundingRectangle.area() * 16);
+		double capthresh = CAM_H * CAM_W / (objectBoundingRectangle.area() * 8);
 		captureThreshold = (int)capthresh;
 		return false;
 	}
 
 	int maxSizeDiff = area / MAX_SIZE_DIFF_FACTOR;
 	int sizeDiff = abs(area - prevSize);
-
-	int maxPosDiff = (objectBoundingRectangle.width + objectBoundingRectangle.height) / MAX_POS_DIFF_FACTOR;
-	int x = objectBoundingRectangle.x;
-	int y = objectBoundingRectangle.y;
+	
+	int maxPosDiff = (w + h) / MAX_POS_DIFF_FACTOR;
 	int px = prevPos.x;
 	int py = prevPos.y;
 	int posDiff = (int)sqrt(pow(x - px, 2) + pow(y - py, 2));

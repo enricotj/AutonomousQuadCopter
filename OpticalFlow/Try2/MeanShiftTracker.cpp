@@ -3,8 +3,9 @@
 Mat image, hsv, hue, mask, hist, histimg, backproj;
 
 bool initialze = true;
-bool backprojMode = false;
+bool backprojMode = true;
 bool selectObject = false;
+bool motionCorrectMode = true;
 int trackObject = 0;
 Point origin;
 Rect selection, trackWindow;
@@ -122,7 +123,7 @@ Mat MeanShiftTracker::process(Mat frame)
 		calcBackProject(&hue, 1, 0, hist, backproj, &phranges, 0.5);
 		backproj &= mask;
 		trackBox = CamShift(backproj, trackWindow,
-			TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 5, 1));
+			TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
 		if (trackWindow.area() <= 1)
 		{
 			int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5) / 6;
@@ -163,4 +164,19 @@ RotatedRect MeanShiftTracker::getObject()
 bool MeanShiftTracker::isObjectLost()
 {
 	return objLost;
+}
+
+void MeanShiftTracker::correctForServoMotion(Point aim)
+{
+	// left is clockwise (-1)
+	// right is counterclockwise (+1)
+	// up (-1)
+	// down (+1)
+	if (motionCorrectMode)
+	{
+		int dx = aim.x * trackWindow.width;
+		int dy = aim.y * trackWindow.height * -1;
+		trackWindow.x += dx;
+		trackWindow.y += dy;
+	}
 }

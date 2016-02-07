@@ -25,6 +25,8 @@ public:
 
 	bool isObjectLost();
 
+	void correctForServoMotion(Point aim);
+
 private:
 	void initSelection(int event, int x, int y);
 };

@@ -4,6 +4,12 @@
 #include <pigpio.h>
 #include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
+#include <curl/curl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <termios.h>
 #endif
 #include <ctime>
 #include <opencv2/core/utility.hpp>
@@ -15,7 +21,7 @@
 #include <ctype.h>
 #include "MeanShiftTracker.h"
 #include "MotionTracker.h"
-#include <curl/curl.h>
+
 using namespace cv;
 using namespace std;
 
@@ -28,13 +34,15 @@ const int SERVO_RIGHT = 1; //counterclockwise
 const int SERVO_UP = -1;
 const int SERVO_DOWN = 1;
 const int SERVO_STOP = 0;
-const int SERVO_AIM_THRESH_X = 50;
-const int SERVO_AIM_THRESH_Y = 25;
+const int SERVO_AIM_THRESH_X = CAM_W / 5;
+const int SERVO_AIM_THRESH_Y = CAM_H / 5;
 int prevRotX = 99999;
 int prevRotY = 99999;
+int fd;
 
 #ifdef ON_PI
 bool recording = false;
+
 void startRecording() {
 	CURL *curl;
 	CURLcode res;
@@ -48,6 +56,7 @@ void startRecording() {
 	}
 	recording = true;
 }
+
 void stopRecording() {
 	CURL *curl;
 	CURLcode res;
@@ -72,16 +81,19 @@ void moveServoX(int rot)
     		// move left
     		case SERVO_LEFT:
 		//		softServoWrite(0, 375);
-    			gpioServo(17, 1450);
+    			//gpioServo(17, 1465);
+				int n = write(fd,"10",2);
 			break;
 			// stop
 		case SERVO_STOP:
-			gpioServo(17, 1500);
-			//		digitalWrite(0,0);	
+			//gpioServo(17, 1500);
+			//		digitalWrite(0,0);
+			int n = write(fd,"0",2);
 			break;
 			// move right
 		case SERVO_RIGHT:
-			gpioServo(17, 1550);
+			int n = write(fd,"-10",2);
+			//gpioServo(17, 1525);
 			//		softServoWrite(0, 525);
 			break;
 			// stop
@@ -102,17 +114,17 @@ void moveServoY(int rot)
 		// move left
 
 		case SERVO_UP:
-			gpioServo(18, 1425);
+			gpioServo(18, 1430);
 			//		softServoWrite(1, 375);
 			break;
 			// stop
 		case SERVO_STOP:
-			gpioServo(18, 1475);
+			gpioServo(18, 1470);
 			//		digitalWrite(1,0);	
 			break;
 			// move right
 		case SERVO_DOWN:
-			gpioServo(18, 1525);
+			gpioServo(18, 1500);
 			//		softServoWrite(1, 500);
 			break;
 			// stop
@@ -134,17 +146,20 @@ void servoTest(int rot)
 	}
 }
 
-void aimServoTowards(Point p)
+Point aimServoTowards(Point p)
 {
+	Point aim = Point(0, 0);
 	int cx = CAM_W / 2;
 	cout << "x :" << p.x << endl;
 	if (p.x > cx + SERVO_AIM_THRESH_X)
 	{
 		moveServoX(SERVO_LEFT);
+		aim.x = SERVO_LEFT;
 	}
 	else if (p.x < cx - SERVO_AIM_THRESH_X)
 	{
 		moveServoX(SERVO_RIGHT);
+		aim.x = SERVO_RIGHT;
 	}
 	else
 	{
@@ -155,24 +170,56 @@ void aimServoTowards(Point p)
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
 		moveServoY(SERVO_DOWN);
+		aim.y = SERVO_DOWN;
 	}
 	else if (p.y < cy - SERVO_AIM_THRESH_Y)
 	{
 		moveServoY(SERVO_UP);
+		aim.y = SERVO_UP;
 	}
 	else
 	{
 		moveServoY(SERVO_STOP);
 	}
 	gpioDelay(9000);
+	return aim;
 }
-
+/*
 void initializeGpioPort()
 {
 	gpioInitialise();
+	gpioSetMode(17, PI_OUTPUT);
+	gpioSetMode(18, PI_OUTPUT);
 	gpioWrite(27,1);
 	moveServoX(0);
 	moveServoY(0);
+}
+*/
+
+int openPort() 
+{
+	// port file descriptor
+
+
+	fd = open("/dev/ttyAMA0", O_RDWR | O_NOCTTY |O_NDELAY);
+	if (fd == -1)
+	{
+		// could not open port
+		cout << "openPort: Unable to open /dev/ttyAMA0" << endl;
+		return -1;
+	}
+	else
+	{
+		fcntl(fd, F_SETFL, 0);
+	}
+
+	n = write(fd, "ATZ\r", 4);
+	if (n < 0)
+	{
+		cout << "write() of 4 bytes failed!" << endl;
+		return -1;
+	}
+	return fd;
 }
 
 void toggleGoPro(){
@@ -180,31 +227,26 @@ void toggleGoPro(){
 	gpioDelay(3000000);
 	gpioWrite(27,1);
 }
-
-void testServos()
-{
-	servoTest(0);
-	servoTest(-1);
-	servoTest(0);
-	servoTest(1);
-	servoTest(0);
-	gpioTerminate();
-}
 #else
-int winDelay = 125;
+int winDelay = 50;
 #endif
 
 int main(int argc, const char** argv)
 {
+	Point aim = Point(0, 0);
+	aim.x = -1;
 	Mat frame, image;
 	MeanShiftTracker meanShiftTracker = MeanShiftTracker();
 
 	float sizeThresh = CAM_W * CAM_H * 0.8;
 #ifdef ON_PI
-	initializeGpioPort();
+	//initializeGpioPort();
 	//toggleGoPro();
 	//gpioDelay(5000000);
 	//toggleGoPro();
+	openPort();
+	servoTest();
+	return 0;
 
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
@@ -219,7 +261,6 @@ int main(int argc, const char** argv)
 	Camera.grab();
 	Camera.retrieve(frame);
 
-	int initServoFlag = 1;
 	time_t timeV = time(0);
 
 	std::string out = "out";
@@ -258,11 +299,11 @@ int main(int argc, const char** argv)
 	int frameCounter = 0;
 
 	cout << "**********************" << endl;
-	cout << "Entering main loop:" << endl;
+	cout << "Entering Main Loop:" << endl;
 	cout << "**********************" << endl;
 
-	while (frameCounter < frameMax)
-	//while (true)
+	//while (frameCounter < frameMax)
+	while (true)
 	{
 		frameCounter++;
 
@@ -285,7 +326,7 @@ int main(int argc, const char** argv)
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
 #ifdef ON_PI
-				startRecording();
+				//startRecording();
 #endif // ON_PI
 			}
 		}
@@ -298,9 +339,9 @@ int main(int argc, const char** argv)
 			{
 				start = false;
 #ifdef ON_PI
-				moveServoX(0);
-				moveServoY(0);
-				stopRecording();
+				//moveServoX(0);
+				//moveServoY(0);
+				//stopRecording();
 #endif
 				continue;
 			}
@@ -309,20 +350,10 @@ int main(int argc, const char** argv)
 			Point p = meanShiftTracker.getObject().center;
 			if (p.x != 0 || p.y != 0)
 			{
-				if (initServoFlag == 1)
-				{
-					cout << "init servos:" << endl;
-					//wiringPiSetup();
-					//softServoSetup(0, 1, 2, 3, 4, 5, 6, 7);
-					gpioSetMode(17, PI_OUTPUT);
-					gpioSetMode(18, PI_OUTPUT);
-					initServoFlag = 0;
-				}
-
-				aimServoTowards(p);
+				Point aim = aimServoTowards(p)
+				meanShiftTracker.correctForServoMotion(aim);
 			}
 #endif // ON_PI
-
 		}
 
 #ifdef ON_PI
@@ -335,16 +366,19 @@ int main(int argc, const char** argv)
 #endif // ON_PI
 
 	}
+	cout << "**********************" << endl;
+	cout << "Exiting Main Loop:" << endl;
+	cout << "**********************" << endl;
 
 #ifdef ON_PI
 
 	if (recording) 
 	{
-		stopRecording();
+		//stopRecording();
 	}
 
-	moveServoX(SERVO_STOP);
-	moveServoY(SERVO_STOP);
+	//moveServoX(SERVO_STOP);
+	//moveServoY(SERVO_STOP);
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
 
 	Camera.release();
