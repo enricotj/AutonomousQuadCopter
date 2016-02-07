@@ -38,20 +38,19 @@ const int SERVO_AIM_THRESH_X = CAM_W / 5;
 const int SERVO_AIM_THRESH_Y = CAM_H / 5;
 int prevRotX = 99999;
 int prevRotY = 99999;
-int fd;
 
 #ifdef ON_PI
 bool recording = false;
+int fd;
 
 void startRecording() {
 	CURL *curl;
-	CURLcode res;
 
 	curl = curl_easy_init();
 	if(curl){
 		curl_easy_setopt(curl, CURLOPT_URL, "http://10.5.5.9/bacpac/SH?t=goprohero&p=%01");
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-		res = curl_easy_perform(curl);
+		curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 	}
 	recording = true;
@@ -59,46 +58,50 @@ void startRecording() {
 
 void stopRecording() {
 	CURL *curl;
-	CURLcode res;
 
 	curl = curl_easy_init();
 	if(curl){
 		curl_easy_setopt(curl, CURLOPT_URL, "http://10.5.5.9/bacpac/SH?t=goprohero&p=%00");
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-		res = curl_easy_perform(curl);
+		curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 	}
 	recording = false;
 }
 
 void moveServoX(int rot)
+{
+	int n;
+	//if (prevRotX == rot) { return; }
+    //prevRotX = rot;
+    cout << "turn x: " << rot << endl;
+    switch (rot)
     {
-    	if (prevRotX == rot) return;
-    	prevRotX = rot;
-    	cout << "turn x: " << rot << endl;
-    	switch (rot)
-    	{
-    		// move left
-    		case SERVO_LEFT:
-		//		softServoWrite(0, 375);
-    			//gpioServo(17, 1465);
-				int n = write(fd,"10",2);
-			break;
-			// stop
+    	// move left
+    	case SERVO_LEFT:
+			//softServoWrite(0, 375);
+    		//gpioServo(17, 1465);
+			n = write(fd,"10",2);
+		break;
+
+		// stop
 		case SERVO_STOP:
 			//gpioServo(17, 1500);
-			//		digitalWrite(0,0);
-			int n = write(fd,"0",2);
+			//digitalWrite(0,0);
+			n = write(fd,"0",2);
 			break;
-			// move right
+
+		// move right
 		case SERVO_RIGHT:
-			int n = write(fd,"-10",2);
+			write(fd,"-10",2);
 			//gpioServo(17, 1525);
-			//		softServoWrite(0, 525);
+			//softServoWrite(0, 525);
 			break;
-			// stop
+
+		// stop
 		default:
-			//		digitalWrite(0,0);	
+			//digitalWrite(0,0);	
+			n = write(fd,"0",2);
 			break;
 	}
 	//softServoWrite(0, 400);
@@ -199,7 +202,7 @@ void initializeGpioPort()
 int openPort() 
 {
 	// port file descriptor
-
+	int n;
 
 	fd = open("/dev/ttyAMA0", O_RDWR | O_NOCTTY |O_NDELAY);
 	if (fd == -1)
@@ -339,8 +342,8 @@ int main(int argc, const char** argv)
 			{
 				start = false;
 #ifdef ON_PI
-				//moveServoX(0);
-				//moveServoY(0);
+				moveServoX(0);
+				moveServoY(0);
 				//stopRecording();
 #endif
 				continue;
@@ -377,8 +380,8 @@ int main(int argc, const char** argv)
 		//stopRecording();
 	}
 
-	//moveServoX(SERVO_STOP);
-	//moveServoY(SERVO_STOP);
+	moveServoX(SERVO_STOP);
+	moveServoY(SERVO_STOP);
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
 
 	Camera.release();
