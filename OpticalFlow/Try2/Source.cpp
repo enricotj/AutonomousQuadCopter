@@ -353,7 +353,7 @@ int main(int argc, const char** argv)
 			Point p = meanShiftTracker.getObject().center;
 			if (p.x != 0 || p.y != 0)
 			{
-				Point aim = aimServoTowards(p)
+				Point aim = aimServoTowards(p);
 				meanShiftTracker.correctForServoMotion(aim);
 			}
 #endif // ON_PI

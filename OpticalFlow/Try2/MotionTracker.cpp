@@ -15,13 +15,8 @@ int dthresh = 32;
 int prevSize;
 Point prevPos;
 
-#ifdef ON_PI
-const double MAX_SIZE_DIFF_FACTOR = 1;
-const double MAX_POS_DIFF_FACTOR = 1;
-#else
-const double MAX_SIZE_DIFF_FACTOR = 1;
-const double MAX_POS_DIFF_FACTOR = 1;
-#endif
+const double MAX_SIZE_DIFF_FACTOR = 1.0;
+const double MAX_POS_DIFF_FACTOR = 1.0;
 int captureThreshold = 1;
 int captureCurrent = -1;
 
@@ -91,11 +86,11 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		Rect tempRect = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
 
+		/*
 		Moments m = moments(largestContourVec.at(0), false);
 		int cx = m.m10 / m.m00;
 		int cy = m.m01 / m.m00;
 		
-
 		Mat drawing = Mat::zeros(temp.size(), temp.type());
 		vector<vector<Point>> hull(1);
 		convexHull(Mat(largestContourVec.at(0)), hull[0]);
@@ -104,6 +99,7 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		frame2.copyTo(drawing, drawing);
 		circle(drawing, Point(cx, cy), 16, Scalar(0, 0, 255), 2, 8, 0);
 		imshow("Object", drawing);
+		*/
 	}
 }
 
@@ -133,7 +129,7 @@ Mat MotionTracker::process(Mat& frame)
 	cv::threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
 
 	//show the threshold image after it's been "blurred"
-	imshow("Final Threshold Image", thresholdImage);
+	//imshow("Final Threshold Image", thresholdImage);
 
 	searchForMovement(thresholdImage);
 
@@ -197,8 +193,8 @@ Rect MotionTracker::getObject()
 
 bool MotionTracker::objectCaptured()
 {
-	//return objectDetected;
-	return false;
+	return objectDetected;
+	//return false;
 }
 
 bool MotionTracker::validObjectFound()
