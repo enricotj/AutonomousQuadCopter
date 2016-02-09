@@ -79,30 +79,30 @@ void moveServoX(int rot)
     switch (rot)
     {
     	// move left
-    	case SERVO_LEFT:
+    	case SERVO_RIGHT:
 			//softServoWrite(0, 375);
     		//gpioServo(17, 1465);
-			n = write(fd,"10\n",4);
+			n = write(fd,"50\n",3);
 		break;
 
 		// stop
 		case SERVO_STOP:
 			//gpioServo(17, 1500);
 			//digitalWrite(0,0);
-			n = write(fd,"0\n",3);
+			n = write(fd,"0\n",2);
 			break;
 
 		// move right
-		case SERVO_RIGHT:
-			n = write(fd,"-10\n",4);
-			//gpioServo(17, 1525);
+		case SERVO_LEFT:
+			n = write(fd,"-50\n",4);
+			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
 			break;
 
 		// stop
 		default:
 			//digitalWrite(0,0);	
-			n = write(fd,"0",2);
+			n = write(fd,"0\n",2);
 			break;
 	}
 cout << n << endl;
@@ -119,10 +119,10 @@ void moveServoY(int rot)
 	{
 		// move left
 
-		case SERVO_UP:
+		case SERVO_DOWN:
 		//	gpioServo(18, 1430);
 			//		softServoWrite(1, 375);
-			n = write(fd, "T150\n",5);
+			n = write(fd, "T-50\n",5);
 			break;
 			// stop
 		case SERVO_STOP:
@@ -131,10 +131,10 @@ void moveServoY(int rot)
 			write(fd, "T0\n",3);
 			break;
 			// move right
-		case SERVO_DOWN:
+		case SERVO_UP:
 		//	gpioServo(18, 1500);
 			//		softServoWrite(1, 500);
-			n =write(fd, "T-150\n",6);
+			n =write(fd, "T100\n",5);
 			break;
 			// stop
 		default:
@@ -148,13 +148,14 @@ void moveServoY(int rot)
 void servoTest(int rot)
 {
 	int i = 0;
-	//write(fd, "V10\n", 4);
+	//write(fd, "V90\n", 4);
 	while (i<50)
 	{
-		moveServoY(-1);
-		gpioDelay(10000);
+		moveServoY(rot);
+		gpioDelay(100000);
 		i++;
 	}
+	moveServoY(0);
 }
 
 Point aimServoTowards(Point p)
@@ -180,16 +181,19 @@ Point aimServoTowards(Point p)
 	cout << "y :" << p.y << endl;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
+		cout << "MOVING UP" << endl;
 		moveServoY(SERVO_DOWN);
 		aim.y = SERVO_DOWN;
 	}
 	else if (p.y < cy - SERVO_AIM_THRESH_Y)
 	{
+		cout << "MOVING DOWN" << endl;
 		moveServoY(SERVO_UP);
 		aim.y = SERVO_UP;
 	}
 	else
 	{
+		cout << "STOPPING" << endl;
 		moveServoY(SERVO_STOP);
 	}
 	gpioDelay(9000);
@@ -230,7 +234,7 @@ options.c_oflag = 0;
 options.c_lflag = 0;
 tcflush(fd,TCIFLUSH);
 tcsetattr(fd,TCSANOW, &options);
-	n = write(fd, "ATZ\r", 4);
+	n = write(fd, "V90\n", 4);
 	cout << "first write :" << n << endl;
 	if (n < 0)
 	{
@@ -263,8 +267,6 @@ int main(int argc, const char** argv)
 	//gpioDelay(5000000);
 	//toggleGoPro();
 	openPort();
-	servoTest(1);
-	return 0;
 
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
@@ -286,7 +288,7 @@ int main(int argc, const char** argv)
 	char buf[80];
 	strftime(buf, sizeof(buf), "%Y-%m-%d_%H-%M-%S", &now);
 	std::string name = out + buf + ".avi";	
-
+	name = "out.avi";
 	VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
 #else
 
@@ -320,8 +322,8 @@ int main(int argc, const char** argv)
 	cout << "Entering Main Loop:" << endl;
 	cout << "**********************" << endl;
 
-	//while (frameCounter < frameMax)
-	while (true)
+	while (frameCounter < frameMax)
+	//while (true)
 	{
 		frameCounter++;
 
@@ -344,7 +346,7 @@ int main(int argc, const char** argv)
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
 #ifdef ON_PI
-				//startRecording();
+				startRecording();
 #endif // ON_PI
 			}
 		}
@@ -359,7 +361,7 @@ int main(int argc, const char** argv)
 #ifdef ON_PI
 				moveServoX(0);
 				moveServoY(0);
-				//stopRecording();
+				stopRecording();
 #endif
 				continue;
 			}
@@ -392,13 +394,13 @@ int main(int argc, const char** argv)
 
 	if (recording) 
 	{
-		//stopRecording();
+		stopRecording();
 	}
 
 	moveServoX(SERVO_STOP);
 	moveServoY(SERVO_STOP);
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
-
+	cout << "STOPPING" << endl;
 	Camera.release();
 	imwrite("firstFrame.jpg", frames.front());
 	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
