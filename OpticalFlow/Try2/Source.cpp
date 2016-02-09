@@ -35,14 +35,51 @@ const int SERVO_RIGHT = 1; //counterclockwise
 const int SERVO_UP = -1;
 const int SERVO_DOWN = 1;
 const int SERVO_STOP = 0;
-const int SERVO_AIM_THRESH_X = CAM_W / 5;
-const int SERVO_AIM_THRESH_Y = CAM_H / 5;
+const int SERVO_AIM_THRESH_X = CAM_W / 10;
+const int SERVO_AIM_THRESH_Y = CAM_H / 8;
 int prevRotX = 99999;
 int prevRotY = 99999;
 int startTime;
 
 int cx = CAM_W / 2;
 int cy = CAM_H / 2;
+
+int winDelay = 80;
+
+int thresholdDX = 3;
+
+Point aimCheck(Point p, int dx)
+{
+	if (abs(dx) <= thresholdDX) {
+		dx = 0;
+	}
+	Point aim = Point(0, 0);
+	if (p.x > cx + SERVO_AIM_THRESH_X && dx > 0)
+	{
+		aim.x = SERVO_LEFT;
+	}
+	else if (p.x < cx - SERVO_AIM_THRESH_X && dx < 0)
+	{
+		aim.x = SERVO_RIGHT;
+	}
+	else
+	{
+		aim.x = 0;
+	}
+	if (p.y > cy + SERVO_AIM_THRESH_Y)
+	{
+		aim.y = SERVO_DOWN;
+	}
+	else if (p.y < cy - SERVO_AIM_THRESH_Y)
+	{
+		aim.y = SERVO_UP;
+	}
+	else
+	{
+		aim.y = 0;
+	}
+	return aim;
+}
 
 #ifdef ON_PI
 bool recording = false;
@@ -169,14 +206,17 @@ void servoTest(int rot)
 
 Point aimServoTowards(Point p, int dx)
 {
+	if (abs(dx) <= thresholdDX) {
+		dx = 0;
+	}
 	Point aim = Point(0, 0);
 	cout << "x :" << p.x << endl;
-	if (p.x > cx + SERVO_AIM_THRESH_X && dx >= 0)
+	if (p.x > cx + SERVO_AIM_THRESH_X && dx > 0)
 	{
 		moveServoX(SERVO_LEFT);
 		aim.x = SERVO_LEFT;
 	}
-	else if (p.x < cx - SERVO_AIM_THRESH_X && dx <= 0)
+	else if (p.x < cx - SERVO_AIM_THRESH_X && dx < 0)
 	{
 		moveServoX(SERVO_RIGHT);
 		aim.x = SERVO_RIGHT;
@@ -256,8 +296,6 @@ void toggleGoPro(){
 	gpioDelay(3000000);
 	gpioWrite(27,1);
 }
-#else
-int winDelay = 50;
 #endif
 
 int main(int argc, const char** argv)
@@ -374,7 +412,7 @@ int main(int argc, const char** argv)
 				continue;
 			}
 
-#ifdef ON_PI
+
 			Point p = meanShiftTracker.getObject().center;
 			if (p.x != 0 || p.y != 0)
 			{
@@ -383,10 +421,22 @@ int main(int argc, const char** argv)
 				{
 					dx = motionTracker.getDirectionX();
 				}
+				if (dx != 0)
+				{
+#ifndef ON_PI
+					//line(image, Point(cx, cy), Point(cx + dx * 5, cy), Scalar(0, 255, 0), 3);
+					//circle(image, p, 4, Scalar(0, 0, 255), -1);
+					//Point aim = aimCheck(p, dx);
+					//cout << aim.x << ", " << aim.y << endl;
+#endif // !ON_PI
+				}
+				
+#ifdef ON_PI
 				aimServoTowards(p, dx);
 				//meanShiftTracker.correctForServoMotion(aimServoTowards(p));
-			}
 #endif // ON_PI
+
+			}
 		}
 
 #ifdef ON_PI
@@ -394,6 +444,10 @@ int main(int argc, const char** argv)
 		image.copyTo(temp);
 		frames.push_back(temp);
 #else
+		line(image, Point(cx + SERVO_AIM_THRESH_X, 0), Point(cx + SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
+		line(image, Point(cx - SERVO_AIM_THRESH_X, 0), Point(cx - SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
+		line(image, Point(0, cy + SERVO_AIM_THRESH_Y), Point(CAM_W, cy + SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
+		line(image, Point(0, cy - SERVO_AIM_THRESH_Y), Point(CAM_W, cy - SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
 		imshow("Track", image);
 		cvWaitKey(winDelay);
 #endif // ON_PI
