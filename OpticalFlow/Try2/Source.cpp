@@ -22,7 +22,8 @@
 #include <ctype.h>
 #include "MeanShiftTracker.h"
 #include "MotionTracker.h"
-
+#include <sstream>
+#include <string.h>
 using namespace cv;
 using namespace std;
 
@@ -60,7 +61,8 @@ Point aimCheck(Point p, int dx)
 	}
 	else if (p.x < cx - SERVO_AIM_THRESH_X && dx < 0)
 	{
-		aim.x = SERVO_RIGHT;
+
+	aim.x = SERVO_RIGHT;
 	}
 	else
 	{
@@ -111,24 +113,33 @@ void stopRecording() {
 	recording = false;
 }
 
-void moveServoX(int rot)
+void moveServoX(int rot, int dx)
 {
+
+	std::stringstream ss;
+	std::string step;
+	dx = dx*-1.25;
+	int byte = (log(abs(dx))/log(10))+2;
 	int n;
 	if (prevRotX == rot) {
-		cout << "difftime :" << difftime(time(0),startTime) << endl;
-		if(double(difftime( time(0), startTime))<.05)
-		return; 
+		//cout << "difftime :" << difftime(time(0),startTime) << endl;
+		//if(double(difftime( time(0), startTime))<.05)
+		//return; 
 	}
 	startTime = time(0);
     prevRotX = rot;
-
+    
+    ss << dx << "\n";
+    step = ss.str();
+    cout << rot << ": move x " << dx << " byte: " << byte << endl;
+    cout << ss.str().c_str() << endl;
     switch (rot)
     {
     	// move left
     	case SERVO_RIGHT:
 			//softServoWrite(0, 375);
     		//gpioServo(17, 1465);
-			n = write(fd,"70\n",3);
+			n = write(fd, step.c_str(), byte);
 		break;
 
 		// stop
@@ -140,7 +151,7 @@ void moveServoX(int rot)
 
 		// move right
 		case SERVO_LEFT:
-			n = write(fd,"-70\n",4);
+			n = write(fd, step.c_str(), byte);
 			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
 			break;
@@ -151,36 +162,43 @@ void moveServoX(int rot)
 			n = write(fd,"0\n",2);
 			break;
 	}
-
+cout << n << endl;
 //softServoWrite(0, 400);
 }
 
-void moveServoY(int rot)
+void moveServoY(int rot, int dy)
 {
-	if (prevRotY == rot) return;
-	prevRotY = rot;
+
 	int n;
+	
+	if (prevRotY == rot) {
+	    return;
+	}
+	prevRotY = rot;
+	
 
 	switch (rot)
 	{
 		// move left
 
-		case SERVO_DOWN:
-		//	gpioServo(18, 1430);
+		case SERVO_UP:
+			gpioServo(17, 1550);
 			//		softServoWrite(1, 375);
-			n = write(fd, "T-50\n",5);
+			//n = write(fd, "T-45\n", 5);
+			//n = write(fd, "T-50\n",5);
 			break;
 			// stop
 		case SERVO_STOP:
-		//	gpioServo(18, 1470);
+			gpioServo(17, 1500);
 			//		digitalWrite(1,0);	
-			write(fd, "T0\n",3);
+			//write(fd, "T0\n",3);
 			break;
 			// move right
-		case SERVO_UP:
-		//	gpioServo(18, 1500);
+		case SERVO_DOWN:
+			gpioServo(17, 1450);
 			//		softServoWrite(1, 500);
-			n =write(fd, "T100\n",5);
+			//n = write(fd, "T90\n", 4);
+			//n =write(fd, "T100\n",5);
 			break;
 			// stop
 		default:
@@ -191,17 +209,17 @@ void moveServoY(int rot)
 	//softServoWrite(0, 400);
 }
 
-void servoTest(int rot)
+void servoTest()
 {
 	int i = 0;
 	//write(fd, "V90\n", 4);
 	while (i<50)
 	{
-		moveServoY(rot);
+		moveServoY(1,0);
 		gpioDelay(100000);
 		i++;
 	}
-	moveServoY(0);
+	moveServoX(0, 0);
 }
 
 Point aimServoTowards(Point p, int dx)
@@ -209,39 +227,42 @@ Point aimServoTowards(Point p, int dx)
 	if (abs(dx) <= thresholdDX) {
 		dx = 0;
 	}
+	dx = dx;
 	Point aim = Point(0, 0);
-	cout << "x :" << p.x << endl;
+//	cout << "x :" << p.x << endl;
 	if (p.x > cx + SERVO_AIM_THRESH_X && dx > 0)
 	{
-		moveServoX(SERVO_LEFT);
+		dx = dx + ((p.x) - cx);
+		moveServoX(SERVO_LEFT, dx);
 		aim.x = SERVO_LEFT;
 	}
 	else if (p.x < cx - SERVO_AIM_THRESH_X && dx < 0)
 	{
-		moveServoX(SERVO_RIGHT);
+		dx = dx + (p.x - cx);
+		moveServoX(SERVO_RIGHT, dx);
 		aim.x = SERVO_RIGHT;
 	}
 	else
 	{
-		moveServoX(SERVO_STOP);
+		moveServoX(SERVO_STOP, dx);
 	}
-	cout << "y :" << p.y << endl;
+//	cout << "y :" << p.y << endl;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
 		cout << "MOVING UP" << endl;
-		moveServoY(SERVO_DOWN);
+		moveServoY(SERVO_DOWN, cy-p.y);
 		aim.y = SERVO_DOWN;
 	}
 	else if (p.y < cy - SERVO_AIM_THRESH_Y)
 	{
 		cout << "MOVING DOWN" << endl;
-		moveServoY(SERVO_UP);
+		moveServoY(SERVO_UP, cy-p.y);
 		aim.y = SERVO_UP;
 	}
 	else
 	{
 		cout << "STOPPING" << endl;
-		moveServoY(SERVO_STOP);
+		moveServoY(SERVO_STOP, 0);
 	}
 	gpioDelay(9000);
 	return aim;
@@ -250,7 +271,7 @@ Point aimServoTowards(Point p, int dx)
 void initializeGpioPort()
 {
 	gpioInitialise();
-	//gpioSetMode(17, PI_OUTPUT);
+	gpioSetMode(17, PI_OUTPUT);
 //	gpioSetMode(18, PI_OUTPUT);
 //	gpioWrite(27,1);
 //	moveServoX(0);
@@ -281,7 +302,7 @@ int openPort()
 	options.c_lflag = 0;
 	tcflush(fd,TCIFLUSH);
 	tcsetattr(fd,TCSANOW, &options);
-	n = write(fd, "V90\n", 4);
+	n = write(fd, "V70\n", 4);
 	cout << "first write :" << n << endl;
 	if (n < 0)
 	{
@@ -312,7 +333,7 @@ int main(int argc, const char** argv)
 	//gpioDelay(5000000);
 	//toggleGoPro();
 	openPort();
-	
+
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
@@ -322,10 +343,15 @@ int main(int argc, const char** argv)
 		cout << "Cannot open the web cam" << endl;
 		return -1;
 	}
+	gpioDelay(200000);
+	moveServoX(SERVO_STOP, 0);
+	gpioDelay(200000);
+	moveServoY(SERVO_STOP, 0);
+	gpioDelay(200000);
 
 	Camera.grab();
 	Camera.retrieve(frame);
-
+	
 	time_t timeV = time(0);
 
 	std::string out = "out";
@@ -333,7 +359,7 @@ int main(int argc, const char** argv)
 	char buf[80];
 	strftime(buf, sizeof(buf), "%Y-%m-%d_%H-%M-%S", &now);
 	std::string name = out + buf + ".avi";	
-	name = "out.avi";
+	//name = "out.avi";
 	VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
 #else
 
@@ -371,7 +397,6 @@ int main(int argc, const char** argv)
 	//while (true)
 	{
 		frameCounter++;
-
 #ifdef ON_PI
 		Camera.grab();
 		Camera.retrieve(frame);
@@ -379,8 +404,10 @@ int main(int argc, const char** argv)
 		cap.read(frame);
 #endif // ON_PI
 
-		if (frame.empty())
+		if (frame.empty()){
+			cout << "FRAME EMPTY" << endl;
 			break;
+		}
 
 		bool prevStart = start;
 		if (!start)
@@ -389,10 +416,11 @@ int main(int argc, const char** argv)
 			start = motionTracker.objectCaptured();
 			if (start)
 			{
+				cout << "STARTING !!!!!!!" << endl;
 				meanShiftTracker.~MeanShiftTracker();
 				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
 #ifdef ON_PI
-				startRecording();
+				//startRecording();
 #endif // ON_PI
 			}
 		}
@@ -405,9 +433,9 @@ int main(int argc, const char** argv)
 			{
 				start = false;
 #ifdef ON_PI
-				moveServoX(0);
-				moveServoY(0);
-				stopRecording();
+				moveServoX(0, 0);
+				moveServoY(0, 0);
+				//stopRecording();
 #endif
 				continue;
 			}
@@ -461,11 +489,13 @@ int main(int argc, const char** argv)
 
 	if (recording) 
 	{
-		stopRecording();
+		//stopRecording();
 	}
-
-	moveServoX(SERVO_STOP);
-	moveServoY(SERVO_STOP);
+	gpioDelay(200000);
+	moveServoX(SERVO_STOP, 0);
+	gpioDelay(200000);
+	moveServoY(SERVO_STOP, 0);
+	gpioDelay(200000);
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
 	cout << "STOPPING" << endl;
 	Camera.release();

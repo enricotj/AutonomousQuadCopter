@@ -1,1074 +1,207 @@
 Mean Shift Tracker Constructed
 first write :4
-Motion Tracker Constructed
-**********************
-Entering Main Loop:
-**********************
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-x :199
-y :228
-MOVING UP
-turn y: 1
-5
-x :189
-y :239
-MOVING UP
-turn y: 1
-5
-x :208
-y :234
-MOVING UP
-turn y: 1
-5
-x :202
-y :230
-MOVING UP
-turn y: 1
-5
-x :201
-y :222
-MOVING UP
-turn y: 1
-5
-x :200
-y :215
-MOVING UP
-turn y: 1
-5
-x :198
-y :210
-MOVING UP
-turn y: 1
-5
-x :196
-y :204
-MOVING UP
-turn y: 1
-5
-x :196
-y :199
-MOVING UP
-turn y: 1
-5
-x :192
-y :194
-MOVING UP
-turn y: 1
-5
-x :192
-y :188
-MOVING UP
-turn y: 1
-5
-x :189
-y :182
-MOVING UP
-turn y: 1
-5
-x :189
-y :176
-MOVING UP
-turn y: 1
-5
-x :192
-y :172
-MOVING UP
-turn y: 1
-5
-x :192
-y :166
-STOPPING
-turn y: 0
-1980694472
-x :192
-y :160
-STOPPING
-turn y: 0
-1980694472
-x :189
-y :153
-STOPPING
-turn y: 0
-1980694472
-x :186
-y :153
-STOPPING
-turn y: 0
-1980694472
-x :184
-y :156
-STOPPING
-turn y: 0
-1980694472
-x :185
-y :159
-STOPPING
-turn y: 0
-1980694472
-x :182
-y :162
-STOPPING
-turn y: 0
-1980694472
-x :181
-y :164
-STOPPING
-turn y: 0
-1980694472
-x :180
-y :166
-STOPPING
-turn y: 0
-1980694472
-x :178
-y :168
-STOPPING
-turn y: 0
-1980694472
-x :176
-y :170
-MOVING UP
-turn y: 1
-5
-x :150
-y :130
-STOPPING
-turn y: 0
-1980694472
-x :134
-y :134
-STOPPING
-turn y: 0
-1980694472
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-x :176
-y :114
-STOPPING
-turn y: 0
-1980694472
-x :180
-y :114
-STOPPING
-turn y: 0
-1980694472
-x :182
-y :113
-STOPPING
-turn y: 0
-1980694472
-x :180
-y :106
-STOPPING
-turn y: 0
-1980694472
-x :178
-y :96
-STOPPING
-turn y: 0
-1980694472
-x :175
-y :89
-STOPPING
-turn y: 0
-1980694472
-x :172
-y :76
-STOPPING
-turn y: 0
-1980694472
-x :170
-y :60
-MOVING DOWN
-turn y: -1
-4
-x :168
-y :56
-MOVING DOWN
-turn y: -1
-4
-x :198
-y :70
-MOVING DOWN
-turn y: -1
-4
-x :204
-y :74
-STOPPING
-turn y: 0
-1980694472
-x :216
-y :80
-STOPPING
-turn y: 0
-1980694472
-x :218
-y :86
-STOPPING
-turn y: 0
-1980694472
-x :220
-y :86
-STOPPING
-turn y: 0
-1980694472
-x :220
-y :72
-STOPPING
-turn y: 0
-1980694472
-x :222
-y :60
-MOVING DOWN
-turn y: -1
-4
-x :224
-y :74
-STOPPING
-turn y: 0
-1980694472
-x :228
-y :64
-MOVING DOWN
-turn y: -1
-4
-x :228
-y :62
-MOVING DOWN
-turn y: -1
-4
-x :230
-y :56
-MOVING DOWN
-turn y: -1
-4
-x :232
-y :50
-MOVING DOWN
-turn y: -1
-4
-x :232
-y :45
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :42
-MOVING DOWN
-turn y: -1
-4
-x :236
-y :36
-MOVING DOWN
-turn y: -1
-4
-x :236
-y :32
-MOVING DOWN
-turn y: -1
-4
-x :238
-y :28
-MOVING DOWN
-turn y: -1
-4
-x :240
-y :24
-MOVING DOWN
-turn y: -1
-4
-x :243
-y :18
-MOVING DOWN
-turn y: -1
-4
-x :246
-y :14
-MOVING DOWN
-turn y: -1
-4
-x :246
-y :8
-MOVING DOWN
-turn y: -1
-4
-x :247
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :248
-y :3
-MOVING DOWN
-turn y: -1
-4
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-x :185
-y :22
-MOVING DOWN
-turn y: -1
-4
-x :188
-y :16
-MOVING DOWN
-turn y: -1
-4
-x :190
-y :14
-MOVING DOWN
-turn y: -1
-4
-x :198
-y :12
-MOVING DOWN
-turn y: -1
-4
-x :200
-y :10
-MOVING DOWN
-turn y: -1
-4
-x :212
-y :10
-MOVING DOWN
-turn y: -1
-4
-x :232
-y :12
-MOVING DOWN
-turn y: -1
-4
-x :232
-y :8
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :233
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :10
-MOVING DOWN
-turn y: -1
-4
-x :230
-y :16
-MOVING DOWN
-turn y: -1
-4
-x :207
-y :23
-MOVING DOWN
-turn y: -1
-4
-x :213
-y :26
-MOVING DOWN
-turn y: -1
-4
-x :210
-y :36
-MOVING DOWN
-turn y: -1
-4
-x :208
-y :46
-MOVING DOWN
-turn y: -1
-4
-x :212
-y :56
-MOVING DOWN
-turn y: -1
-4
-x :210
-y :62
-MOVING DOWN
-turn y: -1
-4
-x :221
-y :112
-STOPPING
-turn y: 0
-1980694472
-x :222
-y :124
-STOPPING
-turn y: 0
-1980694472
-x :220
-y :130
-STOPPING
-turn y: 0
-1980694472
-x :218
-y :132
-STOPPING
-turn y: 0
-1980694472
-x :218
-y :130
-STOPPING
-turn y: 0
-1980694472
-x :217
-y :132
-STOPPING
-turn y: 0
-1980694472
-x :218
-y :130
-STOPPING
-turn y: 0
-1980694472
-x :218
-y :128
-STOPPING
-turn y: 0
-1980694472
-x :218
-y :122
-STOPPING
-turn y: 0
-1980694472
-x :220
-y :117
-STOPPING
-turn y: 0
-1980694472
-x :220
-y :110
-STOPPING
-turn y: 0
-1980694472
-x :221
-y :102
-STOPPING
-turn y: 0
-1980694472
-x :222
-y :95
-STOPPING
-turn y: 0
-1980694472
-x :222
-y :86
-STOPPING
-turn y: 0
-1980694472
-x :223
-y :76
-STOPPING
-turn y: 0
-1980694472
-x :226
-y :64
-MOVING DOWN
-turn y: -1
-4
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-x :210
-y :50
-MOVING DOWN
-turn y: -1
-4
-x :202
-y :88
-STOPPING
-turn y: 0
-1980694472
-x :202
-y :106
-STOPPING
-turn y: 0
-1980694472
-x :206
-y :128
-STOPPING
-turn y: 0
-1980694472
-x :206
-y :144
-STOPPING
-turn y: 0
-1980694472
-x :203
-y :160
-STOPPING
-turn y: 0
-1980694472
-x :202
-y :172
-MOVING UP
-turn y: 1
-5
-x :146
-y :141
-STOPPING
-turn y: 0
-1980694472
-x :155
-y :135
-STOPPING
-turn y: 0
-1980694472
-x :146
-y :140
-STOPPING
-turn y: 0
-1980694472
-x :131
-y :151
-STOPPING
-turn y: 0
-1980694472
-x :128
-y :158
-STOPPING
-turn y: 0
-1980694472
-x :128
-y :164
-STOPPING
-turn y: 0
-1980694472
-x :128
-y :171
-MOVING UP
-turn y: 1
-5
-x :127
-y :175
-MOVING UP
-turn y: 1
-5
-x :128
-y :182
-MOVING UP
-turn y: 1
-5
-x :130
-y :182
-MOVING UP
-turn y: 1
-5
-x :133
-y :180
-MOVING UP
-turn y: 1
-5
-x :138
-y :177
-MOVING UP
-turn y: 1
-5
-x :141
-y :175
-MOVING UP
-turn y: 1
-5
-x :146
-y :174
-MOVING UP
-turn y: 1
-5
-x :148
-y :172
-MOVING UP
-turn y: 1
-5
-x :152
-y :171
-MOVING UP
-turn y: 1
-5
-x :155
-y :170
-MOVING UP
-turn y: 1
-5
-x :158
-y :168
-STOPPING
-turn y: 0
-1980694472
-x :160
-y :168
-STOPPING
-turn y: 0
-1980694472
-x :161
-y :168
-STOPPING
-turn y: 0
-1980694472
-x :162
-y :172
-MOVING UP
-turn y: 1
-5
-x :163
-y :176
-MOVING UP
-turn y: 1
-5
-x :166
-y :183
-MOVING UP
-turn y: 1
-5
-x :166
-y :183
-MOVING UP
-turn y: 1
-5
-x :167
-y :182
-MOVING UP
-turn y: 1
-5
-x :170
-y :180
-MOVING UP
-turn y: 1
-5
-x :171
-y :179
-MOVING UP
-turn y: 1
-5
-x :174
-y :178
-MOVING UP
-turn y: 1
-5
-x :177
-y :177
-MOVING UP
-turn y: 1
-5
-x :180
-y :178
-MOVING UP
-turn y: 1
-5
-x :184
-y :178
-MOVING UP
-turn y: 1
-5
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-x :234
-y :16
-MOVING DOWN
-turn y: -1
-4
-x :218
-y :16
-MOVING DOWN
-turn y: -1
-4
-x :222
-y :14
-MOVING DOWN
-turn y: -1
-4
-x :220
-y :16
-MOVING DOWN
-turn y: -1
-4
-x :217
-y :18
-MOVING DOWN
-turn y: -1
-4
-x :215
-y :20
-MOVING DOWN
-turn y: -1
-4
-x :214
-y :20
-MOVING DOWN
-turn y: -1
-4
-x :208
-y :22
-MOVING DOWN
-turn y: -1
-4
-x :204
-y :25
-MOVING DOWN
-turn y: -1
-4
-x :201
-y :27
-MOVING DOWN
-turn y: -1
-4
-x :198
-y :28
-MOVING DOWN
-turn y: -1
-4
-x :194
-y :27
-MOVING DOWN
-turn y: -1
-4
-x :196
-y :28
-MOVING DOWN
-turn y: -1
-4
-x :199
-y :27
-MOVING DOWN
-turn y: -1
-4
-x :208
-y :28
-MOVING DOWN
-turn y: -1
-4
-x :212
-y :26
-MOVING DOWN
-turn y: -1
-4
-x :222
-y :22
-MOVING DOWN
-turn y: -1
-4
-x :230
-y :19
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :233
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :244
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :244
-y :3
-MOVING DOWN
-turn y: -1
-4
-x :242
-y :3
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :1
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :9
-MOVING DOWN
-turn y: -1
-4
-x :237
-y :10
-MOVING DOWN
-turn y: -1
-4
-x :242
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :236
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :240
-y :7
-MOVING DOWN
-turn y: -1
-4
-x :238
-y :8
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :8
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :238
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :6
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :258
-y :10
-MOVING DOWN
-turn y: -1
-4
-x :239
-y :3
-MOVING DOWN
-turn y: -1
-4
-x :235
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :238
-y :5
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :237
-y :3
-MOVING DOWN
-turn y: -1
-4
-x :233
-y :3
-MOVING DOWN
-turn y: -1
-4
-x :236
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :233
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :233
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :234
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :244
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :244
-y :2
-MOVING DOWN
-turn y: -1
-4
-x :270
-y :4
-MOVING DOWN
-turn y: -1
-4
-x :271
-y :1
-MOVING DOWN
-turn y: -1
-4
-x :272
-y :2
-MOVING DOWN
-turn y: -1
-4
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Initializing Mean Shift Tracker With Window...
-Mean Shift Tracker Constructed With Window
-Mean Shift Tracker Destructed
-turn x: 0
-3
-turn y: 0
-3
-**********************
-Exiting Main Loop:
-**********************
-turn x: 0
-3
-turn y: 0
-3
-Mean Shift Tracker Destructed
-Motion Tracker Destructed
-Motion Tracker Destructed
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+1: move x -30 byte: 5
+-30
+
+4
+0: move x 0 byte: 2
+0
+
+2
 Mean Shift Tracker Destructed

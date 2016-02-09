@@ -3,7 +3,7 @@
 Mat image, hsv, hue, mask, hist, histimg, backproj;
 
 bool initialze = true;
-bool backprojMode = true;
+bool backprojMode = false;
 bool selectObject = false;
 bool motionCorrectMode = true;
 int trackObject = 0;
