@@ -1,12 +1,14 @@
 #include "MotionTracker.h"
 #include "Globals.h"
 
+bool motionOnlyMode = false;
+
 Mat frame1, frame2, grayImage1, grayImage2, thresholdImage, differenceImage;
 Rect objectBoundingRectangle;
 //our sensitivity value to be used in the absdiff() function
-const int SENSITIVITY_VALUE = 20;
+const int SENSITIVITY_VALUE = 18;
 //size of blur used to smooth the intensity image output from absdiff() function
-const int BLUR_SIZE = 10;
+const int BLUR_SIZE = 16;
 
 int sizeThreshLow = (int)pow(32 * CAM_W / 640, 2);
 int sizeThreshHigh = (int)(0.8 * CAM_W * CAM_H);
@@ -135,7 +137,10 @@ Mat MotionTracker::process(Mat& frame)
 	cv::threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
 
 	//show the threshold image after it's been "blurred"
-	//imshow("Final Threshold Image", thresholdImage);
+#ifndef ON_PI
+	imshow("Final Threshold Image", thresholdImage);
+#endif
+	
 
 	searchForMovement(thresholdImage);
 
@@ -202,8 +207,15 @@ Rect MotionTracker::getObject()
 
 bool MotionTracker::objectCaptured()
 {
-	return objectDetected;
-	//return false;
+	if (motionOnlyMode)
+	{
+		return false;
+	}
+	else
+	{
+		return objectDetected;
+	}
+	
 }
 
 int MotionTracker::getDirectionX()
