@@ -27,6 +27,8 @@ public:
 
 	void correctForServoMotion(Point aim);
 
+	int getDirectionX();
+
 private:
 	void initSelection(int event, int x, int y);
 };

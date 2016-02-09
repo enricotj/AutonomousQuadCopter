@@ -24,6 +24,9 @@ float initWidthHeightRatio = -1.0f;
 
 bool objLost = false;
 
+int px = 0;
+int dx = 0;
+
 MeanShiftTracker::MeanShiftTracker()
 {
 	cout << "Mean Shift Tracker Constructed" << endl;
@@ -39,6 +42,7 @@ MeanShiftTracker::MeanShiftTracker(Rect window)
 
 	initSelection(SELECTION_EVENT_A, trackWindow.x, trackWindow.y);
 	initSelection(SELECTION_EVENT_B, trackWindow.x + trackWindow.width, trackWindow.y + trackWindow.height);
+	px = window.x + window.width / 2;
 	cout << "Mean Shift Tracker Constructed With Window" << endl;
 
 	initWidthHeightRatio = -1.0f;
@@ -85,6 +89,7 @@ void MeanShiftTracker::initSelection(int event, int x, int y)
 
 Mat MeanShiftTracker::process(Mat frame)
 {
+	px = trackBox.center.x;
 	float hranges[] = { 0, 360 };
 	const float* phranges = hranges;
 	frame.copyTo(image);
@@ -152,6 +157,8 @@ Mat MeanShiftTracker::process(Mat frame)
 		return Mat::zeros(1, 1, CV_8UC1);
 	}
 
+	dx = trackBox.center.x - px;
+
 	return image;
 }
 
@@ -179,4 +186,9 @@ void MeanShiftTracker::correctForServoMotion(Point aim)
 		trackWindow.x += dx;
 		trackWindow.y += dy;
 	}
+}
+
+int MeanShiftTracker::getDirectionX()
+{
+	return dx;
 }

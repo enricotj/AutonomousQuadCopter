@@ -41,6 +41,9 @@ int prevRotX = 99999;
 int prevRotY = 99999;
 int startTime;
 
+int cx = CAM_W / 2;
+int cy = CAM_H / 2;
+
 #ifdef ON_PI
 bool recording = false;
 int fd;
@@ -164,17 +167,16 @@ void servoTest(int rot)
 	moveServoY(0);
 }
 
-Point aimServoTowards(Point p)
+Point aimServoTowards(Point p, int dx)
 {
 	Point aim = Point(0, 0);
-	int cx = CAM_W / 2;
 	cout << "x :" << p.x << endl;
-	if (p.x > cx + SERVO_AIM_THRESH_X)
+	if (p.x > cx + SERVO_AIM_THRESH_X && dx >= 0)
 	{
 		moveServoX(SERVO_LEFT);
 		aim.x = SERVO_LEFT;
 	}
-	else if (p.x < cx - SERVO_AIM_THRESH_X)
+	else if (p.x < cx - SERVO_AIM_THRESH_X && dx <= 0)
 	{
 		moveServoX(SERVO_RIGHT);
 		aim.x = SERVO_RIGHT;
@@ -183,7 +185,6 @@ Point aimServoTowards(Point p)
 	{
 		moveServoX(SERVO_STOP);
 	}
-	int cy = CAM_H / 2;
 	cout << "y :" << p.y << endl;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
@@ -343,6 +344,7 @@ int main(int argc, const char** argv)
 		if (frame.empty())
 			break;
 
+		bool prevStart = start;
 		if (!start)
 		{
 			image = motionTracker.process(frame);
@@ -376,8 +378,13 @@ int main(int argc, const char** argv)
 			Point p = meanShiftTracker.getObject().center;
 			if (p.x != 0 || p.y != 0)
 			{
-				Point aim = aimServoTowards(p);
-				meanShiftTracker.correctForServoMotion(aim);
+				int dx = meanShiftTracker.getDirectionX();
+				if (!prevStart)
+				{
+					dx = motionTracker.getDirectionX();
+				}
+				aimServoTowards(p, dx);
+				//meanShiftTracker.correctForServoMotion(aimServoTowards(p));
 			}
 #endif // ON_PI
 		}
