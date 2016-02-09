@@ -75,19 +75,20 @@ void moveServoX(int rot)
 {
 	int n;
 	if (prevRotX == rot) {
-		if(difftime( time(0), startTime)<.05)
+		cout << "difftime :" << difftime(time(0),startTime) << endl;
+		if(double(difftime( time(0), startTime))<.05)
 		return; 
 	}
 	startTime = time(0);
     prevRotX = rot;
-    cout << "turn x: " << rot << endl;
+
     switch (rot)
     {
     	// move left
     	case SERVO_RIGHT:
 			//softServoWrite(0, 375);
     		//gpioServo(17, 1465);
-			n = write(fd,"50\n",3);
+			n = write(fd,"70\n",3);
 		break;
 
 		// stop
@@ -99,7 +100,7 @@ void moveServoX(int rot)
 
 		// move right
 		case SERVO_LEFT:
-			n = write(fd,"-50\n",4);
+			n = write(fd,"-70\n",4);
 			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
 			break;
@@ -110,16 +111,16 @@ void moveServoX(int rot)
 			n = write(fd,"0\n",2);
 			break;
 	}
-cout << n << endl;
+
 //softServoWrite(0, 400);
 }
 
 void moveServoY(int rot)
 {
-//	if (prevRotY == rot) return;
-//	prevRotY = rot;
+	if (prevRotY == rot) return;
+	prevRotY = rot;
 	int n;
-	cout << "turn y: " << rot << endl;
+
 	switch (rot)
 	{
 		// move left
@@ -146,7 +147,7 @@ void moveServoY(int rot)
 			//		digitalWrite(1,0);	
 			break;
 	}
-	cout << n << endl;
+
 	//softServoWrite(0, 400);
 }
 
@@ -272,7 +273,7 @@ int main(int argc, const char** argv)
 	//gpioDelay(5000000);
 	//toggleGoPro();
 	openPort();
-
+	
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
