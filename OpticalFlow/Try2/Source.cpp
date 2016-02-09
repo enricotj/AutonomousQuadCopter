@@ -234,12 +234,12 @@ int openPort()
 		fcntl(fd, F_SETFL, 0);
 	}
 	tcgetattr(fd,&options);
-options.c_cflag = B115200 | CS8 | CLOCAL |CREAD;
-options.c_iflag = IGNPAR;
-options.c_oflag = 0;
-options.c_lflag = 0;
-tcflush(fd,TCIFLUSH);
-tcsetattr(fd,TCSANOW, &options);
+	options.c_cflag = B115200 | CS8 | CLOCAL |CREAD;
+	options.c_iflag = IGNPAR;
+	options.c_oflag = 0;
+	options.c_lflag = 0;
+	tcflush(fd,TCIFLUSH);
+	tcsetattr(fd,TCSANOW, &options);
 	n = write(fd, "V90\n", 4);
 	cout << "first write :" << n << endl;
 	if (n < 0)

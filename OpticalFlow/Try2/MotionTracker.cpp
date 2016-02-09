@@ -15,8 +15,9 @@ int dthresh = 32;
 int prevSize;
 Point prevPos;
 
-const double MAX_SIZE_DIFF_FACTOR = 1.0;
-const double MAX_POS_DIFF_FACTOR = 1.0;
+const double MAX_SIZE_DIFF_FACTOR = 3.0;
+const double MAX_POS_DIFF_FACTOR = 0.75;
+const int capThreshMax = 99999;
 int captureThreshold = 1;
 int captureCurrent = -1;
 
@@ -25,6 +26,11 @@ bool objectDetected = false;
 
 int xdir = 0;
 int ydir = 0;
+
+int xstart = 0;
+int ystart = 0;
+int xend = 0;
+int yend = 0;
 
 int minContourSize = 1*1;
 
@@ -137,6 +143,7 @@ Mat MotionTracker::process(Mat& frame)
 	//show our captured frame
 	frame2.copyTo(obj);
 	objectDetected = validObjectFound();
+	arrowedLine(obj, Point(xstart, yend), Point(xend, yend), Scalar(255, 255, 255), 1);
 	if (objectDetected)
 	{
 		double shrink = 0.4;
@@ -162,9 +169,11 @@ Mat MotionTracker::process(Mat& frame)
 			y = 0;
 		}
 
-		rectangle(obj, objectBoundingRectangle, Scalar(255, 0, 0));
+		arrowedLine(obj, Point(xstart, yend), Point(xend, yend), Scalar(0, 255, 0), 5, 8, 0, 0.5);
+		rectangle(obj, objectBoundingRectangle, Scalar(255, 0, 0), 3);
 		objectBoundingRectangle = Rect(x, y, w, h);
-		rectangle(obj, objectBoundingRectangle, Scalar(0, 0, 255));
+		rectangle(obj, objectBoundingRectangle, Scalar(0, 0, 255), 3);
+		
 	}
 	else
 	{
@@ -197,6 +206,11 @@ bool MotionTracker::objectCaptured()
 	//return false;
 }
 
+int MotionTracker::getDirectionX()
+{
+	return xend - xstart;
+}
+
 bool MotionTracker::validObjectFound()
 {
 	int area = objectBoundingRectangle.area();
@@ -216,15 +230,17 @@ bool MotionTracker::validObjectFound()
 		prevSize = area;
 		prevPos = Point(x, y);
 		captureCurrent++;
-		double capthresh = CAM_H * CAM_W / (objectBoundingRectangle.area() * 8);
-		captureThreshold = (int)capthresh;
+		//double capthresh = CAM_H * CAM_W / objectBoundingRectangle.area() * 16;
+		captureThreshold = 3;
+		xstart = x;
+		ystart = y;
 		return false;
 	}
 
 	int maxSizeDiff = area / MAX_SIZE_DIFF_FACTOR;
 	int sizeDiff = abs(area - prevSize);
 	
-	int maxPosDiff = (w + h) / MAX_POS_DIFF_FACTOR;
+	int maxPosDiff = sqrt(pow(w, 2) + pow(h, 2)) / MAX_POS_DIFF_FACTOR;
 	int px = prevPos.x;
 	int py = prevPos.y;
 	int posDiff = (int)sqrt(pow(x - px, 2) + pow(y - py, 2));
@@ -236,15 +252,33 @@ bool MotionTracker::validObjectFound()
 	
 	if (sizeDiff < maxSizeDiff
 		&& posDiff < maxPosDiff
-		//&& posDiff > 0
+		&& posDiff > 0
 		&& area >= sizeThreshLow
 		&& area <= sizeThreshHigh)
 	{
 		captureCurrent++;
 		if (captureCurrent >= captureThreshold)
 		{
+			if (!objectDetected)
+			{
+				xend = x;
+				yend = y;
+				int dx = xend - xstart;
+				if (dx < 0)
+				{
+					xend = 10;
+					xstart = CAM_W - 10;
+				}
+				else if (dx > 0)
+				{
+					xstart = 10;
+					xend = CAM_W - 10;
+				}
+				cout << dx << endl;
+			}
 			return true;
 		}
+		
 	}
 	else
 	{

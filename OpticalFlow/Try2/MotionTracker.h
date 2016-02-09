@@ -34,6 +34,7 @@ public:
 	Mat process(Mat& frame);
 	Rect getObject();
 	bool objectCaptured();
+	int getDirectionX();
 
 private:
 	void searchForMovement(Mat thresholdImage);
