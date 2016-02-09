@@ -39,6 +39,7 @@ const int SERVO_AIM_THRESH_X = CAM_W / 5;
 const int SERVO_AIM_THRESH_Y = CAM_H / 5;
 int prevRotX = 99999;
 int prevRotY = 99999;
+int startTime;
 
 #ifdef ON_PI
 bool recording = false;
@@ -73,8 +74,12 @@ void stopRecording() {
 void moveServoX(int rot)
 {
 	int n;
-	//if (prevRotX == rot) { return; }
-    //prevRotX = rot;
+	if (prevRotX == rot) {
+		if(difftime( time(0), startTime)<.05)
+		return; 
+	}
+	startTime = time(0);
+    prevRotX = rot;
     cout << "turn x: " << rot << endl;
     switch (rot)
     {
