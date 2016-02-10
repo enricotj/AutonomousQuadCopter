@@ -139,7 +139,7 @@ void moveServoX(int rot, int dx)
     	case SERVO_RIGHT:
 			//softServoWrite(0, 375);
     		//gpioServo(17, 1465);
-			n = write(fd, step.c_str(), byte);
+			n = write(fd, "50\n", 3);
 		break;
 
 		// stop
@@ -151,7 +151,7 @@ void moveServoX(int rot, int dx)
 
 		// move right
 		case SERVO_LEFT:
-			n = write(fd, step.c_str(), byte);
+			n = write(fd, "-50\n", 4);
 			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
 			break;
@@ -215,7 +215,7 @@ void servoTest()
 	//write(fd, "V90\n", 4);
 	while (i<50)
 	{
-		moveServoY(1,0);
+		moveServoX(-1,40);
 		gpioDelay(100000);
 		i++;
 	}
@@ -279,7 +279,7 @@ void initializeGpioPort()
 }
 
 
-int openPort() 
+int openSerialPort() 
 {
 	// port file descriptor
 	int n;
@@ -322,6 +322,7 @@ void toggleGoPro(){
 int main(int argc, const char** argv)
 {
 	Point aim = Point(0, 0);
+	int i = 0;
 	aim.x = -1;
 	Mat frame, image;
 	MeanShiftTracker meanShiftTracker = MeanShiftTracker();
@@ -329,10 +330,14 @@ int main(int argc, const char** argv)
 	float sizeThresh = CAM_W * CAM_H * 0.8;
 #ifdef ON_PI
 	initializeGpioPort();
+	while(i<10000000){i++;}	
 	//toggleGoPro();
 	//gpioDelay(5000000);
 	//toggleGoPro();
-	openPort();
+	openSerialPort();
+	while(i<10000000){i++;}	
+	//servoTest();
+	//return 0;
 
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
