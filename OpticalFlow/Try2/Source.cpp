@@ -27,7 +27,7 @@
 using namespace cv;
 using namespace std;
 
-int frameMax = 500;
+int frameMax = 1200;
 
 vector<Mat> frames;
 
@@ -118,28 +118,33 @@ void moveServoX(int rot, int dx)
 
 	std::stringstream ss;
 	std::string step;
-	dx = dx*-1.25;
-	int byte = (log(abs(dx))/log(10))+2;
+	
+	int byte = 20;
 	int n;
+	/*if(dx < 100 && dx > -100) {
+		cout << "Not in threshold" << endl;
+		return;
+	}
 	if (prevRotX == rot) {
 		//cout << "difftime :" << difftime(time(0),startTime) << endl;
 		//if(double(difftime( time(0), startTime))<.05)
 		//return; 
-	}
+	}*/
 	startTime = time(0);
     prevRotX = rot;
     
     ss << dx << "\n";
     step = ss.str();
-    cout << rot << ": move x " << dx << " byte: " << byte << endl;
-    cout << ss.str().c_str() << endl;
+	    
     switch (rot)
     {
     	// move left
     	case SERVO_RIGHT:
 			//softServoWrite(0, 375);
     		//gpioServo(17, 1465);
-			n = write(fd, "50\n", 3);
+	cout << rot << ": move x " << dx << " byte: " << byte << endl;
+		
+	n = write(fd, step.c_str(), byte);
 		break;
 
 		// stop
@@ -151,7 +156,8 @@ void moveServoX(int rot, int dx)
 
 		// move right
 		case SERVO_LEFT:
-			n = write(fd, "-50\n", 4);
+    cout << rot << ": move x " << dx << " byte: " << byte << endl;
+			n = write(fd, step.c_str(), byte);
 			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
 			break;
@@ -162,7 +168,6 @@ void moveServoX(int rot, int dx)
 			n = write(fd,"0\n",2);
 			break;
 	}
-cout << n << endl;
 //softServoWrite(0, 400);
 }
 
@@ -222,24 +227,29 @@ void servoTest()
 	moveServoX(0, 0);
 }
 
-Point aimServoTowards(Point p, int dx)
+Point aimServoTowards(Point p, double dx)
 {
+	double scalearX =1;
 	if (abs(dx) <= thresholdDX) {
 		dx = 0;
 	}
-	dx = dx;
+	
 	Point aim = Point(0, 0);
 //	cout << "x :" << p.x << endl;
-	if (p.x > cx + SERVO_AIM_THRESH_X && dx > 0)
+	if (p.x > cx  && dx > 0)
 	{
-		dx = dx + ((p.x) - cx);
-		moveServoX(SERVO_LEFT, dx);
+		cout<< "left :" << dx << endl;
+		dx = abs(dx)*scalearX + ((p.x) - cx);
+		dx = -1*((dx/CAM_W)*535.0);
+		moveServoX(SERVO_LEFT, int(dx));
 		aim.x = SERVO_LEFT;
 	}
-	else if (p.x < cx - SERVO_AIM_THRESH_X && dx < 0)
+	else if (p.x < cx && dx < 0)
 	{
-		dx = dx + (p.x - cx);
-		moveServoX(SERVO_RIGHT, dx);
+		cout<< "right :" << dx << endl;
+		dx = abs(dx)*scalearX + (cx - p.x);
+		dx = (dx/CAM_W)*535.0;
+		moveServoX(SERVO_RIGHT,int(dx));
 		aim.x = SERVO_RIGHT;
 	}
 	else
@@ -249,22 +259,27 @@ Point aimServoTowards(Point p, int dx)
 //	cout << "y :" << p.y << endl;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
-		cout << "MOVING UP" << endl;
+		//cout << "MOVING UP" << endl;
 		moveServoY(SERVO_DOWN, cy-p.y);
 		aim.y = SERVO_DOWN;
 	}
 	else if (p.y < cy - SERVO_AIM_THRESH_Y)
 	{
-		cout << "MOVING DOWN" << endl;
+		//cout << "MOVING DOWN" << endl;
 		moveServoY(SERVO_UP, cy-p.y);
 		aim.y = SERVO_UP;
 	}
 	else
 	{
-		cout << "STOPPING" << endl;
+		//cout << "STOPPING" << endl;
 		moveServoY(SERVO_STOP, 0);
 	}
-	gpioDelay(9000);
+	
+	int i = 0;
+		
+	gpioDelay(10000);
+	
+	moveServoY(SERVO_STOP,0);
 	return aim;
 }
 
@@ -331,12 +346,13 @@ int main(int argc, const char** argv)
 #ifdef ON_PI
 	initializeGpioPort();
 	while(i<10000000){i++;}	
+
 	//toggleGoPro();
 	//gpioDelay(5000000);
 	//toggleGoPro();
 	openSerialPort();
 	while(i<10000000){i++;}	
-	//servoTest();
+	//moveServoX(-1,-2000);
 	//return 0;
 
 	raspicam::RaspiCam_Cv Camera;
@@ -415,7 +431,7 @@ int main(int argc, const char** argv)
 		}
 
 		bool prevStart = start;
-		if (!start)
+		/*if (!start)
 		{
 			image = motionTracker.process(frame);
 			start = motionTracker.objectCaptured();
@@ -428,10 +444,13 @@ int main(int argc, const char** argv)
 				//startRecording();
 #endif // ON_PI
 			}
-		}
+		}*/
+		image = motionTracker.process(frame);
+		start = motionTracker.objectCaptured();
+
 		if (start)
 		{
-			image = meanShiftTracker.process(frame);
+			/*image = meanShiftTracker.process(frame);
 			float objSize = meanShiftTracker.getObject().size.width * meanShiftTracker.getObject().size.height;
 			if ((image.rows == 1 && image.cols == 1) || meanShiftTracker.isObjectLost()
 					|| objSize > sizeThresh)
@@ -443,17 +462,21 @@ int main(int argc, const char** argv)
 				//stopRecording();
 #endif
 				continue;
-			}
+			}*/
 
 
-			Point p = meanShiftTracker.getObject().center;
-			if (p.x != 0 || p.y != 0)
+			//Point p = meanShiftTracker.getObject().center;
+			//if (p.x != 0 || p.y != 0)
+			Rect r = motionTracker.getObject();
+			Point p = Point(r.x + r.width/2, r.y + r.height/2);
+			if(start)
 			{
-				int dx = meanShiftTracker.getDirectionX();
-				if (!prevStart)
-				{
-					dx = motionTracker.getDirectionX();
-				}
+				//int dx = meanShiftTracker.getDirectionX();
+				int dx = motionTracker.getDirectionX();
+				//if (!prevStart)
+				//{
+			//		dx = motionTracker.getDirectionX();
+			//	}
 				if (dx != 0)
 				{
 #ifndef ON_PI

@@ -11,7 +11,7 @@ const int SENSITIVITY_VALUE = 20;
 const int BLUR_SIZE = 10;
 
 int sizeThreshLow = (int)pow(32 * CAM_W / 640, 2);
-int sizeThreshHigh = (int)(0.8 * CAM_W * CAM_H);
+int sizeThreshHigh = (int)(0.5 * CAM_W * CAM_H);
 int dthresh = 32;
 
 int prevSize;
@@ -25,10 +25,10 @@ int captureCurrent = -1;
 
 //some boolean variables for added functionality
 bool objectDetected = false;
-
+bool move = false;
 int xdir = 0;
 int ydir = 0;
-
+int dxMotion = 0;
 int xstart = 0;
 int ystart = 0;
 int xend = 0;
@@ -151,6 +151,7 @@ Mat MotionTracker::process(Mat& frame)
 	arrowedLine(obj, Point(xstart, yend), Point(xend, yend), Scalar(255, 255, 255), 1);
 	if (objectDetected)
 	{
+		cout << "Object detected" << endl;
 		double shrink = 0.4;
 		double shrinkInv = 1 - shrink;
 
@@ -204,7 +205,12 @@ Rect MotionTracker::getObject()
 {
 	return objectBoundingRectangle;
 }
-
+bool MotionTracker::shouldMove()
+{
+	bool temp = move;
+	move = false;
+	return temp;
+}
 bool MotionTracker::objectCaptured()
 {
 	if (motionOnlyMode)
@@ -220,7 +226,8 @@ bool MotionTracker::objectCaptured()
 
 int MotionTracker::getDirectionX()
 {
-	return xend - xstart;
+	//return xend - xstart;
+	return dxMotion;
 }
 
 bool MotionTracker::validObjectFound()
@@ -276,6 +283,7 @@ bool MotionTracker::validObjectFound()
 				xend = x;
 				yend = y;
 				int dx = xend - xstart;
+				dxMotion = dx;
 				if (dx < 0)
 				{
 					xend = 10;
@@ -286,7 +294,8 @@ bool MotionTracker::validObjectFound()
 					xstart = 10;
 					xend = CAM_W - 10;
 				}
-				cout << dx << endl;
+				cout << "MotionTracker:: " << dx << endl;
+				move = true;
 			}
 			return true;
 		}

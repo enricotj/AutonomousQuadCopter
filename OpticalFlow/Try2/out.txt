@@ -1,207 +1,176 @@
 Mean Shift Tracker Constructed
 first write :4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-1: move x -30 byte: 5
--30
-
-4
-0: move x 0 byte: 2
-0
-
-2
+Motion Tracker Constructed
+**********************
+Entering Main Loop:
+**********************
+MotionTracker:: -15
+Object detected
+Object detected
+Object detected
+MotionTracker:: -21
+Object detected
+MotionTracker:: -20
+Object detected
+right :-20
+1: move x 272 byte: 20
+Object detected
+right :-20
+1: move x 279 byte: 20
+MotionTracker:: 23
+Object detected
+MotionTracker:: 8
+Object detected
+Object detected
+Object detected
+Object detected
+Object detected
+MotionTracker:: 32
+Object detected
+MotionTracker:: -17
+Object detected
+MotionTracker:: -13
+Object detected
+Object detected
+Object detected
+MotionTracker:: 11
+Object detected
+left :11
+-1: move x -168 byte: 20
+Object detected
+left :11
+-1: move x -173 byte: 20
+Object detected
+left :11
+-1: move x -178 byte: 20
+MotionTracker:: 17
+Object detected
+left :17
+-1: move x -217 byte: 20
+Object detected
+left :17
+-1: move x -230 byte: 20
+MotionTracker:: -32
+Object detected
+right :-32
+1: move x 197 byte: 20
+Object detected
+right :-32
+1: move x 215 byte: 20
+Object detected
+right :-32
+1: move x 235 byte: 20
+Object detected
+right :-32
+1: move x 252 byte: 20
+Object detected
+right :-32
+1: move x 269 byte: 20
+Object detected
+right :-32
+1: move x 280 byte: 20
+MotionTracker:: 45
+Object detected
+MotionTracker:: 28
+Object detected
+left :28
+-1: move x -163 byte: 20
+Object detected
+left :28
+-1: move x -182 byte: 20
+Object detected
+left :28
+-1: move x -203 byte: 20
+Object detected
+left :28
+-1: move x -220 byte: 20
+Object detected
+left :28
+-1: move x -239 byte: 20
+MotionTracker:: -6
+Object detected
+right :-6
+1: move x 242 byte: 20
+Object detected
+right :-6
+1: move x 242 byte: 20
+Object detected
+right :-6
+1: move x 245 byte: 20
+MotionTracker:: -13
+Object detected
+right :-13
+1: move x 147 byte: 20
+Object detected
+right :-13
+1: move x 152 byte: 20
+Object detected
+right :-13
+1: move x 165 byte: 20
+MotionTracker:: 35
+Object detected
+left :35
+-1: move x -229 byte: 20
+MotionTracker:: 225
+Object detected
+left :225
+-1: move x -499 byte: 20
+Object detected
+left :225
+-1: move x -479 byte: 20
+MotionTracker:: 21
+Object detected
+MotionTracker:: 20
+Object detected
+left :20
+-1: move x -280 byte: 20
+MotionTracker:: -9
+Object detected
+MotionTracker:: -18
+Object detected
+Object detected
+Object detected
+Object detected
+Object detected
+Object detected
+MotionTracker:: -8
+Object detected
+right :-8
+1: move x 112 byte: 20
+Object detected
+right :-8
+1: move x 122 byte: 20
+MotionTracker:: 12
+Object detected
+Object detected
+Object detected
+MotionTracker:: 10
+Object detected
+MotionTracker:: -6
+Object detected
+right :-6
+1: move x 150 byte: 20
+Object detected
+right :-6
+1: move x 153 byte: 20
+MotionTracker:: 49
+Object detected
+MotionTracker:: -8
+Object detected
+MotionTracker:: 8
+Object detected
+Object detected
+Object detected
+MotionTracker:: 4
+Object detected
+Object detected
+MotionTracker:: 8
+Object detected
+**********************
+Exiting Main Loop:
+**********************
+STOPPING
+Mean Shift Tracker Destructed
+Motion Tracker Destructed
+Motion Tracker Destructed
 Mean Shift Tracker Destructed
