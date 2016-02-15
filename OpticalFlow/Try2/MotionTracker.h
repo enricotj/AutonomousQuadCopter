@@ -36,6 +36,7 @@ public:
 	bool objectCaptured();
 	int getDirectionX();
 	bool shouldMove();
+	Mat getThresholdImage();
 private:
 	void searchForMovement(Mat thresholdImage);
 	bool validObjectFound();

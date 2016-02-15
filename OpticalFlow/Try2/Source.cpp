@@ -414,8 +414,11 @@ int main(int argc, const char** argv)
 	cout << "Entering Main Loop:" << endl;
 	cout << "**********************" << endl;
 
+#ifdef ON_PI
 	while (frameCounter < frameMax)
-	//while (true)
+#else
+	while (true)
+#endif
 	{
 		frameCounter++;
 #ifdef ON_PI
@@ -450,6 +453,15 @@ int main(int argc, const char** argv)
 
 		if (start)
 		{
+			cout << "OBJECT FOUND" << endl;
+			Rect r = motionTracker.getObject();
+			Point p = Point(r.x + r.width / 2, r.y + r.height / 2);
+			int dx = motionTracker.getDirectionX();
+
+#ifdef ON_PI
+			aimServoTowards(p, dx);
+#endif // ON_PI
+
 			/*image = meanShiftTracker.process(frame);
 			float objSize = meanShiftTracker.getObject().size.width * meanShiftTracker.getObject().size.height;
 			if ((image.rows == 1 && image.cols == 1) || meanShiftTracker.isObjectLost()
@@ -463,47 +475,51 @@ int main(int argc, const char** argv)
 #endif
 				continue;
 			}*/
-
-
-			//Point p = meanShiftTracker.getObject().center;
-			//if (p.x != 0 || p.y != 0)
-			Rect r = motionTracker.getObject();
-			Point p = Point(r.x + r.width/2, r.y + r.height/2);
+			
+			/*
+			Point p = meanShiftTracker.getObject().center;
+			if (p.x != 0 || p.y != 0) {
+				//...
+			}
+			// OLD CODE HERE
 			if(start)
 			{
-				//int dx = meanShiftTracker.getDirectionX();
+				int dx = meanShiftTracker.getDirectionX();
 				int dx = motionTracker.getDirectionX();
-				//if (!prevStart)
-				//{
-			//		dx = motionTracker.getDirectionX();
-			//	}
+				if (!prevStart)
+				{
+					dx = motionTracker.getDirectionX();
+				}
 				if (dx != 0)
 				{
 #ifndef ON_PI
-					//line(image, Point(cx, cy), Point(cx + dx * 5, cy), Scalar(0, 255, 0), 3);
-					//circle(image, p, 4, Scalar(0, 0, 255), -1);
-					//Point aim = aimCheck(p, dx);
-					//cout << aim.x << ", " << aim.y << endl;
+					line(image, Point(cx, cy), Point(cx + dx * 5, cy), Scalar(0, 255, 0), 3);
+					circle(image, p, 4, Scalar(0, 0, 255), -1);
+					Point aim = aimCheck(p, dx);
+					cout << aim.x << ", " << aim.y << endl;
 #endif // !ON_PI
 				}
 				
 #ifdef ON_PI
 				aimServoTowards(p, dx);
-				//meanShiftTracker.correctForServoMotion(aimServoTowards(p));
+				meanShiftTracker.correctForServoMotion(aimServoTowards(p));
 #endif // ON_PI
 
 			}
+			*/
 		}
 
 #ifdef ON_PI
+		// uncomment to view motion tracking threshold
+		//image = motionTracker.getThresholdImage();
 		Mat temp;
 		image.copyTo(temp);
 		frames.push_back(temp);
 #else
-		line(image, Point(cx + SERVO_AIM_THRESH_X, 0), Point(cx + SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
-		line(image, Point(cx - SERVO_AIM_THRESH_X, 0), Point(cx - SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
-		line(image, Point(0, cy + SERVO_AIM_THRESH_Y), Point(CAM_W, cy + SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
-		line(image, Point(0, cy - SERVO_AIM_THRESH_Y), Point(CAM_W, cy - SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
+		//line(image, Point(cx + SERVO_AIM_THRESH_X, 0), Point(cx + SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
+		//line(image, Point(cx - SERVO_AIM_THRESH_X, 0), Point(cx - SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
+		//line(image, Point(0, cy + SERVO_AIM_THRESH_Y), Point(CAM_W, cy + SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
+		//line(image, Point(0, cy - SERVO_AIM_THRESH_Y), Point(CAM_W, cy - SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
 		imshow("Track", image);
 		cvWaitKey(winDelay);
 #endif // ON_PI
