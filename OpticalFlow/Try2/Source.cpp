@@ -48,6 +48,7 @@ int cy = CAM_H / 2;
 int winDelay = 80;
 
 int thresholdDX = 3;
+int moveFlag = 0;
 
 Point aimCheck(Point p, int dx)
 {
@@ -119,7 +120,7 @@ void moveServoX(int rot, int dx)
 	std::stringstream ss;
 	std::string step;
 	
-	int byte = 20;
+	int byte = 10;
 	int n;
 	/*if(dx < 100 && dx > -100) {
 		cout << "Not in threshold" << endl;
@@ -131,8 +132,7 @@ void moveServoX(int rot, int dx)
 		//return; 
 	}*/
 	startTime = time(0);
-    prevRotX = rot;
-    
+    prevRotX = rot;    
     ss << dx << "\n";
     step = ss.str();
 	    
@@ -229,57 +229,64 @@ void servoTest()
 
 Point aimServoTowards(Point p, double dx)
 {
-	double scalearX =1;
-	if (abs(dx) <= thresholdDX) {
-		dx = 0;
-	}
-	
+	double scalearX =5;
 	Point aim = Point(0, 0);
+//	moveServoY(SERVO_STOP,0);
+	
+	/*if (abs(dx) <= thresholdDX) {
+		dx = 0;
+	}*/
+	
 //	cout << "x :" << p.x << endl;
 	if (p.x > cx  && dx > 0)
 	{
 		cout<< "left :" << dx << endl;
-		dx = abs(dx)*scalearX + ((p.x) - cx);
+		dx = abs(dx)*scalearX + ((p.x) - cx)+cx/3;
 		dx = -1*((dx/CAM_W)*535.0);
+		if(dx < -535) dx = -535;
 		moveServoX(SERVO_LEFT, int(dx));
 		aim.x = SERVO_LEFT;
+		//moveFlag = 1;
 	}
 	else if (p.x < cx && dx < 0)
 	{
 		cout<< "right :" << dx << endl;
-		dx = abs(dx)*scalearX + (cx - p.x);
+		dx = abs(dx)*scalearX + (cx - p.x)+cx/3;
 		dx = (dx/CAM_W)*535.0;
+		if(dx > 535) dx = 535;
 		moveServoX(SERVO_RIGHT,int(dx));
 		aim.x = SERVO_RIGHT;
+		//moveFlag = 1;
 	}
 	else
 	{
-		moveServoX(SERVO_STOP, dx);
+		moveServoX(SERVO_STOP, 0);
 	}
 //	cout << "y :" << p.y << endl;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
 		//cout << "MOVING UP" << endl;
-		moveServoY(SERVO_DOWN, cy-p.y);
+//		moveServoY(SERVO_DOWN, cy-p.y);
 		aim.y = SERVO_DOWN;
+		//moveFlag = 1;
 	}
 	else if (p.y < cy - SERVO_AIM_THRESH_Y)
 	{
 		//cout << "MOVING DOWN" << endl;
-		moveServoY(SERVO_UP, cy-p.y);
+//		moveServoY(SERVO_UP, cy-p.y);
 		aim.y = SERVO_UP;
+		//moveFlag = 1;
 	}
 	else
 	{
 		//cout << "STOPPING" << endl;
-		moveServoY(SERVO_STOP, 0);
+//		moveServoY(SERVO_STOP, 0);
 	}
 	
-	int i = 0;
-		
-	gpioDelay(10000);
+			
+	//gpioDelay(10000);
 	
-	moveServoY(SERVO_STOP,0);
+	//moveServoY(SERVO_STOP,0);
 	return aim;
 }
 
