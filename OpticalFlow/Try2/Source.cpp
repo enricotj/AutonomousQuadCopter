@@ -30,7 +30,8 @@ using namespace std;
 int frameMax = 1200;
 
 vector<Mat> frames;
-
+const int MOVE_DELAY = 3;
+const int FRAME_COUNT_THRESHOLD = 100;
 const int SERVO_LEFT = -1; //clockwise
 const int SERVO_RIGHT = 1; //counterclockwise
 const int SERVO_UP = -1;
@@ -41,7 +42,8 @@ const int SERVO_AIM_THRESH_Y = CAM_H / 8;
 int prevRotX = 99999;
 int prevRotY = 99999;
 int startTime;
-
+int trackFrameCount = 0;
+int moveCount = 0;
 int cx = CAM_W / 2;
 int cy = CAM_H / 2;
 
@@ -49,40 +51,6 @@ int winDelay = 80;
 
 int thresholdDX = 3;
 int moveFlag = 0;
-
-Point aimCheck(Point p, int dx)
-{
-	if (abs(dx) <= thresholdDX) {
-		dx = 0;
-	}
-	Point aim = Point(0, 0);
-	if (p.x > cx + SERVO_AIM_THRESH_X && dx > 0)
-	{
-		aim.x = SERVO_LEFT;
-	}
-	else if (p.x < cx - SERVO_AIM_THRESH_X && dx < 0)
-	{
-
-	aim.x = SERVO_RIGHT;
-	}
-	else
-	{
-		aim.x = 0;
-	}
-	if (p.y > cy + SERVO_AIM_THRESH_Y)
-	{
-		aim.y = SERVO_DOWN;
-	}
-	else if (p.y < cy - SERVO_AIM_THRESH_Y)
-	{
-		aim.y = SERVO_UP;
-	}
-	else
-	{
-		aim.y = 0;
-	}
-	return aim;
-}
 
 #ifdef ON_PI
 bool recording = false;
@@ -116,23 +84,29 @@ void stopRecording() {
 
 void moveServoX(int rot, int dx)
 {
-
+	if (moveCount < MOVE_DELAY) {
+		moveCount++;
+		return;
+	}
 	std::stringstream ss;
 	std::string step;
 	
 	int byte = 10;
 	int n;
-	/*if(dx < 100 && dx > -100) {
+	if(dx < 20 && dx > -20) {
 		cout << "Not in threshold" << endl;
 		return;
 	}
-	if (prevRotX == rot) {
+	
+	if (prevRotX != 99999 && rot != SERVO_STOP && rot!=prevRotX) {
 		//cout << "difftime :" << difftime(time(0),startTime) << endl;
 		//if(double(difftime( time(0), startTime))<.05)
-		//return; 
-	}*/
+		return; 
+	}
 	startTime = time(0);
-    prevRotX = rot;    
+    if(rot!= SERVO_STOP) {
+	prevRotX = rot;    
+    }
     ss << dx << "\n";
     step = ss.str();
 	    
@@ -229,7 +203,7 @@ void servoTest()
 
 Point aimServoTowards(Point p, double dx)
 {
-	double scalearX =5;
+	double scalearX =1;
 	Point aim = Point(0, 0);
 //	moveServoY(SERVO_STOP,0);
 	
@@ -241,7 +215,7 @@ Point aimServoTowards(Point p, double dx)
 	if (p.x > cx  && dx > 0)
 	{
 		cout<< "left :" << dx << endl;
-		dx = abs(dx)*scalearX + ((p.x) - cx)+cx/3;
+		dx = abs(dx)*scalearX + ((p.x) - (cx/2.0));
 		dx = -1*((dx/CAM_W)*535.0);
 		if(dx < -535) dx = -535;
 		moveServoX(SERVO_LEFT, int(dx));
@@ -251,7 +225,7 @@ Point aimServoTowards(Point p, double dx)
 	else if (p.x < cx && dx < 0)
 	{
 		cout<< "right :" << dx << endl;
-		dx = abs(dx)*scalearX + (cx - p.x)+cx/3;
+		dx = abs(dx)*scalearX + ((3*cx/2) - p.x);
 		dx = (dx/CAM_W)*535.0;
 		if(dx > 535) dx = 535;
 		moveServoX(SERVO_RIGHT,int(dx));
@@ -284,7 +258,6 @@ Point aimServoTowards(Point p, double dx)
 	}
 	
 			
-	//gpioDelay(10000);
 	
 	//moveServoY(SERVO_STOP,0);
 	return aim;
@@ -359,8 +332,8 @@ int main(int argc, const char** argv)
 	//toggleGoPro();
 	openSerialPort();
 	while(i<10000000){i++;}	
-	//moveServoX(-1,-2000);
-	//return 0;
+//	moveServoX(-1,-2000);
+//	return 0;
 
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
@@ -442,7 +415,8 @@ int main(int argc, const char** argv)
 
 		bool prevStart = start;
 		/*if (!start)
-		{
+		{	
+			trackFrameCount = 0;
 			image = motionTracker.process(frame);
 			start = motionTracker.objectCaptured();
 			if (start)
@@ -459,12 +433,12 @@ int main(int argc, const char** argv)
 		start = motionTracker.objectCaptured();
 
 		if (start)
-		{
-			cout << "OBJECT FOUND" << endl;
+		{	
+			trackFrameCount++;
 			Rect r = motionTracker.getObject();
 			Point p = Point(r.x + r.width / 2, r.y + r.height / 2);
 			int dx = motionTracker.getDirectionX();
-
+			cout << "DX: " << dx << endl;
 #ifdef ON_PI
 			aimServoTowards(p, dx);
 #endif // ON_PI
@@ -472,18 +446,18 @@ int main(int argc, const char** argv)
 			/*image = meanShiftTracker.process(frame);
 			float objSize = meanShiftTracker.getObject().size.width * meanShiftTracker.getObject().size.height;
 			if ((image.rows == 1 && image.cols == 1) || meanShiftTracker.isObjectLost()
-					|| objSize > sizeThresh)
+					|| objSize > sizeThresh || trackFrameCount > FRAME_COUNT_THRESHOLD)
 			{
 				start = false;
-#ifdef ON_PI
+#ifdef ON_PI			prevXRot = 99999;
 				moveServoX(0, 0);
 				moveServoY(0, 0);
 				//stopRecording();
 #endif
 				continue;
-			}*/
-			
-			/*
+			}
+			*/
+/*			
 			Point p = meanShiftTracker.getObject().center;
 			if (p.x != 0 || p.y != 0) {
 				//...
@@ -492,11 +466,11 @@ int main(int argc, const char** argv)
 			if(start)
 			{
 				int dx = meanShiftTracker.getDirectionX();
-				int dx = motionTracker.getDirectionX();
-				if (!prevStart)
-				{
-					dx = motionTracker.getDirectionX();
-				}
+			//	int dx = motionTracker.getDirectionX();
+			//	if (!prevStart)
+			//	{
+			//		dx = motionTracker.getDirectionX();
+			//	}
 				if (dx != 0)
 				{
 #ifndef ON_PI
@@ -506,14 +480,14 @@ int main(int argc, const char** argv)
 					cout << aim.x << ", " << aim.y << endl;
 #endif // !ON_PI
 				}
-				
+*/				
 #ifdef ON_PI
-				aimServoTowards(p, dx);
-				meanShiftTracker.correctForServoMotion(aimServoTowards(p));
+			//	aimServoTowards(p, dx);
+			//	meanShiftTracker.correctForServoMotion(aimServoTowards(p));
 #endif // ON_PI
 
-			}
-			*/
+			//}
+			
 		}
 
 #ifdef ON_PI
@@ -563,7 +537,7 @@ int main(int argc, const char** argv)
 
 #endif // ON_PI
 
-	meanShiftTracker.~MeanShiftTracker();
+//	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();
 
 	return 0;

@@ -10,7 +10,7 @@ const int SENSITIVITY_VALUE = 24;
 //size of blur used to smooth the intensity image output from absdiff() function
 const int BLUR_SIZE = 12;
 
-int sizeThreshLow = (int)pow(16 * CAM_W / 640, 2);
+int sizeThreshLow = (int)pow(32 * CAM_W / 640, 2);
 int sizeThreshHigh = (int)(0.75 * CAM_W * CAM_H);
 
 int prevSize;
@@ -18,7 +18,7 @@ Point prevPos;
 
 const double MAX_SIZE_DIFF_FACTOR = 2.0;
 const double MAX_POS_DIFF_FACTOR = 0.6;
-int captureThreshold = 1;
+int captureThreshold = 0;
 int captureCurrent = -1;
 
 //some boolean variables for added functionality
@@ -31,9 +31,9 @@ int xstart = 0;
 int ystart = 0;
 int xend = 0;
 int yend = 0;
-
+int dxPositive;
 int minContourSize = 1*1;
-
+bool initial = false;
 MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
@@ -256,7 +256,7 @@ bool MotionTracker::validObjectFound()
 		prevPos = Point(x, y);
 		captureCurrent++;
 		//double capthresh = CAM_H * CAM_W / objectBoundingRectangle.area() * 16;
-		captureThreshold = 3;
+		captureThreshold = 1;
 		xstart = x;
 		ystart = y;
 		return false;
@@ -290,6 +290,11 @@ bool MotionTracker::validObjectFound()
 				yend = y;
 				int dx = xend - xstart;
 				dxMotion = dx;
+				if((dxMotion > 0 && !dxPositive) || (dxMotion < 0 && dxPositive)) {
+					dxMotion = 0;
+					return false;
+
+				}
 				if (dx < 0)
 				{
 					xend = 10;
@@ -299,6 +304,10 @@ bool MotionTracker::validObjectFound()
 				{
 					xstart = 10;
 					xend = CAM_W - 10;
+				}
+				if(!initial) {
+					dxPositive = dxMotion > 0;
+					initial = true;
 				}
 				cout << "MotionTracker:: " << dx << endl;
 				isMove = true;
