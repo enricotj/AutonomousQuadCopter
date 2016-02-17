@@ -1,385 +1,250 @@
 Mean Shift Tracker Constructed
 first write :4
+Not in threshold
 Motion Tracker Constructed
 **********************
 Entering Main Loop:
 **********************
-MotionTracker:: -3
-Object detected
-DX: -3
-MotionTracker:: -6
-Object detected
-DX: -6
-Object detected
-DX: -6
+DX: 4
 Not in threshold
-Object detected
-DX: -6
+DX: 4
 Not in threshold
-Object detected
-DX: -6
+DX: 3
 Not in threshold
-Object detected
-DX: -6
+DX: 3
 Not in threshold
-Object detected
-DX: -6
+DX: 3
 Not in threshold
-Object detected
-DX: -6
+DX: 3
 Not in threshold
-Object detected
-DX: -6
-Not in threshold
-Object detected
-DX: -6
-Not in threshold
-Object detected
-DX: -6
-Not in threshold
-Object detected
-DX: -6
-Not in threshold
-Object detected
-DX: -6
-Not in threshold
-Object detected
-DX: -6
-right :-6
-1: move x 148 byte: 10
-Object detected
-DX: -6
-right :-6
-1: move x 162 byte: 10
-Object detected
-DX: -6
-right :-6
-1: move x 173 byte: 10
-MotionTracker:: -9
-Object detected
-DX: -9
-right :-9
-1: move x 279 byte: 10
-Object detected
-DX: -9
-right :-9
-1: move x 287 byte: 10
-MotionTracker:: -4
-Object detected
-DX: -4
-right :-4
-1: move x 245 byte: 10
-Object detected
-DX: -4
-right :-4
-1: move x 252 byte: 10
-Object detected
-DX: -4
-right :-4
-1: move x 260 byte: 10
-MotionTracker:: -10
-Object detected
-DX: -10
-right :-10
-1: move x 225 byte: 10
-MotionTracker:: 0
-Object detected
+DX: 10
+left :10
+-1: move x -249 byte: 4
+DX: 10
+left :10
+RESETTING
+1: move x 249 byte: 4
+RESUMING
 DX: 0
 Not in threshold
-MotionTracker:: -1
-Object detected
-DX: -1
-right :-1
-1: move x 187 byte: 10
-MotionTracker:: -3
-Object detected
-DX: -3
-right :-3
-1: move x 227 byte: 10
-MotionTracker:: 0
-Object detected
 DX: 0
 Not in threshold
-MotionTracker:: 0
-Object detected
 DX: 0
 Not in threshold
-MotionTracker:: -1
-Object detected
-DX: -1
+DX: 4
 Not in threshold
-Object detected
-DX: -1
+DX: 4
 Not in threshold
-MotionTracker:: -6
-Object detected
-DX: -6
-right :-6
-1: move x 387 byte: 10
-MotionTracker:: -1
-Object detected
-DX: -1
-right :-1
-1: move x 165 byte: 10
-MotionTracker:: -4
-Object detected
-DX: -4
-right :-4
-1: move x 200 byte: 10
-MotionTracker:: -190
-Object detected
-DX: -190
-right :-190
-1: move x 519 byte: 10
-Object detected
-DX: -190
-right :-190
-1: move x 535 byte: 10
-MotionTracker:: -5
-Object detected
-DX: -5
-right :-5
-1: move x 244 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 252 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 254 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 257 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 247 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 265 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 274 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 277 byte: 10
-MotionTracker:: -2
-Object detected
-DX: -2
-right :-2
-1: move x 269 byte: 10
-MotionTracker:: 0
-Object detected
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 58
+Not in threshold
+DX: 58
+Not in threshold
+DX: 58
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+left :4
+-1: move x -148 byte: 4
+DX: 4
+left :4
+DX: 4
+left :4
+DX: 7
+left :7
+-1: move x -304 byte: 4
+DX: 7
+left :7
+DX: 7
+left :7
+DX: 7
+left :7
+DX: 9
+left :9
+DX: 176
+left :176
+DX: 190
+left :190
+DX: 200
+left :200
+DX: 211
+left :211
+-1: move x -535 byte: 4
+DX: 211
+left :211
+DX: 211
+left :211
+DX: 3
+left :3
+-1: move x -142 byte: 4
+DX: 152
+left :152
+DX: 152
+Not in threshold
+DX: 152
+Not in threshold
+DX: 152
+Not in threshold
+DX: 152
+Not in threshold
+DX: 152
+Not in threshold
+DX: 152
+Not in threshold
+DX: 104
+Not in threshold
+RESETTING
+1: move x 1129 byte: 5
+RESUMING
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 6
+Not in threshold
+DX: 56
+Not in threshold
+DX: 18
+left :18
+-1: move x -332 byte: 4
+DX: 18
+left :18
+DX: 3
+Not in threshold
+DX: 3
+Not in threshold
+DX: 3
+Not in threshold
+DX: 2
+Not in threshold
+DX: 2
+Not in threshold
+DX: 2
+Not in threshold
+DX: 2
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 2
+Not in threshold
+DX: 2
+Not in threshold
+DX: 4
+Not in threshold
+DX: 4
+Not in threshold
+DX: 1
+left :1
+-1: move x -376 byte: 4
+DX: 1
+left :1
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+Not in threshold
+DX: 6
+left :6
+-1: move x -152 byte: 4
+DX: 6
+left :6
+DX: 6
+left :6
+DX: 11
+left :11
+-1: move x -202 byte: 4
+DX: 3
+Not in threshold
+DX: 3
+Not in threshold
+DX: 15
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 1
+Not in threshold
+DX: 6
+left :6
+-1: move x -244 byte: 4
 DX: 0
 Not in threshold
-Object detected
 DX: 0
 Not in threshold
-MotionTracker:: -5
-Object detected
-DX: -5
-right :-5
-1: move x 315 byte: 10
-MotionTracker:: -5
-Object detected
-DX: -5
-right :-5
-1: move x 372 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 381 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 386 byte: 10
-Object detected
-DX: -5
-right :-5
-1: move x 391 byte: 10
-MotionTracker:: -2
-Object detected
-DX: -2
-right :-2
-1: move x 364 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 369 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 374 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 381 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 386 byte: 10
-MotionTracker:: -2
-Object detected
-DX: -2
-right :-2
-1: move x 225 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 207 byte: 10
-MotionTracker:: -67
-Object detected
-DX: -67
-right :-67
-1: move x 287 byte: 10
-Object detected
-DX: -67
-right :-67
-1: move x 397 byte: 10
-Object detected
-DX: -67
-right :-67
-1: move x 466 byte: 10
-MotionTracker:: -37
-Object detected
-DX: -37
-right :-37
-1: move x 416 byte: 10
-MotionTracker:: -300
-Object detected
-DX: -300
-right :-300
-1: move x 535 byte: 10
-MotionTracker:: -18
-Object detected
-DX: -18
-right :-18
-1: move x 417 byte: 10
-MotionTracker:: -8
-Object detected
-DX: -8
-right :-8
-1: move x 235 byte: 10
-MotionTracker:: -17
-Object detected
-DX: -17
-right :-17
-1: move x 411 byte: 10
-MotionTracker:: 0
-Object detected
-DX: 0
+DX: 11
 Not in threshold
-Object detected
-DX: 0
+DX: 11
 Not in threshold
-MotionTracker:: -55
-Object detected
-DX: -55
-right :-55
-1: move x 265 byte: 10
-Object detected
-DX: -55
-right :-55
-1: move x 262 byte: 10
-MotionTracker:: -1
-Object detected
-DX: -1
-right :-1
-1: move x 279 byte: 10
-MotionTracker:: -2
-Object detected
-DX: -2
-right :-2
-1: move x 319 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 319 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 217 byte: 10
-Object detected
-DX: -2
-right :-2
-1: move x 230 byte: 10
-MotionTracker:: -3
-Object detected
-DX: -3
-right :-3
-1: move x 254 byte: 10
-Object detected
-DX: -3
-right :-3
-1: move x 254 byte: 10
-MotionTracker:: -8
-Object detected
-DX: -8
-right :-8
-1: move x 229 byte: 10
-Object detected
-DX: -8
-right :-8
-1: move x 210 byte: 10
-Object detected
-DX: -8
-right :-8
-1: move x 212 byte: 10
-Object detected
-DX: -8
-right :-8
-1: move x 220 byte: 10
-MotionTracker:: 0
-Object detected
-DX: 0
+DX: 24
 Not in threshold
-Object detected
-DX: 0
-Not in threshold
-MotionTracker:: -4
-Object detected
-DX: -4
-right :-4
-1: move x 203 byte: 10
-Object detected
-DX: -4
-right :-4
-1: move x 214 byte: 10
-MotionTracker:: -5
-Object detected
-DX: -5
-right :-5
-1: move x 265 byte: 10
-MotionTracker:: -2
-Object detected
-DX: -2
-right :-2
-1: move x 297 byte: 10
-MotionTracker:: -8
-Object detected
-DX: -8
-Not in threshold
-MotionTracker:: -6
-Object detected
-DX: -6
-Not in threshold
-Object detected
-DX: -6
-Not in threshold
-MotionTracker:: -15
-Object detected
-DX: -15
-Not in threshold
-**********************
-Exiting Main Loop:
-**********************
-Not in threshold
-STOPPING
-Motion Tracker Destructed
-Motion Tracker Destructed
-Mean Shift Tracker Destructed
+DX: 24
+left :24
+-1: move x -212 byte: 4
+DX: 24
+left :24
+RESETTING
+1: move x 1518 byte: 5

@@ -152,7 +152,7 @@ Mat MotionTracker::process(Mat& frame)
 	//arrowedLine(obj, Point(xstart, yend), Point(xend, yend), Scalar(255, 255, 255), 1);
 	if (objectDetected)
 	{
-		cout << "Object detected" << endl;
+//		cout << "Object detected" << endl;
 		double shrink = 0.4;
 		double shrinkInv = 1 - shrink;
 
@@ -216,6 +216,10 @@ bool MotionTracker::shouldMove()
 	temp = isMove;
 	isMove = false;
 	return temp;
+}
+void MotionTracker::resetInitial()
+{
+	initial = false;
 }
 bool MotionTracker::objectCaptured()
 {
@@ -290,7 +294,7 @@ bool MotionTracker::validObjectFound()
 				yend = y;
 				int dx = xend - xstart;
 				dxMotion = dx;
-				if((dxMotion > 0 && !dxPositive) || (dxMotion < 0 && dxPositive)) {
+				if(initial && ((dxMotion > 0 && !dxPositive) || (dxMotion < 0 && dxPositive))) {
 					dxMotion = 0;
 					return false;
 
@@ -309,7 +313,7 @@ bool MotionTracker::validObjectFound()
 					dxPositive = dxMotion > 0;
 					initial = true;
 				}
-				cout << "MotionTracker:: " << dx << endl;
+				//cout << "MotionTracker:: " << dx << endl;
 				isMove = true;
 			}
 			return true;

@@ -30,7 +30,7 @@ using namespace std;
 int frameMax = 1200;
 
 vector<Mat> frames;
-const int MOVE_DELAY = 3;
+const int MOVE_DELAY = 0;
 const int FRAME_COUNT_THRESHOLD = 100;
 const int SERVO_LEFT = -1; //clockwise
 const int SERVO_RIGHT = 1; //counterclockwise
@@ -42,7 +42,7 @@ const int SERVO_AIM_THRESH_Y = CAM_H / 8;
 const int SERVO_NULL = 99999;
 int prevRotX = SERVO_NULL;
 int prevRotY = SERVO_NULL;
-int startTime;
+int startTime =0;
 int trackFrameCount = 0;
 int moveCount = 0;
 int cx = CAM_W / 2;
@@ -55,9 +55,9 @@ int moveFlag = 0;
 
 const double RESET_DELAY = 5.0; // in seconds (amount of time that needs to pass
 time_t resetStartTime;
-const int RESET_STEP_THRESHOLD = 1350;
+const int RESET_STEP_THRESHOLD = 2000;
 int xsteps = 0;
-int xdir = SERVO_STOP;
+//int xdir = SERVO_STOP;
 const double RESET_TIME_THRESHOLD = 10.0; // in seconds
 time_t moveStartTime; // keeps track of the time the x servo started moving
 bool resetting = false;
@@ -65,6 +65,29 @@ bool resetting = false;
 #ifdef ON_PI
 bool recording = false;
 int fd;
+
+void powerOnGoPro() {
+	CURL *curl;
+
+	curl = curl_easy_init();
+	if(curl){
+		curl_easy_setopt(curl, CURLOPT_URL, "http://10.5.5.9/bacpac/PW?t=goprohero&p=%01");
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
+	}
+}
+void powerOffGoPro() {
+	CURL *curl;
+
+	curl = curl_easy_init();
+	if(curl){
+		curl_easy_setopt(curl, CURLOPT_URL, "http://10.5.5.9/bacpac/PW?t=goprohero&p=%00");
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
+	}
+}
 
 void startRecording() {
 	CURL *curl;
@@ -101,7 +124,7 @@ void moveServoX(int rot, int dx)
 	std::stringstream ss;
 	std::string step;
 	
-	int byte = 10;
+	int byte = log(abs(dx))/log(10)+2;
 	int n;
 	if(dx < 20 && dx > -20) {
 		cout << "Not in threshold" << endl;
@@ -110,8 +133,11 @@ void moveServoX(int rot, int dx)
 	
 	if (prevRotX != SERVO_NULL && rot != SERVO_STOP && rot!=prevRotX) {
 		//cout << "difftime :" << difftime(time(0),startTime) << endl;
-		//if(double(difftime( time(0), startTime))<.05)
+		cout << "BAD DIRECTION" << endl;
 		return; 
+	}
+	if(double(difftime( time(0), startTime))<.04){
+		return;
 	}
 	startTime = time(0);
     if(rot != SERVO_STOP) {
@@ -122,7 +148,7 @@ void moveServoX(int rot, int dx)
 	
 	if (xsteps == 0)
 	{
-		xdir = rot;
+		//xdir = rot;
 		moveStartTime = time(0);
 	}
 	xsteps += abs(dx);
@@ -147,7 +173,7 @@ void moveServoX(int rot, int dx)
 		// move right
 		case SERVO_LEFT:
 			cout << rot << ": move x " << dx << " byte: " << byte << endl;
-			n = write(fd, step.c_str(), byte);
+			n = write(fd, step.c_str(), byte +1);
 			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
 			break;
@@ -337,7 +363,7 @@ int main(int argc, const char** argv)
 	aim.x = -1;
 	Mat frame, image;
 	MeanShiftTracker meanShiftTracker = MeanShiftTracker();
-
+	//powerOnGoPro();
 	float sizeThresh = CAM_W * CAM_H * 0.8;
 #ifdef ON_PI
 	initializeGpioPort();
@@ -348,8 +374,6 @@ int main(int argc, const char** argv)
 	//toggleGoPro();
 	openSerialPort();
 	while(i<10000000){i++;}	
-//	moveServoX(-1,-2000);
-//	return 0;
 
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
@@ -370,6 +394,7 @@ int main(int argc, const char** argv)
 	Camera.retrieve(frame);
 	
 	time_t timeV = time(0);
+
 
 	std::string out = "out";
 	struct tm  now = *localtime(&timeV); 
@@ -405,16 +430,15 @@ int main(int argc, const char** argv)
 
 	bool start = false;
 	int frameCounter = 0;
-
+	int videoCount = 0;
 	cout << "**********************" << endl;
 	cout << "Entering Main Loop:" << endl;
 	cout << "**********************" << endl;
+	
 
-#ifdef ON_PI
-	while (frameCounter < frameMax)
-#else
-	while (true)
-#endif
+//	while (frameCounter < frameMax)
+
+	while (videoCount < 3)
 	{
 		frameCounter++;
 #ifdef ON_PI
@@ -433,9 +457,13 @@ int main(int argc, const char** argv)
 		{
 			image = motionTracker.process(frame);
 			start = motionTracker.objectCaptured();
-
 			if (start)
-			{
+			{			
+				if(!recording) {
+					startRecording();
+					recording = true;
+				}
+
 				trackFrameCount++;
 				Rect r = motionTracker.getObject();
 				Point p = Point(r.x + r.width / 2, r.y + r.height / 2);
@@ -449,16 +477,36 @@ int main(int argc, const char** argv)
 			double dt = abs(double(difftime(time(0), moveStartTime)));
 			if (xsteps > 0 && (xsteps > RESET_STEP_THRESHOLD ||  dt > RESET_TIME_THRESHOLD))
 			{
+				cout << "RESETTING" << endl;
+				recording = false;
+				stopRecording();
 				resetting = true;
 				prevRotX *= -1;
+				gpioDelay(1000000);
 				moveServoX(prevRotX, xsteps * prevRotX);
 				resetStartTime = time(0);
 				xsteps = 0;
-			}
+				motionTracker.resetInitial();
+/*				for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
+				{
+					video.write(*it);
+				}
+				out = "out";
+				now = *localtime(&timeV); 
+				char buf2[80];
+				strftime(buf2, sizeof(buf2), "%Y-%m-%d_%H-%M-%S", &now);
+				name = out + buf2 + ".avi";	
+				//name = "out.avi";
+				VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
+				frames.clear();
+*/			}
 		}
 		else if (abs(double(difftime(time(0), resetStartTime))) > RESET_DELAY)
 		{
+			videoCount++;
 			resetting = false;
+			prevRotX = SERVO_NULL;
+			cout << "RESUMING" << endl;
 		}
 		
 		
@@ -555,13 +603,14 @@ int main(int argc, const char** argv)
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
 	cout << "STOPPING" << endl;
 	Camera.release();
-	imwrite("firstFrame.jpg", frames.front());
+	//imwrite("firstFrame.jpg", frames.front());
 	for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
 	{
 		video.write(*it);
 	}
 	gpioTerminate();
-
+	close(fd);
+	//powerOffGoPro();
 #else
 
 	cap.release();
