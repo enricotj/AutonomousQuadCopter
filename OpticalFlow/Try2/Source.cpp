@@ -32,8 +32,8 @@ int frameMax = 1200;
 vector<Mat> frames;
 const int MOVE_DELAY = 0;
 const int FRAME_COUNT_THRESHOLD = 100;
-const int SERVO_LEFT = -1; //clockwise
-const int SERVO_RIGHT = 1; //counterclockwise
+const int SERVO_LEFT = 1; //clockwise
+const int SERVO_RIGHT = -1; //counterclockwise
 const int SERVO_UP = -1;
 const int SERVO_DOWN = 1;
 const int SERVO_STOP = 0;
@@ -58,7 +58,7 @@ time_t resetStartTime;
 const int RESET_STEP_THRESHOLD = 2000;
 int xsteps = 0;
 //int xdir = SERVO_STOP;
-const double RESET_TIME_THRESHOLD = 10.0; // in seconds
+const double RESET_TIME_THRESHOLD = 20.0; // in seconds
 time_t moveStartTime; // keeps track of the time the x servo started moving
 bool resetting = false;
 
@@ -124,26 +124,26 @@ void moveServoX(int rot, int dx)
 	std::stringstream ss;
 	std::string step;
 	
-	int byte = log(abs(dx))/log(10)+2;
+	int byte = log(abs(dx))/log(10)+3;
 	int n;
 	if(dx < 20 && dx > -20) {
-		cout << "Not in threshold" << endl;
+		cout << "Not in threshold: " << dx << endl;
 		return;
 	}
 	
-	if (prevRotX != SERVO_NULL && rot != SERVO_STOP && rot!=prevRotX) {
+	//if (prevRotX != SERVO_NULL && rot != SERVO_STOP && rot!=prevRotX) {
 		//cout << "difftime :" << difftime(time(0),startTime) << endl;
-		cout << "BAD DIRECTION" << endl;
-		return; 
-	}
-	if(double(difftime( time(0), startTime))<.04){
+	//	cout << "BAD DIRECTION" << endl;
+	//	return; 
+	//}
+	if(double(difftime( time(0), startTime))<.01){
 		return;
 	}
 	startTime = time(0);
     if(rot != SERVO_STOP) {
 		prevRotX = rot;    
     }
-    ss << dx << "\n";
+    ss << "P" << dx << "\n";
     step = ss.str();
 	
 	if (xsteps == 0)
@@ -173,14 +173,15 @@ void moveServoX(int rot, int dx)
 		// move right
 		case SERVO_LEFT:
 			cout << rot << ": move x " << dx << " byte: " << byte << endl;
-			n = write(fd, step.c_str(), byte +1);
+			n = write(fd, step.c_str(), byte+1);
 			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
 			break;
 
 		// stop
 		default:
-			//digitalWrite(0,0);	
+			//digitalWrite(0,0);
+			cout << "default case" << endl;
 			n = write(fd,"0\n",2);
 			break;
 	}
@@ -234,10 +235,17 @@ void servoTest()
 {
 	int i = 0;
 	//write(fd, "V90\n", 4);
-	while (i<50)
+	while (i<5)
 	{
-		moveServoX(-1,40);
-		gpioDelay(100000);
+		moveServoX(-1,50);
+		gpioDelay(10000);
+		i++;
+	}
+	i=0;
+	while (i<5)
+	{
+		moveServoX(1,-50);
+		gpioDelay(10000);
 		i++;
 	}
 	moveServoX(0, 0);
@@ -258,7 +266,7 @@ Point aimServoTowards(Point p, double dx)
 	{
 		cout<< "left :" << dx << endl;
 		dx = abs(dx)*scalearX + ((p.x) - (cx/2.0));
-		dx = -1*((dx/CAM_W)*535.0);
+		dx = -1*((dx/CAM_W)*535.0)/2;
 		if(dx < -535) dx = -535;
 		moveServoX(SERVO_LEFT, int(dx));
 		aim.x = SERVO_LEFT;
@@ -268,7 +276,7 @@ Point aimServoTowards(Point p, double dx)
 	{
 		cout<< "right :" << dx << endl;
 		dx = abs(dx)*scalearX + ((3*cx/2) - p.x);
-		dx = (dx/CAM_W)*535.0;
+		dx = (dx/CAM_W)*535/2;
 		if(dx > 535) dx = 535;
 		moveServoX(SERVO_RIGHT,int(dx));
 		aim.x = SERVO_RIGHT;
@@ -374,7 +382,7 @@ int main(int argc, const char** argv)
 	//toggleGoPro();
 	openSerialPort();
 	while(i<10000000){i++;}	
-
+	
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
@@ -438,7 +446,7 @@ int main(int argc, const char** argv)
 
 //	while (frameCounter < frameMax)
 
-	while (videoCount < 3)
+	while (videoCount < 1)
 	{
 		frameCounter++;
 #ifdef ON_PI
@@ -483,7 +491,7 @@ int main(int argc, const char** argv)
 				resetting = true;
 				prevRotX *= -1;
 				gpioDelay(1000000);
-				moveServoX(prevRotX, xsteps * prevRotX);
+				moveServoX(prevRotX, -1* xsteps * prevRotX);
 				resetStartTime = time(0);
 				xsteps = 0;
 				motionTracker.resetInitial();

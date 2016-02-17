@@ -1,250 +1,84 @@
 Mean Shift Tracker Constructed
 first write :4
-Not in threshold
+Not in threshold: 0
 Motion Tracker Constructed
 **********************
 Entering Main Loop:
 **********************
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
 DX: 3
-Not in threshold
-DX: 3
-Not in threshold
-DX: 3
-Not in threshold
-DX: 3
-Not in threshold
+Not in threshold: 0
+DX: 6
+Not in threshold: 0
+DX: 6
+Not in threshold: 0
+DX: 40
+Not in threshold: 0
+DX: 40
+Not in threshold: 0
+DX: 40
+Not in threshold: 0
+DX: 40
+Not in threshold: 0
+DX: 37
+Not in threshold: 0
+DX: 7
+Not in threshold: 0
+DX: 8
+left :8
+1: move x -110 byte: 5
+DX: 8
+left :8
+DX: 8
+left :8
+DX: 12
+left :12
+1: move x -152 byte: 5
+DX: 12
+left :12
+DX: 143
+left :143
+DX: 143
+left :143
+DX: 143
+left :143
+DX: 20
+left :20
+1: move x -93 byte: 4
+DX: 2
+Not in threshold: 0
+DX: 7
+Not in threshold: 0
+DX: 7
+Not in threshold: 0
+DX: 7
+Not in threshold: 0
+DX: 0
+Not in threshold: 0
+DX: 6
+Not in threshold: 0
+DX: 2
+Not in threshold: 0
+DX: 2
+Not in threshold: 0
+DX: 0
+Not in threshold: 0
 DX: 10
 left :10
--1: move x -249 byte: 4
-DX: 10
-left :10
+1: move x -139 byte: 5
+DX: 1
+Not in threshold: 0
+DX: 1
+Not in threshold: 0
+DX: 2
+Not in threshold: 0
 RESETTING
-1: move x 249 byte: 4
+-1: move x 494 byte: 5
 RESUMING
-DX: 0
-Not in threshold
-DX: 0
-Not in threshold
-DX: 0
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 58
-Not in threshold
-DX: 58
-Not in threshold
-DX: 58
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-left :4
--1: move x -148 byte: 4
-DX: 4
-left :4
-DX: 4
-left :4
-DX: 7
-left :7
--1: move x -304 byte: 4
-DX: 7
-left :7
-DX: 7
-left :7
-DX: 7
-left :7
-DX: 9
-left :9
-DX: 176
-left :176
-DX: 190
-left :190
-DX: 200
-left :200
-DX: 211
-left :211
--1: move x -535 byte: 4
-DX: 211
-left :211
-DX: 211
-left :211
-DX: 3
-left :3
--1: move x -142 byte: 4
-DX: 152
-left :152
-DX: 152
-Not in threshold
-DX: 152
-Not in threshold
-DX: 152
-Not in threshold
-DX: 152
-Not in threshold
-DX: 152
-Not in threshold
-DX: 152
-Not in threshold
-DX: 104
-Not in threshold
-RESETTING
-1: move x 1129 byte: 5
-RESUMING
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 6
-Not in threshold
-DX: 56
-Not in threshold
-DX: 18
-left :18
--1: move x -332 byte: 4
-DX: 18
-left :18
-DX: 3
-Not in threshold
-DX: 3
-Not in threshold
-DX: 3
-Not in threshold
-DX: 2
-Not in threshold
-DX: 2
-Not in threshold
-DX: 2
-Not in threshold
-DX: 2
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 2
-Not in threshold
-DX: 2
-Not in threshold
-DX: 4
-Not in threshold
-DX: 4
-Not in threshold
-DX: 1
-left :1
--1: move x -376 byte: 4
-DX: 1
-left :1
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-Not in threshold
-DX: 6
-left :6
--1: move x -152 byte: 4
-DX: 6
-left :6
-DX: 6
-left :6
-DX: 11
-left :11
--1: move x -202 byte: 4
-DX: 3
-Not in threshold
-DX: 3
-Not in threshold
-DX: 15
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 1
-Not in threshold
-DX: 6
-left :6
--1: move x -244 byte: 4
-DX: 0
-Not in threshold
-DX: 0
-Not in threshold
-DX: 11
-Not in threshold
-DX: 11
-Not in threshold
-DX: 24
-Not in threshold
-DX: 24
-left :24
--1: move x -212 byte: 4
-DX: 24
-left :24
-RESETTING
-1: move x 1518 byte: 5
+**********************
+Exiting Main Loop:
+**********************
+Not in threshold: 0
+STOPPING
+Motion Tracker Destructed
+Motion Tracker Destructed
+Mean Shift Tracker Destructed
