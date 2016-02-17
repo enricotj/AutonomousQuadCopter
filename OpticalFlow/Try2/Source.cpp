@@ -39,8 +39,9 @@ const int SERVO_DOWN = 1;
 const int SERVO_STOP = 0;
 const int SERVO_AIM_THRESH_X = CAM_W / 10;
 const int SERVO_AIM_THRESH_Y = CAM_H / 8;
-int prevRotX = 99999;
-int prevRotY = 99999;
+const int SERVO_NULL = 99999;
+int prevRotX = SERVO_NULL;
+int prevRotY = SERVO_NULL;
 int startTime;
 int trackFrameCount = 0;
 int moveCount = 0;
@@ -51,6 +52,15 @@ int winDelay = 80;
 
 int thresholdDX = 3;
 int moveFlag = 0;
+
+const double RESET_DELAY = 5.0; // in seconds (amount of time that needs to pass
+time_t resetStartTime;
+const int RESET_STEP_THRESHOLD = 1350;
+int xsteps = 0;
+int xdir = SERVO_STOP;
+const double RESET_TIME_THRESHOLD = 10.0; // in seconds
+time_t moveStartTime; // keeps track of the time the x servo started moving
+bool resetting = false;
 
 #ifdef ON_PI
 bool recording = false;
@@ -98,17 +108,24 @@ void moveServoX(int rot, int dx)
 		return;
 	}
 	
-	if (prevRotX != 99999 && rot != SERVO_STOP && rot!=prevRotX) {
+	if (prevRotX != SERVO_NULL && rot != SERVO_STOP && rot!=prevRotX) {
 		//cout << "difftime :" << difftime(time(0),startTime) << endl;
 		//if(double(difftime( time(0), startTime))<.05)
 		return; 
 	}
 	startTime = time(0);
-    if(rot!= SERVO_STOP) {
-	prevRotX = rot;    
+    if(rot != SERVO_STOP) {
+		prevRotX = rot;    
     }
     ss << dx << "\n";
     step = ss.str();
+	
+	if (xsteps == 0)
+	{
+		xdir = rot;
+		moveStartTime = time(0);
+	}
+	xsteps += abs(dx);
 	    
     switch (rot)
     {
@@ -116,10 +133,9 @@ void moveServoX(int rot, int dx)
     	case SERVO_RIGHT:
 			//softServoWrite(0, 375);
     		//gpioServo(17, 1465);
-	cout << rot << ": move x " << dx << " byte: " << byte << endl;
-		
-	n = write(fd, step.c_str(), byte);
-		break;
+			cout << rot << ": move x " << dx << " byte: " << byte << endl;
+			n = write(fd, step.c_str(), byte);
+			break;
 
 		// stop
 		case SERVO_STOP:
@@ -130,7 +146,7 @@ void moveServoX(int rot, int dx)
 
 		// move right
 		case SERVO_LEFT:
-    cout << rot << ": move x " << dx << " byte: " << byte << endl;
+			cout << rot << ": move x " << dx << " byte: " << byte << endl;
 			n = write(fd, step.c_str(), byte);
 			//gpioServo(17, wq1525);
 			//softServoWrite(0, 525);
@@ -413,9 +429,42 @@ int main(int argc, const char** argv)
 			break;
 		}
 
-		bool prevStart = start;
-		/*if (!start)
-		{	
+		if (!resetting)
+		{
+			image = motionTracker.process(frame);
+			start = motionTracker.objectCaptured();
+
+			if (start)
+			{
+				trackFrameCount++;
+				Rect r = motionTracker.getObject();
+				Point p = Point(r.x + r.width / 2, r.y + r.height / 2);
+				int dx = motionTracker.getDirectionX();
+				cout << "DX: " << dx << endl;
+#ifdef ON_PI
+				aimServoTowards(p, dx);
+#endif // ON_PI
+			}
+
+			double dt = abs(double(difftime(time(0), moveStartTime)));
+			if (xsteps > 0 && (xsteps > RESET_STEP_THRESHOLD ||  dt > RESET_TIME_THRESHOLD))
+			{
+				resetting = true;
+				prevRotX *= -1;
+				moveServoX(prevRotX, xsteps * prevRotX);
+				resetStartTime = time(0);
+				xsteps = 0;
+			}
+		}
+		else if (abs(double(difftime(time(0), resetStartTime))) > RESET_DELAY)
+		{
+			resetting = false;
+		}
+		
+		
+		/* // OLD CODE
+		if (!start)
+		{
 			trackFrameCount = 0;
 			image = motionTracker.process(frame);
 			start = motionTracker.objectCaptured();
@@ -428,22 +477,9 @@ int main(int argc, const char** argv)
 				//startRecording();
 #endif // ON_PI
 			}
-		}*/
-		image = motionTracker.process(frame);
-		start = motionTracker.objectCaptured();
-
+		}
 		if (start)
-		{	
-			trackFrameCount++;
-			Rect r = motionTracker.getObject();
-			Point p = Point(r.x + r.width / 2, r.y + r.height / 2);
-			int dx = motionTracker.getDirectionX();
-			cout << "DX: " << dx << endl;
-#ifdef ON_PI
-			aimServoTowards(p, dx);
-#endif // ON_PI
-
-			/*image = meanShiftTracker.process(frame);
+			image = meanShiftTracker.process(frame);
 			float objSize = meanShiftTracker.getObject().size.width * meanShiftTracker.getObject().size.height;
 			if ((image.rows == 1 && image.cols == 1) || meanShiftTracker.isObjectLost()
 					|| objSize > sizeThresh || trackFrameCount > FRAME_COUNT_THRESHOLD)
@@ -456,8 +492,7 @@ int main(int argc, const char** argv)
 #endif
 				continue;
 			}
-			*/
-/*			
+			
 			Point p = meanShiftTracker.getObject().center;
 			if (p.x != 0 || p.y != 0) {
 				//...
@@ -480,27 +515,23 @@ int main(int argc, const char** argv)
 					cout << aim.x << ", " << aim.y << endl;
 #endif // !ON_PI
 				}
-*/				
+
 #ifdef ON_PI
 			//	aimServoTowards(p, dx);
 			//	meanShiftTracker.correctForServoMotion(aimServoTowards(p));
 #endif // ON_PI
 
 			//}
-			
 		}
+		*/
 
 #ifdef ON_PI
-		// uncomment to view motion tracking threshold
+		// uncomment to view motion tracking threshold image on pi
 		//image = motionTracker.getThresholdImage();
 		Mat temp;
 		image.copyTo(temp);
 		frames.push_back(temp);
 #else
-		//line(image, Point(cx + SERVO_AIM_THRESH_X, 0), Point(cx + SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
-		//line(image, Point(cx - SERVO_AIM_THRESH_X, 0), Point(cx - SERVO_AIM_THRESH_X, CAM_H), Scalar(100, 100, 100));
-		//line(image, Point(0, cy + SERVO_AIM_THRESH_Y), Point(CAM_W, cy + SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
-		//line(image, Point(0, cy - SERVO_AIM_THRESH_Y), Point(CAM_W, cy - SERVO_AIM_THRESH_Y), Scalar(100, 100, 100));
 		imshow("Track", image);
 		cvWaitKey(winDelay);
 #endif // ON_PI
