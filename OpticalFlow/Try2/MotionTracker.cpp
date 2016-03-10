@@ -142,7 +142,7 @@ Mat MotionTracker::process(Mat& frame)
 
 	//show the threshold image after it's been "blurred"
 #ifndef ON_PI
-	imshow("Final Threshold Image", thresholdImage);
+	//imshow("Final Threshold Image", thresholdImage);
 #endif
 
 	Mat obj;

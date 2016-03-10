@@ -128,7 +128,7 @@ Mat MeanShiftTracker::process(Mat frame)
 		calcBackProject(&hue, 1, 0, hist, backproj, &phranges, 0.5);
 		backproj &= mask;
 		trackBox = CamShift(backproj, trackWindow,
-			TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 5, 1));
+			TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 3, 2));
 		if (trackWindow.area() <= 1)
 		{
 			int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5) / 6;

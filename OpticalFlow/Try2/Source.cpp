@@ -29,6 +29,8 @@ using namespace std;
 
 int frameMax = 1200;
 
+bool meanShiftMode = true;
+
 vector<Mat> frames;
 const int MOVE_DELAY = 0;
 const int FRAME_COUNT_THRESHOLD = 100;
@@ -463,33 +465,65 @@ int main(int argc, const char** argv)
 
 		if (!resetting)
 		{
-			image = motionTracker.process(frame);
-			start = motionTracker.objectCaptured();
+			if (!meanShiftMode)
+			{
+				image = motionTracker.process(frame);
+				start = motionTracker.objectCaptured();
+			}
+			else if (!start)
+			{
+				image = motionTracker.process(frame);
+				start = motionTracker.objectCaptured();
+				if (start)
+				{
+					meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
+				}
+			}
+			else
+			{
+				image = meanShiftTracker.process(frame);
+				//start = !meanShiftTracker.isObjectLost(); // not sure if this works yet
+			}
+			
 			if (start)
-			{			
+			{
+#ifdef ON_PI
 				if(!recording) {
 					startRecording();
 					recording = true;
 				}
+#endif // ON_PI
 
 				trackFrameCount++;
-				Rect r = motionTracker.getObject();
-				Point p = Point(r.x + r.width / 2, r.y + r.height / 2);
-				int dx = motionTracker.getDirectionX();
+				Point p;
+				int dx;
+				if (meanShiftMode)
+				{
+					p = meanShiftTracker.getObject().center;
+					dx = meanShiftTracker.getDirectionX();
+				}
+				else
+				{
+					Rect r = motionTracker.getObject();
+					p = Point(r.x + r.width / 2, r.y + r.height / 2);
+					dx = motionTracker.getDirectionX();
+				}
 				cout << "DX: " << dx << endl;
+
 #ifdef ON_PI
 				aimServoTowards(p, dx);
 #endif // ON_PI
 			}
 
+#ifdef ON_PI
 			double dt = abs(double(difftime(time(0), moveStartTime)));
 			if (xsteps > 0 && (xsteps > RESET_STEP_THRESHOLD ||  dt > RESET_TIME_THRESHOLD))
 			{
 				cout << "RESETTING" << endl;
-				recording = false;
-				stopRecording();
 				resetting = true;
 				prevRotX *= -1;
+				recording = false;
+				stopRecording();
 				gpioDelay(1000000);
 				moveServoX(prevRotX, -1* xsteps * prevRotX);
 				resetStartTime = time(0);
@@ -507,7 +541,9 @@ int main(int argc, const char** argv)
 				//name = "out.avi";
 				VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
 				frames.clear();
-*/			}
+*/			
+			}
+#endif // ON_PI
 		}
 		else if (abs(double(difftime(time(0), resetStartTime))) > RESET_DELAY)
 		{
