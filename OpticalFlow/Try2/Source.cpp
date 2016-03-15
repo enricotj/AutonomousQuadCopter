@@ -377,6 +377,7 @@ int main(int argc, const char** argv)
 	float sizeThresh = CAM_W * CAM_H * 0.8;
 #ifdef ON_PI
 	initializeGpioPort();
+	// delay to make sure gpioport initializes completely
 	while(i<10000000){i++;}	
 
 	//toggleGoPro();
@@ -404,7 +405,6 @@ int main(int argc, const char** argv)
 	Camera.retrieve(frame);
 	
 	time_t timeV = time(0);
-
 
 	std::string out = "out";
 	struct tm  now = *localtime(&timeV); 
@@ -472,9 +472,9 @@ int main(int argc, const char** argv)
 			}
 			else if (!start)
 			{
+				cout << "motion track process" << endl;
 				image = motionTracker.process(frame);
-				start = motionTracker.objectCaptured();
-				if (start)
+				if (start = motionTracker.objectCaptured())
 				{
 					meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
 				}
@@ -482,7 +482,13 @@ int main(int argc, const char** argv)
 			else
 			{
 				image = meanShiftTracker.process(frame);
-				//start = !meanShiftTracker.isObjectLost(); // not sure if this works yet
+				if (!(start = !meanShiftTracker.isObjectLost()))
+				{
+					cout << "Object Lost" << endl;
+					motionTracker = MotionTracker(frame);
+					Mat blah = motionTracker.getFrame1();
+					cout << "break" << endl;
+				}
 			}
 			
 			if (start)
@@ -529,19 +535,6 @@ int main(int argc, const char** argv)
 				resetStartTime = time(0);
 				xsteps = 0;
 				motionTracker.resetInitial();
-/*				for (vector<Mat>::iterator it = frames.begin(); it != frames.end(); ++it)
-				{
-					video.write(*it);
-				}
-				out = "out";
-				now = *localtime(&timeV); 
-				char buf2[80];
-				strftime(buf2, sizeof(buf2), "%Y-%m-%d_%H-%M-%S", &now);
-				name = out + buf2 + ".avi";	
-				//name = "out.avi";
-				VideoWriter video(name, CV_FOURCC('M', 'J', 'P', 'G'), 24, Size(CAM_W, CAM_H), true);
-				frames.clear();
-*/			
 			}
 #endif // ON_PI
 		}
@@ -552,70 +545,6 @@ int main(int argc, const char** argv)
 			prevRotX = SERVO_NULL;
 			cout << "RESUMING" << endl;
 		}
-		
-		
-		/* // OLD CODE
-		if (!start)
-		{
-			trackFrameCount = 0;
-			image = motionTracker.process(frame);
-			start = motionTracker.objectCaptured();
-			if (start)
-			{
-				cout << "STARTING !!!!!!!" << endl;
-				meanShiftTracker.~MeanShiftTracker();
-				meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
-#ifdef ON_PI
-				//startRecording();
-#endif // ON_PI
-			}
-		}
-		if (start)
-			image = meanShiftTracker.process(frame);
-			float objSize = meanShiftTracker.getObject().size.width * meanShiftTracker.getObject().size.height;
-			if ((image.rows == 1 && image.cols == 1) || meanShiftTracker.isObjectLost()
-					|| objSize > sizeThresh || trackFrameCount > FRAME_COUNT_THRESHOLD)
-			{
-				start = false;
-#ifdef ON_PI			prevXRot = 99999;
-				moveServoX(0, 0);
-				moveServoY(0, 0);
-				//stopRecording();
-#endif
-				continue;
-			}
-			
-			Point p = meanShiftTracker.getObject().center;
-			if (p.x != 0 || p.y != 0) {
-				//...
-			}
-			// OLD CODE HERE
-			if(start)
-			{
-				int dx = meanShiftTracker.getDirectionX();
-			//	int dx = motionTracker.getDirectionX();
-			//	if (!prevStart)
-			//	{
-			//		dx = motionTracker.getDirectionX();
-			//	}
-				if (dx != 0)
-				{
-#ifndef ON_PI
-					line(image, Point(cx, cy), Point(cx + dx * 5, cy), Scalar(0, 255, 0), 3);
-					circle(image, p, 4, Scalar(0, 0, 255), -1);
-					Point aim = aimCheck(p, dx);
-					cout << aim.x << ", " << aim.y << endl;
-#endif // !ON_PI
-				}
-
-#ifdef ON_PI
-			//	aimServoTowards(p, dx);
-			//	meanShiftTracker.correctForServoMotion(aimServoTowards(p));
-#endif // ON_PI
-
-			//}
-		}
-		*/
 
 #ifdef ON_PI
 		// uncomment to view motion tracking threshold image on pi
@@ -661,7 +590,7 @@ int main(int argc, const char** argv)
 
 #endif // ON_PI
 
-//	meanShiftTracker.~MeanShiftTracker();
+	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();
 
 	return 0;

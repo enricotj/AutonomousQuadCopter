@@ -1,7 +1,5 @@
 #include "MeanShiftTracker.h"
 
-Mat image, hsv, hue, mask, hist, histimg, backproj;
-
 bool initialze = true;
 bool backprojMode = false;
 bool selectObject = false;
@@ -127,8 +125,7 @@ Mat MeanShiftTracker::process(Mat frame)
 		}
 		calcBackProject(&hue, 1, 0, hist, backproj, &phranges, 0.5);
 		backproj &= mask;
-		trackBox = CamShift(backproj, trackWindow,
-			TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 3, 2));
+		trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 3, 2));
 		if (trackWindow.area() <= 1)
 		{
 			int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5) / 6;
@@ -138,7 +135,9 @@ Mat MeanShiftTracker::process(Mat frame)
 		}
 
 		if (backprojMode)
+		{
 			cvtColor(backproj, image, COLOR_GRAY2BGR);
+		}
 		try
 		{
 			ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
@@ -154,7 +153,8 @@ Mat MeanShiftTracker::process(Mat frame)
 	int size = trackWindow.width * trackWindow.height;
 	if (size > BIGGEST_OBJECT_SIZE)
 	{
-		return Mat::zeros(1, 1, CV_8UC1);
+		objLost = true;
+		return image;
 	}
 
 	dx = trackBox.center.x - px;
@@ -171,21 +171,6 @@ RotatedRect MeanShiftTracker::getObject()
 bool MeanShiftTracker::isObjectLost()
 {
 	return objLost;
-}
-
-void MeanShiftTracker::correctForServoMotion(Point aim)
-{
-	// left is clockwise (-1)
-	// right is counterclockwise (+1)
-	// up (-1)
-	// down (+1)
-	if (motionCorrectMode)
-	{
-		int dx = aim.x * trackWindow.width;
-		int dy = aim.y * trackWindow.height * -1;
-		trackWindow.x += dx;
-		trackWindow.y += dy;
-	}
 }
 
 int MeanShiftTracker::getDirectionX()

@@ -3,37 +3,32 @@
 
 bool motionOnlyMode = false;
 
-Mat frame1, frame2, grayImage1, grayImage2, thresholdImage, differenceImage;
 Rect objectBoundingRectangle;
 //our sensitivity value to be used in the absdiff() function
 const int SENSITIVITY_VALUE = 24;
 //size of blur used to smooth the intensity image output from absdiff() function
 const int BLUR_SIZE = 12;
 
-int sizeThreshLow = (int)pow(32 * CAM_W / 640, 2);
-int sizeThreshHigh = (int)(0.75 * CAM_W * CAM_H);
+int sizeThreshLow = (int)pow(28 * CAM_W / 640, 2); // min area that a valid object can take up
+int sizeThreshHigh = (int)(0.75 * CAM_W * CAM_H); // max area that a valid object can take up
 
 int prevSize;
 Point prevPos;
 
 const double MAX_SIZE_DIFF_FACTOR = 2.0;
 const double MAX_POS_DIFF_FACTOR = 0.6;
-int captureThreshold = 0;
+int captureThreshold = 2;
 int captureCurrent = -1;
 
 //some boolean variables for added functionality
 bool objectDetected = false;
-bool isMove = false;
-int xdir = 0;
-int ydir = 0;
 int dxMotion = 0;
 int xstart = 0;
 int ystart = 0;
-int xend = 0;
-int yend = 0;
-int dxPositive;
+bool dxPositive;
 int minContourSize = 1*1;
 bool initial = false;
+
 MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
@@ -66,20 +61,6 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 	//findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE );// retrieves all contours
 	findContours(temp, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);// retrieves external contours
 
-	/// Find the convex hull object for each contour
-	/*
-	vector<vector<Point> >hull(contours.size());
-	for (int i = 0; i < contours.size(); i++)
-	{
-		if (contours[i].size() > minContourSize)
-		{
-			convexHull(Mat(contours[i]), hull[i], false);
-			drawContours(drawing, hull, i, Scalar(0, 255, 0), 1, 8, vector<Vec4i>(), 0, Point());
-			drawContours(drawing, contours, i, Scalar(255, 0, 255), 1, 8, vector<Vec4i>(), 0, Point());
-		}
-	}
-	*/
-
 	//if contours vector is not empty, we have found some objects
 	if (contours.size()>0)
 	{
@@ -91,38 +72,16 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		//this will be the object's final estimated position.
 		Rect tempRect = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
-
-		/*
-		// get centroid of largest contour
-		Moments m = moments(largestContourVec.at(0), false);
-		int cx = m.m10 / m.m00;
-		int cy = m.m01 / m.m00;
-		
-		// get convex hull of largest contour
-		Mat drawing = Mat::zeros(temp.size(), temp.type());
-		vector<vector<Point>> hull(1);
-		convexHull(Mat(largestContourVec.at(0)), hull[0]);
-		drawContours(drawing, hull, 0, Scalar(255), CV_FILLED, 8, vector<Vec4i>(), 0, Point());
-		//drawContours(drawing, largestContourVec, 0, Scalar(255, 0, 255), 1, 8, vector<Vec4i>(), 0, Point());
-		frame2.copyTo(drawing, drawing);
-		circle(drawing, Point(cx, cy), 16, Scalar(0, 0, 255), 2, 8, 0);
-		imshow("Object", drawing);
-		*/
 	}
 }
 
 Mat MotionTracker::process(Mat& frame)
 {
 	frame.copyTo(frame2);
-	// convert frame1 to gray scale for frame differencing
+	// convert frames to gray scale for frame differencing
 	cv::cvtColor(frame1, grayImage1, COLOR_BGR2GRAY);
-	//convert frame2 to gray scale for frame differencing
 	cv::cvtColor(frame2, grayImage2, COLOR_BGR2GRAY);
-
-	//cv::imshow("Gray Image", grayImage2);
-
-	//perform frame differencing with the sequential images. This will output an "intensity image"
-	//do not confuse this with a threshold image, we will need to perform thresholding afterwards.
+	// get frame difference image
 	cv::absdiff(grayImage1, grayImage2, differenceImage);
 	//threshold intensity image at a given sensitivity value
 	cv::threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
@@ -138,66 +97,58 @@ Mat MotionTracker::process(Mat& frame)
 
 	searchForMovement(thresholdImage);
 
-	rectangle(thresholdImage, objectBoundingRectangle, Scalar(255));
-
 	//show the threshold image after it's been "blurred"
 #ifndef ON_PI
 	//imshow("Final Threshold Image", thresholdImage);
 #endif
 
-	Mat obj;
-	//show our captured frame
-	frame2.copyTo(obj);
+	// reset frame1
+	frame2.copyTo(frame1);
+
+	// check if a valid object was detected
 	objectDetected = validObjectFound();
-	//arrowedLine(obj, Point(xstart, yend), Point(xend, yend), Scalar(255, 255, 255), 1);
+
+	// draw bounding boxes
 	if (objectDetected)
 	{
-//		cout << "Object detected" << endl;
+		// draw the bounding rectangle around the object
+		rectangle(frame2, objectBoundingRectangle, Scalar(255, 0, 0), 3);
+		
+		// shrink the bounding rectangle
 		double shrink = 0.4;
 		double shrinkInv = 1 - shrink;
-
 		int w = objectBoundingRectangle.width * shrinkInv;
 		int h = objectBoundingRectangle.height * shrinkInv;
-		
 		int dw = objectBoundingRectangle.width * shrink;
 		int dh = objectBoundingRectangle.height * shrink;
-
+		
+		// center the shrunken rectangle's coordinates
 		int x = objectBoundingRectangle.x;
 		int y = objectBoundingRectangle.y;
-		
 		x += dw / 2;
 		y += dh / 2;
-		if (x < 0)
-		{
-			x = 0;
-		}
-		if (y < 0)
-		{
-			y = 0;
-		}
 
-		//arrowedLine(obj, Point(xstart, yend), Point(xend, yend), Scalar(0, 255, 0), 5, 8, 0, 0.5);
-		rectangle(obj, objectBoundingRectangle, Scalar(255, 0, 0), 3);
+		// draw the smaller rectangle
 		objectBoundingRectangle = Rect(x, y, w, h);
-		rectangle(obj, objectBoundingRectangle, Scalar(0, 0, 255), 3);
+		rectangle(frame2, objectBoundingRectangle, Scalar(0, 0, 255), 3);
 	}
 	else
 	{
+		// invalid object detected
 		Scalar c = Scalar(255, 255, 255);
 		if (captureCurrent >= 1)
 		{
 			c = Scalar(255, 255, 0);
 		}
-		rectangle(obj, objectBoundingRectangle, c);
+		// draw bounding box of invalid object
+		rectangle(frame2, objectBoundingRectangle, c);
 	}
 
 #ifndef ON_PI
-//	imshow("Frame", obj);
+	imshow("Frame", frame2);
 #endif
 
-	frame2.copyTo(frame1);
-
-	return obj;
+	return frame2;
 }
 
 Mat MotionTracker::getThresholdImage()
@@ -210,17 +161,11 @@ Rect MotionTracker::getObject()
 	return objectBoundingRectangle;
 }
 
-bool MotionTracker::shouldMove()
-{
-	bool temp = false;
-	temp = isMove;
-	isMove = false;
-	return temp;
-}
 void MotionTracker::resetInitial()
 {
 	initial = false;
 }
+
 bool MotionTracker::objectCaptured()
 {
 	if (motionOnlyMode)
@@ -236,21 +181,22 @@ bool MotionTracker::objectCaptured()
 
 int MotionTracker::getDirectionX()
 {
-	//return xend - xstart;
 	return dxMotion;
 }
 
 bool MotionTracker::validObjectFound()
 {
+	// check if the size of the object is within valid parameters
 	int area = objectBoundingRectangle.area();
-
 	if (area < sizeThreshLow || area > sizeThreshHigh)
 	{
 		return false;
 	}
 
+	// width/height of rectangle
 	int w = objectBoundingRectangle.width;
 	int h = objectBoundingRectangle.height;
+	// center coordinates of the rectangle
 	int x = objectBoundingRectangle.x + w / 2;
 	int y = objectBoundingRectangle.y + h / 2;
 
@@ -260,61 +206,47 @@ bool MotionTracker::validObjectFound()
 		prevPos = Point(x, y);
 		captureCurrent++;
 		//double capthresh = CAM_H * CAM_W / objectBoundingRectangle.area() * 16;
-		captureThreshold = 1;
 		xstart = x;
 		ystart = y;
 		return false;
 	}
 
+	// maximum expected change in object size
 	int maxSizeDiff = area / MAX_SIZE_DIFF_FACTOR;
+	// measured change in object size
 	int sizeDiff = abs(area - prevSize);
-	
+	// reset previous size
+	prevSize = area;
+
+	// maximum expected change in object position
 	int maxPosDiff = sqrt(pow(w, 2) + pow(h, 2)) / MAX_POS_DIFF_FACTOR;
+	// measured change in object position
 	int px = prevPos.x;
 	int py = prevPos.y;
 	int posDiff = (int)sqrt(pow(x - px, 2) + pow(y - py, 2));
-	
-	xdir = px - x;
-	ydir = py - y;
+	// reset previous position
 	prevPos = Point(x, y);
-	prevSize = area;
 	
+	// a valid object's size and position must not vary too much between frames
 	if (sizeDiff < maxSizeDiff
 		&& posDiff < maxPosDiff
-		&& posDiff > 0
-		&& area >= sizeThreshLow
-		&& area <= sizeThreshHigh)
+		&& posDiff > 0)
 	{
+		// object motion found to be consistent
 		captureCurrent++;
 		if (captureCurrent >= captureThreshold)
 		{
 			if (!objectDetected)
 			{
-				xend = x;
-				yend = y;
-				int dx = xend - xstart;
-				dxMotion = dx;
+				dxMotion = x - xstart;
 				if(initial && ((dxMotion > 0 && !dxPositive) || (dxMotion < 0 && dxPositive))) {
 					dxMotion = 0;
 					return false;
-
-				}
-				if (dx < 0)
-				{
-					xend = 10;
-					xstart = CAM_W - 10;
-				}
-				else if (dx > 0)
-				{
-					xstart = 10;
-					xend = CAM_W - 10;
 				}
 				if(!initial) {
-					dxPositive = dxMotion > 0;
+					dxPositive = dxMotion >= 0;
 					initial = true;
 				}
-				//cout << "MotionTracker:: " << dx << endl;
-				isMove = true;
 			}
 			return true;
 		}
@@ -322,8 +254,14 @@ bool MotionTracker::validObjectFound()
 	}
 	else
 	{
+		// object motion found to be inconsistent
 		captureCurrent = -1;
 	}
 
 	return false;
+}
+
+Mat MotionTracker::getFrame1()
+{
+	return frame1;
 }

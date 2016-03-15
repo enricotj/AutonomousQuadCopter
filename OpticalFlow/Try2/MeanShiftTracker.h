@@ -25,11 +25,11 @@ public:
 
 	bool isObjectLost();
 
-	void correctForServoMotion(Point aim);
-
 	int getDirectionX();
 
 private:
 	void initSelection(int event, int x, int y);
+
+	Mat image, hsv, hue, mask, hist, histimg, backproj;
 };
 

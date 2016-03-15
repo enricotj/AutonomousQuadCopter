@@ -35,11 +35,13 @@ public:
 	Rect getObject();
 	bool objectCaptured();
 	int getDirectionX();
-	bool shouldMove();
 	Mat getThresholdImage();
 	void resetInitial();
+
+	Mat getFrame1();
 private:
 	void searchForMovement(Mat thresholdImage);
 	bool validObjectFound();
+	Mat frame1, frame2, grayImage1, grayImage2, thresholdImage, differenceImage;
 };
 
