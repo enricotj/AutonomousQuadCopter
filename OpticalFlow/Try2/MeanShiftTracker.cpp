@@ -3,14 +3,13 @@
 bool initialze = true;
 bool backprojMode = false;
 bool selectObject = false;
-bool motionCorrectMode = true;
+bool usingMotionMask = false;
 int trackObject = 0;
 Point origin;
 Rect selection, trackWindow;
 RotatedRect trackBox;
 
-int vmin = 50, vmax = 238, smin = 50;
-
+int vmin = 50, vmax = 230, smin = 50, smax = 256;
 int hsize = 16;
 
 static const int SELECTION_EVENT_A = 0;
@@ -18,32 +17,33 @@ static const int SELECTION_EVENT_B = 1;
 
 static const float BIGGEST_OBJECT_SIZE = 0.75 * CAM_H * CAM_W;
 
-float initWidthHeightRatio = -1.0f;
-
 bool objLost = false;
 
 int px = 0;
 int dx = 0;
+// keep track of the number of frames the object's x value has not changed
+int zeroDxCount = 0;
+// threshold at which no x movement triggers objLost=true event
+static const int ZERO_DX_COUNT_THRESHOLD = 4;
 
 MeanShiftTracker::MeanShiftTracker()
 {
 	cout << "Mean Shift Tracker Constructed" << endl;
-	initWidthHeightRatio = -1.0f;
 	objLost = false;
 }
 
-MeanShiftTracker::MeanShiftTracker(Rect window)
+MeanShiftTracker::MeanShiftTracker(Rect window, Mat& initMotionMask)
 {
 	cout << "Initializing Mean Shift Tracker With Window..." << endl;
 	histimg = Mat::zeros(200, 320, CV_8UC3);
 	trackWindow = window;
 
+	initMotionMask.copyTo(motionMask);
+
 	initSelection(SELECTION_EVENT_A, trackWindow.x, trackWindow.y);
 	initSelection(SELECTION_EVENT_B, trackWindow.x + trackWindow.width, trackWindow.y + trackWindow.height);
 	px = window.x + window.width / 2;
 	cout << "Mean Shift Tracker Constructed With Window" << endl;
-
-	initWidthHeightRatio = -1.0f;
 
 	objLost = false;
 }
@@ -87,7 +87,6 @@ void MeanShiftTracker::initSelection(int event, int x, int y)
 
 Mat MeanShiftTracker::process(Mat frame)
 {
-	px = trackBox.center.x;
 	float hranges[] = { 0, 360 };
 	const float* phranges = hranges;
 	frame.copyTo(image);
@@ -95,11 +94,10 @@ Mat MeanShiftTracker::process(Mat frame)
 
 	if (trackObject)
 	{
-		int _vmin = vmin, _vmax = vmax;
-
+		// create hsv mask
 		inRange(hsv,
-			Scalar(0, smin, _vmin),
-			Scalar(360, 256, _vmax),
+			Scalar(0, smin, vmin),
+			Scalar(360, smax, vmax),
 			mask);
 		int ch[] = { 0, 0 };
 		hue.create(hsv.size(), hsv.depth());
@@ -109,10 +107,24 @@ Mat MeanShiftTracker::process(Mat frame)
 		{
 			try
 			{
+				// get hue values in the region of interest
 				Mat roi(hue, selection);
+				// get the mask for the roi
 				Mat maskroi(mask, selection);
 
-				calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
+				if (usingMotionMask)
+				{
+					// get the motion mask for the roi
+					Mat mmask(motionMask, selection);
+					// combine the motion mask and the roi mask (intersection)
+					Mat maskFinal;
+					bitwise_and(maskroi, mmask, maskFinal);
+					calcHist(&roi, 1, 0, maskFinal, hist, 1, &hsize, &phranges);
+				}
+				else
+				{
+					calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
+				}
 				normalize(hist, hist, 0, 255, NORM_MINMAX);
 				trackWindow = selection;
 				trackObject = 1;
@@ -123,9 +135,11 @@ Mat MeanShiftTracker::process(Mat frame)
 				return image;
 			}
 		}
+
 		calcBackProject(&hue, 1, 0, hist, backproj, &phranges, 0.5);
 		backproj &= mask;
-		trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 3, 2));
+		trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
+		
 		if (trackWindow.area() <= 1)
 		{
 			int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5) / 6;
@@ -147,17 +161,33 @@ Mat MeanShiftTracker::process(Mat frame)
 			objLost = true;
 			return image;
 		}
-		
 	}
 
 	int size = trackWindow.width * trackWindow.height;
 	if (size > BIGGEST_OBJECT_SIZE)
 	{
 		objLost = true;
-		return image;
 	}
 
 	dx = trackBox.center.x - px;
+
+	// check if the object hasn't moved
+	if (dx == 0)
+	{
+		zeroDxCount++;
+		// if the object has not moved in awhile, then the object has been lost
+		if (zeroDxCount > ZERO_DX_COUNT_THRESHOLD)
+		{
+			cout << "HI******" << endl;
+			objLost = true;
+		}
+	}
+	else
+	{
+		zeroDxCount = 0;
+	}
+
+	px = trackBox.center.x;
 
 	return image;
 }
@@ -166,7 +196,6 @@ RotatedRect MeanShiftTracker::getObject()
 {
 	return trackBox;
 }
-
 
 bool MeanShiftTracker::isObjectLost()
 {

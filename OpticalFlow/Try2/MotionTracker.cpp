@@ -72,6 +72,11 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		//this will be the object's final estimated position.
 		Rect tempRect = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
+		
+		// get centroid of largest contour
+		//Moments m = moments(largestContourVec.at(0), false);
+		//int cx = m.m10 / m.m00;
+		//int cy = m.m01 / m.m00;
 	}
 }
 
@@ -115,7 +120,7 @@ Mat MotionTracker::process(Mat& frame)
 		rectangle(frame2, objectBoundingRectangle, Scalar(255, 0, 0), 3);
 		
 		// shrink the bounding rectangle
-		double shrink = 0.4;
+		double shrink = 0.3;
 		double shrinkInv = 1 - shrink;
 		int w = objectBoundingRectangle.width * shrinkInv;
 		int h = objectBoundingRectangle.height * shrinkInv;
@@ -145,7 +150,7 @@ Mat MotionTracker::process(Mat& frame)
 	}
 
 #ifndef ON_PI
-	imshow("Frame", frame2);
+	//imshow("Frame", frame2);
 #endif
 
 	return frame2;
@@ -261,7 +266,10 @@ bool MotionTracker::validObjectFound()
 	return false;
 }
 
-Mat MotionTracker::getFrame1()
+Mat MotionTracker::getMask()
 {
-	return frame1;
+	// create plain white mask
+	Mat mask = Mat::ones(frame1.rows, frame1.cols, CV_8U);
+	mask = threshold(mask, mask, 0, 255, THRESH_BINARY);
+	return mask;
 }

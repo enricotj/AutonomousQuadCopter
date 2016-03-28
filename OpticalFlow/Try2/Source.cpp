@@ -1,6 +1,6 @@
 #include "Globals.h"
 
-#ifdef ON_PI
+#ifdef __linux__
 #include <pigpio.h>
 #include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
@@ -50,7 +50,7 @@ int moveCount = 0;
 int cx = CAM_W / 2;
 int cy = CAM_H / 2;
 
-int winDelay = 80;
+int winDelay = 10;
 
 int thresholdDX = 3;
 int moveFlag = 0;
@@ -64,7 +64,7 @@ const double RESET_TIME_THRESHOLD = 20.0; // in seconds
 time_t moveStartTime; // keeps track of the time the x servo started moving
 bool resetting = false;
 
-#ifdef ON_PI
+#ifdef __linux__
 bool recording = false;
 int fd;
 
@@ -364,7 +364,7 @@ void toggleGoPro(){
 	gpioDelay(3000000);
 	gpioWrite(27,1);
 }
-#endif
+#endif // __linux__
 
 int main(int argc, const char** argv)
 {
@@ -375,7 +375,7 @@ int main(int argc, const char** argv)
 	MeanShiftTracker meanShiftTracker = MeanShiftTracker();
 	//powerOnGoPro();
 	float sizeThresh = CAM_W * CAM_H * 0.8;
-#ifdef ON_PI
+#ifdef __linux__
 	initializeGpioPort();
 	// delay to make sure gpioport initializes completely
 	while(i<10000000){i++;}	
@@ -431,7 +431,7 @@ int main(int argc, const char** argv)
 
 	cvWaitKey(winDelay);
 
-#endif // ON_PI
+#endif // __linux__
 
 	if (frame.empty())
 		return 0;
@@ -451,12 +451,12 @@ int main(int argc, const char** argv)
 	while (videoCount < 1)
 	{
 		frameCounter++;
-#ifdef ON_PI
+#ifdef __linux__
 		Camera.grab();
 		Camera.retrieve(frame);
 #else
 		cap.read(frame);
-#endif // ON_PI
+#endif // __linux__
 
 		if (frame.empty()){
 			cout << "FRAME EMPTY" << endl;
@@ -472,11 +472,16 @@ int main(int argc, const char** argv)
 			}
 			else if (!start)
 			{
-				cout << "motion track process" << endl;
 				image = motionTracker.process(frame);
 				if (start = motionTracker.objectCaptured())
 				{
-					meanShiftTracker = MeanShiftTracker(motionTracker.getObject());
+					meanShiftTracker = MeanShiftTracker(motionTracker.getObject(), motionTracker.getMask());
+					image = meanShiftTracker.process(frame);
+					if (!(start = !meanShiftTracker.isObjectLost()))
+					{
+						cout << "Object Lost" << endl;
+						motionTracker = MotionTracker(frame);
+					}
 				}
 			}
 			else
@@ -486,19 +491,17 @@ int main(int argc, const char** argv)
 				{
 					cout << "Object Lost" << endl;
 					motionTracker = MotionTracker(frame);
-					Mat blah = motionTracker.getFrame1();
-					cout << "break" << endl;
 				}
 			}
 			
 			if (start)
 			{
-#ifdef ON_PI
+#ifdef __linux__
 				if(!recording) {
 					startRecording();
 					recording = true;
 				}
-#endif // ON_PI
+#endif // __linux__
 
 				trackFrameCount++;
 				Point p;
@@ -516,12 +519,12 @@ int main(int argc, const char** argv)
 				}
 				cout << "DX: " << dx << endl;
 
-#ifdef ON_PI
+#ifdef __linux__
 				aimServoTowards(p, dx);
-#endif // ON_PI
+#endif // __linux__
 			}
 
-#ifdef ON_PI
+#ifdef __linux__
 			double dt = abs(double(difftime(time(0), moveStartTime)));
 			if (xsteps > 0 && (xsteps > RESET_STEP_THRESHOLD ||  dt > RESET_TIME_THRESHOLD))
 			{
@@ -536,7 +539,7 @@ int main(int argc, const char** argv)
 				xsteps = 0;
 				motionTracker.resetInitial();
 			}
-#endif // ON_PI
+#endif // __linux__
 		}
 		else if (abs(double(difftime(time(0), resetStartTime))) > RESET_DELAY)
 		{
@@ -546,7 +549,7 @@ int main(int argc, const char** argv)
 			cout << "RESUMING" << endl;
 		}
 
-#ifdef ON_PI
+#ifdef __linux__
 		// uncomment to view motion tracking threshold image on pi
 		//image = motionTracker.getThresholdImage();
 		Mat temp;
@@ -555,14 +558,14 @@ int main(int argc, const char** argv)
 #else
 		imshow("Track", image);
 		cvWaitKey(winDelay);
-#endif // ON_PI
+#endif // __linux__
 
 	}
 	cout << "**********************" << endl;
 	cout << "Exiting Main Loop:" << endl;
 	cout << "**********************" << endl;
 
-#ifdef ON_PI
+#ifdef __linux__
 
 	if (recording) 
 	{
@@ -588,7 +591,7 @@ int main(int argc, const char** argv)
 
 	cap.release();
 
-#endif // ON_PI
+#endif // __linux__
 
 	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();

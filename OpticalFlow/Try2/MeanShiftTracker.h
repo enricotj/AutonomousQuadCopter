@@ -17,7 +17,7 @@ class MeanShiftTracker
 {
 public:
 	MeanShiftTracker();
-	MeanShiftTracker(Rect window);
+	MeanShiftTracker(Rect window, Mat& motionMask);
 	~MeanShiftTracker();
 
 	Mat process(Mat frame);
@@ -30,6 +30,6 @@ public:
 private:
 	void initSelection(int event, int x, int y);
 
-	Mat image, hsv, hue, mask, hist, histimg, backproj;
+	Mat image, hsv, hue, motionMask, mask, hist, histimg, backproj;
 };
 

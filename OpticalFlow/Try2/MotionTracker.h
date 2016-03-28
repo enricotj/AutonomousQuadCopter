@@ -38,7 +38,7 @@ public:
 	Mat getThresholdImage();
 	void resetInitial();
 
-	Mat getFrame1();
+	Mat getMask();
 private:
 	void searchForMovement(Mat thresholdImage);
 	bool validObjectFound();
