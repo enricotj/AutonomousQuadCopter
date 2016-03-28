@@ -117,6 +117,8 @@ void stopRecording() {
 	recording = false;
 }
 
+/***
+GIMBLE MOVEMENT CODE
 void moveServoX(int rot, int dx)
 {
 	if (moveCount < MOVE_DELAY) {
@@ -259,9 +261,9 @@ Point aimServoTowards(Point p, double dx)
 	Point aim = Point(0, 0);
 //	moveServoY(SERVO_STOP,0);
 	
-	/*if (abs(dx) <= thresholdDX) {
+	if (abs(dx) <= thresholdDX) {
 		dx = 0;
-	}*/
+	}
 	
 //	cout << "x :" << p.x << endl;
 	if (p.x > cx  && dx > 0)
@@ -324,8 +326,139 @@ void initializeGpioPort()
 //	moveServoX(0);
 //	moveServoY(0);
 }
+***/
 
+//OLD GIMBLE CODE
+#ifdef ON_PI
+void moveServoX(int rot)
+{
+	if (prevRotX == rot) return;
+	prevRotX = rot;
+	cout << "turn x: " << rot << endl;
+	switch (rot)
+	{
+		// move left
+		case SERVO_LEFT:
+			//		softServoWrite(0, 375);
+			gpioServo(17, 1450);
+			break;
+			// stop
+		case SERVO_STOP:
+			gpioServo(17, 1500);
+			//		digitalWrite(0,0);	
+			break;
+			// move right
+		case SERVO_RIGHT:
+			gpioServo(17, 1550);
+			//		softServoWrite(0, 525);
+			break;
+			// stop
+		default:
+			//		digitalWrite(0,0);	
+			break;
+	}
+	//softServoWrite(0, 400);
+}
 
+void moveServoY(int rot)
+{
+	if (prevRotY == rot) return;
+	prevRotY = rot;
+	cout << "turn y: " << rot << endl;
+	switch (rot)
+	{
+		// move left
+
+		case SERVO_UP:
+			gpioServo(18, 1425);
+			//		softServoWrite(1, 375);
+			break;
+			// stop
+		case SERVO_STOP:
+			gpioServo(18, 1475);
+			//		digitalWrite(1,0);	
+			break;
+			// move right
+		case SERVO_DOWN:
+			gpioServo(18, 1525);
+			//		softServoWrite(1, 500);
+			break;
+			// stop
+		default:
+			//		digitalWrite(1,0);	
+			break;
+	}
+	//softServoWrite(0, 400);
+}
+
+void servoTest(int rot)
+{
+	int i = 0;
+	while (i<50)
+	{
+		moveServoX(rot);
+		gpioDelay(10000);
+		i++;
+	}
+}
+
+void aimServoTowards(Point p)
+{
+	int cx = CAM_W / 2;
+	cout << "x :" << p.x << endl;
+	if (p.x > cx + SERVO_AIM_THRESH_X)
+	{
+		moveServoX(SERVO_LEFT);
+	}
+	else if (p.x < cx - SERVO_AIM_THRESH_X)
+	{
+		moveServoX(SERVO_RIGHT);
+	}
+	else
+	{
+		moveServoX(SERVO_STOP);
+	}
+	int cy = CAM_H / 2;
+	cout << "y :" << p.y << endl;
+	if (p.y > cy + SERVO_AIM_THRESH_Y)
+	{
+		moveServoY(SERVO_DOWN);
+	}
+	else if (p.y < cy - SERVO_AIM_THRESH_Y)
+	{
+		moveServoY(SERVO_UP);
+	}
+	else
+	{
+		moveServoY(SERVO_STOP);
+	}
+	gpioDelay(9000);
+}
+
+void initializeGpioPort()
+{
+	gpioInitialise();
+	gpioWrite(27,1);
+	moveServoX(0);
+	moveServoY(0);
+}
+
+void toggleGoPro(){
+	gpioWrite(27,0);
+	gpioDelay(3000000);
+	gpioWrite(27,1);
+}
+
+void testServos()
+{
+	servoTest(0);
+	servoTest(-1);
+	servoTest(0);
+	servoTest(1);
+	servoTest(0);
+	gpioTerminate();
+}
+#endif // ON_PI
 int openSerialPort() 
 {
 	// port file descriptor
@@ -357,12 +490,6 @@ int openSerialPort()
 		return -1;
 	}
 	return fd;
-}
-
-void toggleGoPro(){
-	gpioWrite(27,0);
-	gpioDelay(3000000);
-	gpioWrite(27,1);
 }
 #endif // __linux__
 
@@ -520,7 +647,8 @@ int main(int argc, const char** argv)
 				cout << "DX: " << dx << endl;
 
 #ifdef __linux__
-				aimServoTowards(p, dx);
+				//aimServoTowards(p, dx);
+				aimServoTowards(p);
 #endif // __linux__
 			}
 
