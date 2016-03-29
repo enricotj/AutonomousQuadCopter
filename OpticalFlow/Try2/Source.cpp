@@ -31,6 +31,7 @@ int frameMax = 1200;
 
 bool meanShiftMode = true;
 
+Mat firstFrame;
 vector<Mat> frames;
 const int MOVE_DELAY = 0;
 const int FRAME_COUNT_THRESHOLD = 100;
@@ -63,7 +64,7 @@ int xsteps = 0;
 const double RESET_TIME_THRESHOLD = 20.0; // in seconds
 time_t moveStartTime; // keeps track of the time the x servo started moving
 bool resetting = false;
-
+bool savedFrame = false;
 #ifdef __linux__
 bool recording = false;
 int fd;
@@ -500,6 +501,35 @@ int openSerialPort()
 }
 #endif // __linux__
 
+
+Mat doDifferenceOnFrame(Mat frame, Rect roi) {
+	int diffCount = 0;
+	int nonDiffCount = 0;
+	for (int x = roi.x; x < min(roi.x + roi.width, CAM_W); x++) {
+		for (int y = roi.y; y < min(roi.y + roi.height, CAM_H); y++) {
+			try {
+				//cout << x << " " << y << endl;
+				Vec3b color = frame.at<Vec3b>(Point(x, y));
+				Vec3b originalColor = firstFrame.at<Vec3b>(Point(x, y));
+				Vec3b  diff = originalColor - color;
+				int sum = abs(diff[0]) + abs(diff[1]) + abs(diff[2]);
+				if (sum < 20) {
+					diffCount++;
+					frame.at<Vec3b>(Point(x,y)) = Vec3b(0,0,0);
+				}
+				else {
+					nonDiffCount++;
+				}
+			}
+			catch (Exception e) {
+				cout << x << " " << y << endl;
+			}
+		}
+	}
+	cout << "Diff: " << diffCount << "NonDiff: " << nonDiffCount << endl;
+	return frame;
+}
+
 int main(int argc, const char** argv)
 {
 	Point aim = Point(0, 0);
@@ -599,6 +629,12 @@ int main(int argc, const char** argv)
 			break;
 		}
 
+		if (!savedFrame) {
+			frame.copyTo(firstFrame);
+			if (frameCounter > 3){
+				savedFrame = true;
+			}
+		}
 		if (!resetting)
 		{
 			if (!meanShiftMode)
@@ -611,14 +647,25 @@ int main(int argc, const char** argv)
 				image = motionTracker.process(frame);
 				if (start = motionTracker.objectCaptured())
 				{
-					meanShiftTracker = MeanShiftTracker(motionTracker.getObject(), (motionTracker.getMask()));
-					image = meanShiftTracker.process(frame);
-					rectangle(image, motionTracker.getObject(), Scalar(0, 255, 0));
-					if (!(start = !meanShiftTracker.isObjectLost()))
-					{
-						videoCount++;
+					
+					Rect r = motionTracker.getObject();
+					if (r.x > CAM_W || r.y > CAM_H || r.x < 0 || r.y < 0) {
 						cout << "Object Lost" << endl;
 						motionTracker = MotionTracker(frame);
+						
+					}
+					else {
+						meanShiftTracker = MeanShiftTracker(r, motionTracker.getMask());
+						frame = doDifferenceOnFrame(frame, r);
+						image = meanShiftTracker.process(frame);
+						rectangle(image, motionTracker.getObject(), Scalar(0, 255, 0));
+						imshow("Diff", image);
+						if (!(start = !meanShiftTracker.isObjectLost()))
+						{
+							videoCount++;
+							cout << "Object Lost" << endl;
+							motionTracker = MotionTracker(frame);
+						}
 					}
 				}
 			}
@@ -656,7 +703,7 @@ int main(int argc, const char** argv)
 					p = Point(r.x + r.width / 2, r.y + r.height / 2);
 					dx = motionTracker.getDirectionX();
 				}
-				cout << "DX: " << dx << endl;
+				//cout << "DX: " << dx << endl;
 
 #ifdef __linux__
 				//aimServoTowards(p, dx);
@@ -700,6 +747,10 @@ int main(int argc, const char** argv)
 		frames.push_back(temp);
 #else
 		imshow("Track", image);
+		if (savedFrame) {
+			imshow("First", firstFrame);
+			imshow("Difference", image - firstFrame);
+		}
 		cvWaitKey(winDelay);
 #endif // __linux__
 

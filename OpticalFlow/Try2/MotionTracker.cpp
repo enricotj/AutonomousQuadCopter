@@ -34,7 +34,8 @@ MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
 	objectBoundingRectangle = Rect(0, 0, 0, 0);
-	obr2 = Rect(0,0,0,0);
+
+	obr2 = Rect(0, 0, 0, 0);
 	cout << "Motion Tracker Constructed" << endl;
 }
 
@@ -82,6 +83,10 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		Rect tempRect = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
 		
+		vector< vector<Point>> lcv2;
+		lcv2.push_back(contours.at(contours.size() - 2));
+		Rect tempRect2 = boundingRect(lcv2.at(0));
+		obr2 = boundingRect(lcv2.at(0));
 		// get centroid of largest contour
 		//Moments m = moments(largestContourVec.at(0), false);
 		//int cx = m.m10 / m.m00;
@@ -128,28 +133,15 @@ Mat MotionTracker::process(Mat& frame)
 		// draw the bounding rectangle around the object
 		rectangle(frame2, objectBoundingRectangle, Scalar(255, 0, 0), 3);
 		rectangle(frame2, obr2, Scalar(0, 255, 0), 3);
-/*
-		// shrink the bounding rectangle
-		double shrink = 0.3;
-		double shrinkInv = 1 - shrink;
-		
-		// center the shrunken rectangle's coordinates
-		int x = objectBoundingRectangle.x;
-		int y = objectBoundingRectangle.y;
-		x += dw / 2;
-		y += dh / 2;
-*/
-		int x = objectBoundingRectangle.x;
-		int y = objectBoundingRectangle.y;
-		int dw = objectBoundingRectangle.width + x;
-		int dh = objectBoundingRectangle.height + y;
 
-		int minx = min(objectBoundingRectangle.x, obr2.x);
-		int miny = min(objectBoundingRectangle.y, obr2.y);
-		int maxX = max(dw, obr2.x + obr2.width);
-		int maxY = max(dh, obr2.y + obr2.height);
+		int minX = min(x, obr2.x);
+		int minY = min(y, obr2.y);
+		int maxX = max(x + objectBoundingRectangle.width, obr2.x + obr2.width);
+		int maxY = max(y + objectBoundingRectangle.height, obr2.y + obr2.height);
 		// draw the smaller rectangle
-		objectBoundingRectangle = Rect(minx, miny, maxX - minx, maxY - miny);
+		cout << "rect in motionTracker" << minX << minY << maxX - minX << maxY - minY << endl;
+		objectBoundingRectangle = Rect(minX, minY, maxX-minX, maxY-minY);
+
 		rectangle(frame2, objectBoundingRectangle, Scalar(0, 0, 255), 3);
 	}
 	else
