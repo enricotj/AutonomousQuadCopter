@@ -17,7 +17,7 @@ class MeanShiftTracker
 {
 public:
 	MeanShiftTracker();
-	MeanShiftTracker(Rect window, Mat& motionMask);
+	MeanShiftTracker(Rect window, Mat motionMask);
 	~MeanShiftTracker();
 
 	Mat process(Mat frame);

@@ -330,9 +330,10 @@ void initializeGpioPort()
 
 //OLD GIMBLE CODE
 #ifdef ON_PI
-void moveServoX(int rot)
+void moveServoX(int rot, double x)
 {
-	if (prevRotX == rot) return;
+	int vel = 1500;
+	//if (prevRotX == rot) return;
 	prevRotX = rot;
 	cout << "turn x: " << rot << endl;
 	switch (rot)
@@ -340,7 +341,8 @@ void moveServoX(int rot)
 		// move left
 		case SERVO_LEFT:
 			//		softServoWrite(0, 375);
-			gpioServo(17, 1450);
+			vel = (320-x)/(6.0) + 1450;
+			gpioServo(17, vel); //1450 fast, 1480 slow
 			break;
 			// stop
 		case SERVO_STOP:
@@ -349,7 +351,8 @@ void moveServoX(int rot)
 			break;
 			// move right
 		case SERVO_RIGHT:
-			gpioServo(17, 1550);
+			vel = x/-6.0 + 1550; 
+			gpioServo(17, vel); //1550 fast, 1520 slow
 			//		softServoWrite(0, 525);
 			break;
 			// stop
@@ -360,9 +363,10 @@ void moveServoX(int rot)
 	//softServoWrite(0, 400);
 }
 
-void moveServoY(int rot)
+void moveServoY(int rot, double y)
 {
-	if (prevRotY == rot) return;
+	int vel = 1475;
+	//if (prevRotY == rot) return;
 	prevRotY = rot;
 	cout << "turn y: " << rot << endl;
 	switch (rot)
@@ -370,7 +374,8 @@ void moveServoY(int rot)
 		// move left
 
 		case SERVO_UP:
-			gpioServo(18, 1425);
+			vel = 2*y/9.0 + 1425;
+			gpioServo(18, vel); //1405
 			//		softServoWrite(1, 375);
 			break;
 			// stop
@@ -380,7 +385,8 @@ void moveServoY(int rot)
 			break;
 			// move right
 		case SERVO_DOWN:
-			gpioServo(18, 1525);
+			vel = (2.0 * (CAM_H - y)/ -9.0) +1510;
+			gpioServo(18, vel); //1525
 			//		softServoWrite(1, 500);
 			break;
 			// stop
@@ -396,10 +402,11 @@ void servoTest(int rot)
 	int i = 0;
 	while (i<50)
 	{
-		moveServoX(rot);
+		moveServoX(rot, 0);
 		gpioDelay(10000);
 		i++;
 	}
+	moveServoX(SERVO_STOP, 0);
 }
 
 void aimServoTowards(Point p)
@@ -408,39 +415,39 @@ void aimServoTowards(Point p)
 	cout << "x :" << p.x << endl;
 	if (p.x > cx + SERVO_AIM_THRESH_X)
 	{
-		moveServoX(SERVO_LEFT);
+		moveServoX(SERVO_LEFT, p.x);
 	}
 	else if (p.x < cx - SERVO_AIM_THRESH_X)
 	{
-		moveServoX(SERVO_RIGHT);
+		moveServoX(SERVO_RIGHT, p.x);
 	}
 	else
 	{
-		moveServoX(SERVO_STOP);
+		moveServoX(SERVO_STOP, 0);
 	}
 	int cy = CAM_H / 2;
 	cout << "y :" << p.y << endl;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
-		moveServoY(SERVO_DOWN);
+		moveServoY(SERVO_DOWN, p.y);
 	}
 	else if (p.y < cy - SERVO_AIM_THRESH_Y)
 	{
-		moveServoY(SERVO_UP);
+		moveServoY(SERVO_UP, p.y);
 	}
 	else
 	{
-		moveServoY(SERVO_STOP);
+		moveServoY(SERVO_STOP, 0);
 	}
-	gpioDelay(9000);
+	//gpioDelay(9000);
 }
 
 void initializeGpioPort()
 {
 	gpioInitialise();
 	gpioWrite(27,1);
-	moveServoX(0);
-	moveServoY(0);
+	moveServoX(0, 0);
+	moveServoY(0, 0);
 }
 
 void toggleGoPro(){
@@ -510,8 +517,10 @@ int main(int argc, const char** argv)
 	//toggleGoPro();
 	//gpioDelay(5000000);
 	//toggleGoPro();
-	openSerialPort();
+	//openSerialPort();
 	while(i<10000000){i++;}	
+	
+	
 	
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
@@ -602,10 +611,12 @@ int main(int argc, const char** argv)
 				image = motionTracker.process(frame);
 				if (start = motionTracker.objectCaptured())
 				{
-					meanShiftTracker = MeanShiftTracker(motionTracker.getObject(), motionTracker.getMask());
+					meanShiftTracker = MeanShiftTracker(motionTracker.getObject(), (motionTracker.getMask()));
 					image = meanShiftTracker.process(frame);
+					rectangle(image, motionTracker.getObject(), Scalar(0, 255, 0));
 					if (!(start = !meanShiftTracker.isObjectLost()))
 					{
+						videoCount++;
 						cout << "Object Lost" << endl;
 						motionTracker = MotionTracker(frame);
 					}
@@ -616,6 +627,7 @@ int main(int argc, const char** argv)
 				image = meanShiftTracker.process(frame);
 				if (!(start = !meanShiftTracker.isObjectLost()))
 				{
+					videoCount++;
 					cout << "Object Lost" << endl;
 					motionTracker = MotionTracker(frame);
 				}
@@ -625,7 +637,7 @@ int main(int argc, const char** argv)
 			{
 #ifdef __linux__
 				if(!recording) {
-					startRecording();
+				//	startRecording();
 					recording = true;
 				}
 #endif // __linux__
@@ -660,9 +672,12 @@ int main(int argc, const char** argv)
 				resetting = true;
 				prevRotX *= -1;
 				recording = false;
-				stopRecording();
+				//stopRecording();
 				gpioDelay(1000000);
-				moveServoX(prevRotX, -1* xsteps * prevRotX);
+				//moveServoX(prevRotX, -1* xsteps * prevRotX);
+				//moveServoX(prevRotX);
+				moveServoX(SERVO_STOP, 0);
+				moveServoY(SERVO_STOP, 0);
 				resetStartTime = time(0);
 				xsteps = 0;
 				motionTracker.resetInitial();

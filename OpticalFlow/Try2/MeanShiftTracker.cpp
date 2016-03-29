@@ -32,7 +32,7 @@ MeanShiftTracker::MeanShiftTracker()
 	objLost = false;
 }
 
-MeanShiftTracker::MeanShiftTracker(Rect window, Mat& initMotionMask)
+MeanShiftTracker::MeanShiftTracker(Rect window, Mat initMotionMask)
 {
 	cout << "Initializing Mean Shift Tracker With Window..." << endl;
 	histimg = Mat::zeros(200, 320, CV_8UC3);

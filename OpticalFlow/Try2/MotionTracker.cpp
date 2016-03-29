@@ -4,6 +4,7 @@
 bool motionOnlyMode = false;
 
 Rect objectBoundingRectangle;
+Rect obr2;
 //our sensitivity value to be used in the absdiff() function
 const int SENSITIVITY_VALUE = 24;
 //size of blur used to smooth the intensity image output from absdiff() function
@@ -17,7 +18,7 @@ Point prevPos;
 
 const double MAX_SIZE_DIFF_FACTOR = 2.0;
 const double MAX_POS_DIFF_FACTOR = 0.6;
-int captureThreshold = 2;
+int captureThreshold = 3;
 int captureCurrent = -1;
 
 //some boolean variables for added functionality
@@ -33,6 +34,7 @@ MotionTracker::MotionTracker(Mat& initFrame)
 {
 	initFrame.copyTo(frame1);
 	objectBoundingRectangle = Rect(0, 0, 0, 0);
+	obr2 = Rect(0,0,0,0);
 	cout << "Motion Tracker Constructed" << endl;
 }
 
@@ -62,12 +64,19 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 	findContours(temp, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);// retrieves external contours
 
 	//if contours vector is not empty, we have found some objects
-	if (contours.size()>0)
+	if (contours.size()>1)
 	{
 		//the largest contour is found at the end of the contours vector
 		//we will simply assume that the biggest contour is the object we are looking for.
 		vector< vector<Point> > largestContourVec;
+		vector< vector<Point> > sLCV;
 		largestContourVec.push_back(contours.at(contours.size() - 1));
+		
+		
+		sLCV.push_back(contours.at(contours.size() - 2));
+		Rect tr = boundingRect(sLCV.at(0));
+		obr2 = boundingRect(sLCV.at(0));
+		
 		//make a bounding rectangle around the largest contour then find its centroid
 		//this will be the object's final estimated position.
 		Rect tempRect = boundingRect(largestContourVec.at(0));
@@ -118,23 +127,29 @@ Mat MotionTracker::process(Mat& frame)
 	{
 		// draw the bounding rectangle around the object
 		rectangle(frame2, objectBoundingRectangle, Scalar(255, 0, 0), 3);
-		
+		rectangle(frame2, obr2, Scalar(0, 255, 0), 3);
+/*
 		// shrink the bounding rectangle
 		double shrink = 0.3;
 		double shrinkInv = 1 - shrink;
-		int w = objectBoundingRectangle.width * shrinkInv;
-		int h = objectBoundingRectangle.height * shrinkInv;
-		int dw = objectBoundingRectangle.width * shrink;
-		int dh = objectBoundingRectangle.height * shrink;
 		
 		// center the shrunken rectangle's coordinates
 		int x = objectBoundingRectangle.x;
 		int y = objectBoundingRectangle.y;
 		x += dw / 2;
 		y += dh / 2;
+*/
+		int x = objectBoundingRectangle.x;
+		int y = objectBoundingRectangle.y;
+		int dw = objectBoundingRectangle.width + x;
+		int dh = objectBoundingRectangle.height + y;
 
+		int minx = min(objectBoundingRectangle.x, obr2.x);
+		int miny = min(objectBoundingRectangle.y, obr2.y);
+		int maxX = max(dw, obr2.x + obr2.width);
+		int maxY = max(dh, obr2.y + obr2.height);
 		// draw the smaller rectangle
-		objectBoundingRectangle = Rect(x, y, w, h);
+		objectBoundingRectangle = Rect(minx, miny, maxX - minx, maxY - miny);
 		rectangle(frame2, objectBoundingRectangle, Scalar(0, 0, 255), 3);
 	}
 	else
@@ -147,6 +162,7 @@ Mat MotionTracker::process(Mat& frame)
 		}
 		// draw bounding box of invalid object
 		rectangle(frame2, objectBoundingRectangle, c);
+		rectangle(frame2, obr2, Scalar(0, 255, 0));
 	}
 
 #ifndef ON_PI
