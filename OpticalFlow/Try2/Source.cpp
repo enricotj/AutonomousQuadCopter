@@ -342,7 +342,7 @@ void moveServoX(int rot, double x)
 		// move left
 		case SERVO_LEFT:
 			//		softServoWrite(0, 375);
-			vel = (320-x)/(6.0) + 1450;
+			vel = (CAM_W-x)/(6.0) + 1450;
 			gpioServo(17, vel); //1450 fast, 1480 slow
 			break;
 			// stop
@@ -612,9 +612,9 @@ int main(int argc, const char** argv)
 	cout << "**********************" << endl;
 	
 
-//	while (frameCounter < frameMax)
+	while (frameCounter < frameMax)
 
-	while (videoCount < 1)
+	//while (videoCount < 1)
 	{
 		frameCounter++;
 #ifdef __linux__
