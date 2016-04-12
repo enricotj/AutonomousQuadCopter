@@ -128,11 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Clusters.cpp" />
     <ClCompile Include="MeanShiftTracker.cpp" />
     <ClCompile Include="MotionTracker.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Clusters.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="MeanShiftTracker.h" />
     <ClInclude Include="MotionTracker.h" />

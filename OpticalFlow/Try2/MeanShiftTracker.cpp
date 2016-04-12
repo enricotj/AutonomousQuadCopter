@@ -3,7 +3,7 @@
 bool initialze = true;
 bool backprojMode = false;
 bool selectObject = false;
-bool usingMotionMask = false;
+bool usingMotionMask = true;
 int trackObject = 0;
 Point origin;
 Rect selection, trackWindow;
@@ -119,6 +119,7 @@ Mat MeanShiftTracker::process(Mat frame)
 					// combine the motion mask and the roi mask (intersection)
 					Mat maskFinal;
 					bitwise_and(maskroi, mmask, maskFinal);
+					//imshow("Mask Final", maskFinal);
 					calcHist(&roi, 1, 0, maskFinal, hist, 1, &hsize, &phranges);
 				}
 				else

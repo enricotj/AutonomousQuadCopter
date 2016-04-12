@@ -134,10 +134,10 @@ Mat MotionTracker::process(Mat& frame)
 		rectangle(frame2, objectBoundingRectangle, Scalar(255, 0, 0), 3);
 		rectangle(frame2, obr2, Scalar(0, 255, 0), 3);
 
-		int minX = min(x, obr2.x);
-		int minY = min(y, obr2.y);
-		int maxX = max(x + objectBoundingRectangle.width, obr2.x + obr2.width);
-		int maxY = max(y + objectBoundingRectangle.height, obr2.y + obr2.height);
+		int minX = min(objectBoundingRectangle.x, obr2.x);
+		int minY = min(objectBoundingRectangle.y, obr2.y);
+		int maxX = max(objectBoundingRectangle.x + objectBoundingRectangle.width, obr2.x + obr2.width);
+		int maxY = max(objectBoundingRectangle.y + objectBoundingRectangle.height, obr2.y + obr2.height);
 		// draw the smaller rectangle
 		cout << "rect in motionTracker" << minX << minY << maxX - minX << maxY - minY << endl;
 		objectBoundingRectangle = Rect(minX, minY, maxX-minX, maxY-minY);

@@ -65,6 +65,7 @@ const double RESET_TIME_THRESHOLD = 20.0; // in seconds
 time_t moveStartTime; // keeps track of the time the x servo started moving
 bool resetting = false;
 bool savedFrame = false;
+
 #ifdef __linux__
 bool recording = false;
 int fd;
@@ -505,6 +506,8 @@ int openSerialPort()
 Mat doDifferenceOnFrame(Mat frame, Rect roi) {
 	int diffCount = 0;
 	int nonDiffCount = 0;
+	Mat binary(cv::Mat::zeros(frame.rows, frame.cols, CV_8UC1));
+
 	for (int x = roi.x; x < min(roi.x + roi.width, CAM_W); x++) {
 		for (int y = roi.y; y < min(roi.y + roi.height, CAM_H); y++) {
 			try {
@@ -515,10 +518,11 @@ Mat doDifferenceOnFrame(Mat frame, Rect roi) {
 				int sum = abs(diff[0]) + abs(diff[1]) + abs(diff[2]);
 				if (sum < 20) {
 					diffCount++;
-					frame.at<Vec3b>(Point(x,y)) = Vec3b(0,0,0);
+					//frame.at<Vec3b>(Point(x,y)) = Vec3b(0,0,0);
 				}
 				else {
 					nonDiffCount++;
+					binary.at<uchar>(Point2i(x, y)) = 255;
 				}
 			}
 			catch (Exception e) {
@@ -527,7 +531,7 @@ Mat doDifferenceOnFrame(Mat frame, Rect roi) {
 		}
 	}
 	cout << "Diff: " << diffCount << "NonDiff: " << nonDiffCount << endl;
-	return frame;
+	return binary;
 }
 
 int main(int argc, const char** argv)
@@ -655,11 +659,12 @@ int main(int argc, const char** argv)
 						
 					}
 					else {
-						meanShiftTracker = MeanShiftTracker(r, motionTracker.getMask());
-						frame = doDifferenceOnFrame(frame, r);
+						Mat binary = doDifferenceOnFrame(frame, r);
+						imshow("Binary", binary);
+						meanShiftTracker = MeanShiftTracker(r, binary);
 						image = meanShiftTracker.process(frame);
 						rectangle(image, motionTracker.getObject(), Scalar(0, 255, 0));
-						imshow("Diff", image);
+						//imshow("Diff", image);
 						if (!(start = !meanShiftTracker.isObjectLost()))
 						{
 							videoCount++;
@@ -748,7 +753,6 @@ int main(int argc, const char** argv)
 #else
 		imshow("Track", image);
 		if (savedFrame) {
-			imshow("First", firstFrame);
 			imshow("Difference", image - firstFrame);
 		}
 		cvWaitKey(winDelay);
