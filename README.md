@@ -11,3 +11,6 @@ https://docs.google.com/document/d/1-vK_jQzxhNyuLNOT3R0r5SAl8ewzgFK3zPgXRsOeWW0/
 
 Some helpful Raspberry Pi commands:
 https://github.com/enricotj/AutonomousQuadCopter/wiki/Pi-Commands
+
+Wiki:
+https://github.com/enricotj/AutonomousQuadCopter/wiki
