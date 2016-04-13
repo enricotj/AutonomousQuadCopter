@@ -15,6 +15,5 @@ https://github.com/enricotj/AutonomousQuadCopter/wiki/Pi-Commands
 Wiki:
 https://github.com/enricotj/AutonomousQuadCopter/wiki
 
-Video hosting website: not always active.
-
-http://ec2-54-213-146-105.us-west-2.compute.amazonaws.com
+Video hosting website: 
+http://ec2-54-213-146-105.us-west-2.compute.amazonaws.com #not always active
