@@ -54,6 +54,7 @@ int cy = CAM_H / 2;
 int winDelay = 10;
 
 int thresholdDX = 3;
+int thresholdDY = 3;
 int moveFlag = 0;
 
 const double RESET_DELAY = 5.0; // in seconds (amount of time that needs to pass
@@ -67,6 +68,8 @@ bool resetting = false;
 bool savedFrame = false;
 bool movingRight = false;
 bool movingLeft = false;
+bool movingUp = false;
+bool movingDown = false;
 #ifdef __linux__
 bool recording = false;
 int fd;
@@ -127,6 +130,10 @@ void stopServos() {
 	gpioDelay(delay);
 	write(fd, "H\n", 2);
 	cout << "stopping" << (unsigned) strlen(stop.c_str()) << endl;
+	movingRight = false;
+	movingLeft = false;
+	movingUp = false;
+	movingDown = false;
 }
 
 /***
@@ -243,10 +250,9 @@ void moveServoY(int rot, int dy)
 }
 ***/
 
-Point aimServoTowards(Point p, double dx)
+Point aimServoTowards(Point p, double dx, double dy)
 {
 	double scalearX =1;
-	double dy = 0;
 	Point aim = Point(0, 0);
 /*	if(double(difftime(time(0), startTime)) < 0.1) {
 		cout << "need larger delay before moving" << endl;
@@ -259,6 +265,9 @@ Point aimServoTowards(Point p, double dx)
 		dx = 0;
 	}
 	
+	if(abs(dy) <= thresholdDY) {
+		dy = 0;
+	}
 	double degreeX = 53.5;
 	if (p.x > cx && (dx > 0 || movingLeft))
 	{
@@ -294,24 +303,32 @@ Point aimServoTowards(Point p, double dx)
 		dx = 0;
 	}
 //	cout << "y :" << p.y << end;
-	double degreeY = 41.4/2;
-	if (p.y > cy + SERVO_AIM_THRESH_Y)
+	double degreeYDown = 41.4/2;
+	double degreeY = degreeYDown * 4.0/3.0;
+	if (p.y > cy && (dy > 0 || movingDown))
 	{
+		movingDown = true;
+		movingUp = false;
 		dy = (p.y - cy);
-		dy = 1*((dy/CAM_H)* degreeY);
-		if(dy > degreeY) dy = degreeY;
+		dy = -1*((dy/CAM_H)* degreeYDown);
+		if(dy < (-1 *degreeYDown)) dy = -1 * degreeYDown;
 		aim.y = SERVO_DOWN;
 	}
-	else if (p.y < cy - SERVO_AIM_THRESH_Y)
+	else if (p.y < cy && (dy < 0 || movingUp))
 	{
+		movingDown = false;
+		movingUp = true;
 		dy = cy-p.y;
-		dy = -1 * (dy/CAM_H) * degreeY;
-		if(dy < (-1 * degreeY)) dy = -1 * degreeY;
+		dy = (dy/CAM_H) * degreeY;
+		if(dy > (degreeY)) dy = degreeY;
 		aim.y = SERVO_UP;
 		
 	}
 	else
-	{
+	{		
+		movingDown = false;
+		movingUp = false;
+
 		dy = 0;
 	}
 	
@@ -321,7 +338,8 @@ Point aimServoTowards(Point p, double dx)
 
 	std::stringstream ss;
 	std::string step;
-	dy = 0.0;
+//	dy = 0.0;
+//	dx = 0.0;
 	ss << "T" << dy << "_P" << dx << "\n";
    	step = ss.str();
 	cout << "writing: " << step.c_str() << endl;
@@ -350,11 +368,11 @@ void servoTest()
 		i++;
 	}*/
 
-	double dx = 5.1;
-	while (dx < 30.2) {
+	double dx = 20.1;
+	while (dx < 20.2) {
 	std::stringstream ss;
 	std::string step;
-	ss << "T0.0_P" << dx << "\n";
+	ss << "T" << (10.0 * dx / 6.0) << "_P0.0\n";
    	step = ss.str();
 	cout << "writing: " << step.c_str() << endl;
 	cout << dx << endl;
@@ -364,7 +382,7 @@ void servoTest()
 	
 	std::stringstream ss2;
 	std::string step2;
-	ss2 << "T0.0_P" << (-1 * dx) << "\n";
+	ss2 << "T" << (-1 * dx) << "_P0.0\n";
 	step2 = ss2.str();
 	write(fd, step2.c_str(), (unsigned) strlen(step2.c_str()));
 	stopServos();
@@ -600,6 +618,7 @@ int main(int argc, const char** argv)
 	openSerialPort();
 	while(i<10000000){i++;}
 	stopServos();
+	gpioDelay(5000000);
 	//servoTest();
 	//write(fd, "T0.0_P0.0\n", 20);
 	if(argc == 2){
@@ -669,7 +688,7 @@ int main(int argc, const char** argv)
 	cout << "Entering Main Loop:" << endl;
 	cout << "**********************" << endl;
 	
-
+	try{
 	while (frameCounter < frameMax)
 
 	//while (videoCount < 1)
@@ -697,12 +716,24 @@ int main(int argc, const char** argv)
 		{
 			if (!meanShiftMode)
 			{
-				image = motionTracker.process(frame);
-				start = motionTracker.objectCaptured();
+				try {
+					image = motionTracker.process(frame);
+					start = motionTracker.objectCaptured();
+				} catch (Exception e) {
+					cout << "Exception in process method of MotionTracker" << endl;
+					image = frame;
+					start = false;
+				}
+
 			}
 			else if (!start)
 			{
-				image = motionTracker.process(frame);
+				try {
+					image = motionTracker.process(frame);
+				} catch (Exception e) {
+					cout << "Exception in process method of MotionTracker" << endl;
+				}
+
 				if (start = motionTracker.objectCaptured())
 				{
 					
@@ -752,21 +783,25 @@ int main(int argc, const char** argv)
 				trackFrameCount++;
 				Point p;
 				int dx;
+				int dy;
 				if (meanShiftMode)
 				{
 					p = meanShiftTracker.getObject().center;
 					dx = meanShiftTracker.getDirectionX();
+					dy = meanShiftTracker.getDirectionY();
 				}
 				else
 				{
 					Rect r = motionTracker.getObject();
 					p = Point(r.x + r.width / 2, r.y + r.height / 2);
 					dx = motionTracker.getDirectionX();
+					dy = 0;
 				}
 				cout << "Before aiming DX: " << dx << endl;
+				cout << "Before aiming DY: " << dy << endl;
 				
 #ifdef __linux__
-				aimServoTowards(p, dx);
+				aimServoTowards(p, dx, dy);
 				//aimServoTowards(p);
 #endif // __linux__
 			}
@@ -814,6 +849,9 @@ int main(int argc, const char** argv)
 #endif // __linux__
 
 	}
+	} catch(Exception e) {
+		cout << "Exception in main program" << endl;
+	}
 	cout << "**********************" << endl;
 	cout << "Exiting Main Loop:" << endl;
 	cout << "**********************" << endl;
@@ -846,6 +884,6 @@ int main(int argc, const char** argv)
 
 	meanShiftTracker.~MeanShiftTracker();
 	motionTracker.~MotionTracker();
-
+	
 	return 0;
 }

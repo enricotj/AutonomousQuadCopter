@@ -26,7 +26,7 @@ public:
 	bool isObjectLost();
 
 	int getDirectionX();
-
+	int getDirectionY();
 private:
 	void initSelection(int event, int x, int y);
 

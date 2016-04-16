@@ -143,8 +143,14 @@ Mat MeanShiftTracker::process(Mat frame)
 
 		calcBackProject(&hue, 1, 0, hist, backproj, &phranges, 0.5);
 		backproj &= mask;
-		trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
-		
+		try {
+			trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
+		}
+		catch (Exception e) {
+			cout << "Exception in CamShift" << endl;
+			objLost = true;
+			return image;
+		}
 		if (trackWindow.area() <= 1)
 		{
 			int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5) / 6;
@@ -175,7 +181,7 @@ Mat MeanShiftTracker::process(Mat frame)
 	}
 
 	dx = trackBox.center.x - px;
-	dy = trackBox.center.x - py;
+	dy = trackBox.center.y - py;
 	// check if the object hasn't moved
 	if (dx == 0)
 	{
@@ -215,4 +221,8 @@ bool MeanShiftTracker::isObjectLost()
 int MeanShiftTracker::getDirectionX()
 {
 	return dx;
+}
+int MeanShiftTracker::getDirectionY()
+{
+	return dy;
 }
