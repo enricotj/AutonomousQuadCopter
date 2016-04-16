@@ -27,7 +27,7 @@
 using namespace cv;
 using namespace std;
 
-int frameMax = 1200;
+int frameMax = 500;
 
 bool meanShiftMode = true;
 
@@ -41,7 +41,7 @@ const int SERVO_UP = -1;
 const int SERVO_DOWN = 1;
 const int SERVO_STOP = 0;
 const int SERVO_AIM_THRESH_X = CAM_W / 10;
-const int SERVO_AIM_THRESH_Y = CAM_H / 8;
+const int SERVO_AIM_THRESH_Y = 0;//CAM_H / 8;
 const int SERVO_NULL = 99999;
 int prevRotX = SERVO_NULL;
 int prevRotY = SERVO_NULL;
@@ -65,7 +65,8 @@ const double RESET_TIME_THRESHOLD = 20.0; // in seconds
 time_t moveStartTime; // keeps track of the time the x servo started moving
 bool resetting = false;
 bool savedFrame = false;
-
+bool movingRight = false;
+bool movingLeft = false;
 #ifdef __linux__
 bool recording = false;
 int fd;
@@ -118,9 +119,18 @@ void stopRecording() {
 	}
 	recording = false;
 }
+void stopServos() {
+	std::string stop = "T0.0_P0.0\n";
+	int delay = 500000;//100000;
+	gpioDelay(delay);
+	write(fd, stop.c_str(), (unsigned) strlen(stop.c_str()));
+	gpioDelay(delay);
+	write(fd, "H\n", 2);
+	cout << "stopping" << (unsigned) strlen(stop.c_str()) << endl;
+}
 
 /***
-GIMBLE MOVEMENT CODE
+//GIMBLE MOVEMENT CODE
 void moveServoX(int rot, int dx)
 {
 	if (moveCount < MOVE_DELAY) {
@@ -132,7 +142,7 @@ void moveServoX(int rot, int dx)
 	
 	int byte = log(abs(dx))/log(10)+3;
 	int n;
-	if(dx < 20 && dx > -20) {
+	if(dx < 10 && dx > -10) {
 		cout << "Not in threshold: " << dx << endl;
 		return;
 	}
@@ -142,22 +152,17 @@ void moveServoX(int rot, int dx)
 	//	cout << "BAD DIRECTION" << endl;
 	//	return; 
 	//}
-	if(double(difftime( time(0), startTime))<.01){
-		return;
-	}
+	
 	startTime = time(0);
-    if(rot != SERVO_STOP) {
-		prevRotX = rot;    
-    }
     ss << "P" << dx << "\n";
     step = ss.str();
 	
-	if (xsteps == 0)
-	{
+    if (xsteps == 0)
+    {
 		//xdir = rot;
-		moveStartTime = time(0);
-	}
-	xsteps += abs(dx);
+	moveStartTime = time(0);
+    }
+xsteps += abs(dx);
 	    
     switch (rot)
     {
@@ -236,87 +241,137 @@ void moveServoY(int rot, int dy)
 
 	//softServoWrite(0, 400);
 }
-
-void servoTest()
-{
-	int i = 0;
-	//write(fd, "V90\n", 4);
-	while (i<5)
-	{
-		moveServoX(-1,50);
-		gpioDelay(10000);
-		i++;
-	}
-	i=0;
-	while (i<5)
-	{
-		moveServoX(1,-50);
-		gpioDelay(10000);
-		i++;
-	}
-	moveServoX(0, 0);
-}
+***/
 
 Point aimServoTowards(Point p, double dx)
 {
 	double scalearX =1;
+	double dy = 0;
 	Point aim = Point(0, 0);
-//	moveServoY(SERVO_STOP,0);
-	
+/*	if(double(difftime(time(0), startTime)) < 0.1) {
+		cout << "need larger delay before moving" << endl;
+		return aim;
+	}
+	startTime = time(0);
+*/
 	if (abs(dx) <= thresholdDX) {
+		cout << "dx less than threshold" << endl;
 		dx = 0;
 	}
 	
-//	cout << "x :" << p.x << endl;
-	if (p.x > cx  && dx > 0)
+	double degreeX = 53.5;
+	if (p.x > cx && (dx > 0 || movingLeft))
 	{
+		movingLeft = true;
+		movingRight = false;
 		cout<< "left :" << dx << endl;
-		dx = abs(dx)*scalearX + ((p.x) - (cx/2.0));
-		dx = -1*((dx/CAM_W)*535.0)/2;
-		if(dx < -535) dx = -535;
-		moveServoX(SERVO_LEFT, int(dx));
+		dx = (p.x - cx);
+//		dx = abs(dx)*scalearX + (p.x - cx);
+		dx = -1*((dx/CAM_W)*degreeX);
+		if(dx < (-1 * degreeX)) dx = (-1 * degreeX);
+		//moveServoX(SERVO_LEFT, int(dx));
 		aim.x = SERVO_LEFT;
 		//moveFlag = 1;
 	}
-	else if (p.x < cx && dx < 0)
+	else if (p.x < cx && (dx < 0 || movingRight))
 	{
+		movingLeft = false;
+		movingRight = true;
+
 		cout<< "right :" << dx << endl;
-		dx = abs(dx)*scalearX + ((3*cx/2) - p.x);
-		dx = (dx/CAM_W)*535/2;
-		if(dx > 535) dx = 535;
-		moveServoX(SERVO_RIGHT,int(dx));
+		dx = (cx - p.x);
+//		dx = abs(dx)*scalearX + (cx - p.x);
+		dx = (dx/CAM_W)*degreeX;
+		if(dx > degreeX) dx = degreeX;
+		//moveServoX(SERVO_RIGHT,int(dx));
 		aim.x = SERVO_RIGHT;
 		//moveFlag = 1;
 	}
 	else
 	{
-		moveServoX(SERVO_STOP, 0);
+		movingLeft = false;
+		movingRight = false;
+		dx = 0;
 	}
-//	cout << "y :" << p.y << endl;
+//	cout << "y :" << p.y << end;
+	double degreeY = 41.4/2;
 	if (p.y > cy + SERVO_AIM_THRESH_Y)
 	{
-		//cout << "MOVING UP" << endl;
-//		moveServoY(SERVO_DOWN, cy-p.y);
+		dy = (p.y - cy);
+		dy = 1*((dy/CAM_H)* degreeY);
+		if(dy > degreeY) dy = degreeY;
 		aim.y = SERVO_DOWN;
-		//moveFlag = 1;
 	}
 	else if (p.y < cy - SERVO_AIM_THRESH_Y)
 	{
-		//cout << "MOVING DOWN" << endl;
-//		moveServoY(SERVO_UP, cy-p.y);
+		dy = cy-p.y;
+		dy = -1 * (dy/CAM_H) * degreeY;
+		if(dy < (-1 * degreeY)) dy = -1 * degreeY;
 		aim.y = SERVO_UP;
-		//moveFlag = 1;
+		
 	}
 	else
 	{
-		//cout << "STOPPING" << endl;
-//		moveServoY(SERVO_STOP, 0);
+		dy = 0;
 	}
 	
 			
 	
 	//moveServoY(SERVO_STOP,0);
+
+	std::stringstream ss;
+	std::string step;
+	dy = 0.0;
+	ss << "T" << dy << "_P" << dx << "\n";
+   	step = ss.str();
+	cout << "writing: " << step.c_str() << endl;
+	write(fd, step.c_str(), (unsigned) strlen(step.c_str()));
 	return aim;
+}
+
+void servoTest()
+{
+/*
+	int i = 0;
+	//write(fd, "V90\n", 4);
+	Point p = Point(480, 300);
+	Point p2 = Point(160, 180);
+	while (i<5)
+	{
+		aimServoTowards(p, 20.0);
+		gpioDelay(1000000);
+		i++;
+	}
+	i=0;
+	while (i<5)
+	{
+		aimServoTowards(p2, -20.0);
+		gpioDelay(1000000);
+		i++;
+	}*/
+
+	double dx = 5.1;
+	while (dx < 30.2) {
+	std::stringstream ss;
+	std::string step;
+	ss << "T0.0_P" << dx << "\n";
+   	step = ss.str();
+	cout << "writing: " << step.c_str() << endl;
+	cout << dx << endl;
+	write(fd, step.c_str(), (unsigned) strlen(step.c_str()));
+
+	stopServos();
+	
+	std::stringstream ss2;
+	std::string step2;
+	ss2 << "T0.0_P" << (-1 * dx) << "\n";
+	step2 = ss2.str();
+	write(fd, step2.c_str(), (unsigned) strlen(step2.c_str()));
+	stopServos();
+	dx = dx + 5.0;
+	//initializeGpioPort();
+
+	}
 }
 
 void initializeGpioPort()
@@ -328,10 +383,9 @@ void initializeGpioPort()
 //	moveServoX(0);
 //	moveServoY(0);
 }
-***/
 
+/***
 //OLD GIMBLE CODE
-#ifdef ON_PI
 void moveServoX(int rot, double x)
 {
 	int vel = 1500;
@@ -377,7 +431,7 @@ void moveServoY(int rot, double y)
 
 		case SERVO_UP:
 			vel = 2*y/9.0 + 1425;
-			gpioServo(18, vel); //1405
+			gpioServo(18, 1425); //1405
 			//		softServoWrite(1, 375);
 			break;
 			// stop
@@ -388,7 +442,7 @@ void moveServoY(int rot, double y)
 			// move right
 		case SERVO_DOWN:
 			vel = (2.0 * (CAM_H - y)/ -9.0) +1510;
-			gpioServo(18, vel); //1525
+			gpioServo(18, 1510); //1525
 			//		softServoWrite(1, 500);
 			break;
 			// stop
@@ -451,23 +505,14 @@ void initializeGpioPort()
 	moveServoX(0, 0);
 	moveServoY(0, 0);
 }
-
+***/
 void toggleGoPro(){
 	gpioWrite(27,0);
 	gpioDelay(3000000);
 	gpioWrite(27,1);
 }
 
-void testServos()
-{
-	servoTest(0);
-	servoTest(-1);
-	servoTest(0);
-	servoTest(1);
-	servoTest(0);
-	gpioTerminate();
-}
-#endif // ON_PI
+
 int openSerialPort() 
 {
 	// port file descriptor
@@ -491,7 +536,8 @@ int openSerialPort()
 	options.c_lflag = 0;
 	tcflush(fd,TCIFLUSH);
 	tcsetattr(fd,TCSANOW, &options);
-	n = write(fd, "V70\n", 4);
+	std::string str = "T0.0_P0.0\n";
+	n = write(fd, str.c_str(), (unsigned) strlen(str.c_str()));
 	cout << "first write :" << n << endl;
 	if (n < 0)
 	{
@@ -547,15 +593,25 @@ int main(int argc, const char** argv)
 	initializeGpioPort();
 	// delay to make sure gpioport initializes completely
 	while(i<10000000){i++;}	
-
+	
 	//toggleGoPro();
 	//gpioDelay(5000000);
 	//toggleGoPro();
-	//openSerialPort();
-	while(i<10000000){i++;}	
-	
-	
-	
+	openSerialPort();
+	while(i<10000000){i++;}
+	stopServos();
+	//servoTest();
+	//write(fd, "T0.0_P0.0\n", 20);
+	if(argc == 2){
+		cout << "argc is 2, stopping servo" << endl;
+		stopServos();
+		return 0;
+	}
+	if (argc ==3){
+		cout << "argc is 3, testing servo" << endl;
+		servoTest();
+		return 0;
+	}
 	raspicam::RaspiCam_Cv Camera;
 	Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3);
 	Camera.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
@@ -566,9 +622,7 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 	gpioDelay(200000);
-	moveServoX(SERVO_STOP, 0);
-	gpioDelay(200000);
-	moveServoY(SERVO_STOP, 0);
+//	stopServos();
 	gpioDelay(200000);
 
 	Camera.grab();
@@ -655,12 +709,13 @@ int main(int argc, const char** argv)
 					Rect r = motionTracker.getObject();
 					if (r.x > CAM_W || r.y > CAM_H || r.x < 0 || r.y < 0) {
 						cout << "Object Lost" << endl;
+						stopServos();
 						motionTracker = MotionTracker(frame);
 						
 					}
 					else {
 						Mat binary = doDifferenceOnFrame(frame, r);
-						imshow("Binary", binary);
+						//imshow("Binary", binary);
 						meanShiftTracker = MeanShiftTracker(r, binary);
 						image = meanShiftTracker.process(frame);
 						rectangle(image, motionTracker.getObject(), Scalar(0, 255, 0));
@@ -679,7 +734,7 @@ int main(int argc, const char** argv)
 				image = meanShiftTracker.process(frame);
 				if (!(start = !meanShiftTracker.isObjectLost()))
 				{
-					videoCount++;
+					stopServos();
 					cout << "Object Lost" << endl;
 					motionTracker = MotionTracker(frame);
 				}
@@ -708,11 +763,11 @@ int main(int argc, const char** argv)
 					p = Point(r.x + r.width / 2, r.y + r.height / 2);
 					dx = motionTracker.getDirectionX();
 				}
-				//cout << "DX: " << dx << endl;
-
+				cout << "Before aiming DX: " << dx << endl;
+				
 #ifdef __linux__
-				//aimServoTowards(p, dx);
-				aimServoTowards(p);
+				aimServoTowards(p, dx);
+				//aimServoTowards(p);
 #endif // __linux__
 			}
 
@@ -720,6 +775,7 @@ int main(int argc, const char** argv)
 			double dt = abs(double(difftime(time(0), moveStartTime)));
 			if (xsteps > 0 && (xsteps > RESET_STEP_THRESHOLD ||  dt > RESET_TIME_THRESHOLD))
 			{
+				videoCount++;
 				cout << "RESETTING" << endl;
 				resetting = true;
 				prevRotX *= -1;
@@ -728,8 +784,7 @@ int main(int argc, const char** argv)
 				gpioDelay(1000000);
 				//moveServoX(prevRotX, -1* xsteps * prevRotX);
 				//moveServoX(prevRotX);
-				moveServoX(SERVO_STOP, 0);
-				moveServoY(SERVO_STOP, 0);
+				stopServos();
 				resetStartTime = time(0);
 				xsteps = 0;
 				motionTracker.resetInitial();
@@ -770,9 +825,7 @@ int main(int argc, const char** argv)
 		//stopRecording();
 	}
 	gpioDelay(200000);
-	moveServoX(SERVO_STOP, 0);
-	gpioDelay(200000);
-	moveServoY(SERVO_STOP, 0);
+	stopServos();
 	gpioDelay(200000);
 	//softServoSetup(-1,-1,-1,-1,-1,-1,-1,-1);
 	cout << "STOPPING" << endl;

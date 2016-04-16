@@ -20,12 +20,15 @@ static const float BIGGEST_OBJECT_SIZE = 0.75 * CAM_H * CAM_W;
 bool objLost = false;
 
 int px = 0;
+int py = 0;
 int dx = 0;
+int dy = 0;
 // keep track of the number of frames the object's x value has not changed
 int zeroDxCount = 0;
+int zeroDyCount = 0;
 // threshold at which no x movement triggers objLost=true event
-static const int ZERO_DX_COUNT_THRESHOLD = 4;
-
+static const int ZERO_DX_COUNT_THRESHOLD = 2;
+static const int ZERO_DY_COUNT_THRESHOLD = 2;
 MeanShiftTracker::MeanShiftTracker()
 {
 	cout << "Mean Shift Tracker Constructed" << endl;
@@ -43,6 +46,7 @@ MeanShiftTracker::MeanShiftTracker(Rect window, Mat initMotionMask)
 	initSelection(SELECTION_EVENT_A, trackWindow.x, trackWindow.y);
 	initSelection(SELECTION_EVENT_B, trackWindow.x + trackWindow.width, trackWindow.y + trackWindow.height);
 	px = window.x + window.width / 2;
+	py = window.y + window.height /2;
 	cout << "Mean Shift Tracker Constructed With Window" << endl;
 
 	objLost = false;
@@ -171,25 +175,30 @@ Mat MeanShiftTracker::process(Mat frame)
 	}
 
 	dx = trackBox.center.x - px;
-
+	dy = trackBox.center.x - py;
 	// check if the object hasn't moved
 	if (dx == 0)
 	{
 		zeroDxCount++;
-		// if the object has not moved in awhile, then the object has been lost
-		if (zeroDxCount > ZERO_DX_COUNT_THRESHOLD)
-		{
-			cout << "HI******" << endl;
-			objLost = true;
-		}
-	}
-	else
-	{
+	} else {
 		zeroDxCount = 0;
 	}
 
-	px = trackBox.center.x;
+	if (dy == 0) {
+		zeroDyCount++;
+	} else {
+		zeroDyCount = 0;
+	}
+	// if the object has not moved in awhile, then the object has been lost
+	if (zeroDxCount > ZERO_DX_COUNT_THRESHOLD && zeroDyCount > ZERO_DY_COUNT_THRESHOLD)
+	{
+		cout << "Object has stopped moving" << endl;
+		objLost = true;
+	}
+	
 
+	px = trackBox.center.x;
+	py = trackBox.center.y;
 	return image;
 }
 

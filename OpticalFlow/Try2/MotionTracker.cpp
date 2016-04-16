@@ -18,7 +18,7 @@ Point prevPos;
 
 const double MAX_SIZE_DIFF_FACTOR = 2.0;
 const double MAX_POS_DIFF_FACTOR = 0.6;
-int captureThreshold = 3;
+int captureThreshold = 2;
 int captureCurrent = -1;
 
 //some boolean variables for added functionality
@@ -83,10 +83,10 @@ void MotionTracker::searchForMovement(Mat thresholdImage)
 		Rect tempRect = boundingRect(largestContourVec.at(0));
 		objectBoundingRectangle = boundingRect(largestContourVec.at(0));
 		
-		vector< vector<Point>> lcv2;
-		lcv2.push_back(contours.at(contours.size() - 2));
-		Rect tempRect2 = boundingRect(lcv2.at(0));
-		obr2 = boundingRect(lcv2.at(0));
+//		vector< vector<Point>> lcv2;
+//		lcv2.push_back(contours.at(contours.size() - 2));
+//		Rect tempRect2 = boundingRect(lcv2.at(0));
+//		obr2 = boundingRect(lcv2.at(0));
 		// get centroid of largest contour
 		//Moments m = moments(largestContourVec.at(0), false);
 		//int cx = m.m10 / m.m00;
