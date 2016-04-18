@@ -33,7 +33,7 @@ bool meanShiftMode = true;
 
 Mat firstFrame;
 vector<Mat> frames;
-const int MOVE_DELAY = 0;
+const int MOVE_DELAY = 1;
 const int FRAME_COUNT_THRESHOLD = 100;
 const int SERVO_LEFT = 1; //clockwise
 const int SERVO_RIGHT = -1; //counterclockwise
@@ -53,8 +53,8 @@ int cy = CAM_H / 2;
 
 int winDelay = 10;
 
-int thresholdDX = 3;
-int thresholdDY = 3;
+int thresholdDX = 5;
+int thresholdDY = 5;
 int moveFlag = 0;
 
 const double RESET_DELAY = 5.0; // in seconds (amount of time that needs to pass
@@ -124,7 +124,7 @@ void stopRecording() {
 }
 void stopServos() {
 	std::string stop = "T0.0_P0.0\n";
-	int delay = 500000;//100000;
+	int delay = 5000;//100000;
 	gpioDelay(delay);
 	write(fd, stop.c_str(), (unsigned) strlen(stop.c_str()));
 	gpioDelay(delay);
@@ -140,7 +140,7 @@ void stopServos() {
 //GIMBLE MOVEMENT CODE
 void moveServoX(int rot, int dx)
 {
-	if (moveCount < MOVE_DELAY) {
+		if (moveCount < MOVE_DELAY) {
 		moveCount++;
 		return;
 	}
@@ -252,6 +252,11 @@ void moveServoY(int rot, int dy)
 
 Point aimServoTowards(Point p, double dx, double dy)
 {
+	if (moveCount < MOVE_DELAY) {
+		moveCount++;
+		return Point(0,0);
+	}
+
 	double scalearX =1;
 	Point aim = Point(0, 0);
 /*	if(double(difftime(time(0), startTime)) < 0.1) {
@@ -303,9 +308,9 @@ Point aimServoTowards(Point p, double dx, double dy)
 		dx = 0;
 	}
 //	cout << "y :" << p.y << end;
-	double degreeYDown = 41.4/2;
+	double degreeYDown = 41.4/4;
 	double degreeY = degreeYDown * 4.0/3.0;
-	if (p.y > cy && (dy > 0 || movingDown))
+	if (p.y > cy)
 	{
 		movingDown = true;
 		movingUp = false;
@@ -314,7 +319,7 @@ Point aimServoTowards(Point p, double dx, double dy)
 		if(dy < (-1 *degreeYDown)) dy = -1 * degreeYDown;
 		aim.y = SERVO_DOWN;
 	}
-	else if (p.y < cy && (dy < 0 || movingUp))
+	else if (p.y < cy)
 	{
 		movingDown = false;
 		movingUp = true;
@@ -787,6 +792,9 @@ int main(int argc, const char** argv)
 				if (meanShiftMode)
 				{
 					p = meanShiftTracker.getObject().center;
+					//Rect r = meanShiftTracker.getRectangle();
+					//p = Point(r.x + r.width / 2, r.y + r.height / 2);
+
 					dx = meanShiftTracker.getDirectionX();
 					dy = meanShiftTracker.getDirectionY();
 				}

@@ -14,9 +14,10 @@ int hsize = 16;
 
 static const int SELECTION_EVENT_A = 0;
 static const int SELECTION_EVENT_B = 1;
-
+static const int DX_THRESHOLD = 1;
+static const int DY_THRESHOLD = 1;
 static const float BIGGEST_OBJECT_SIZE = 0.75 * CAM_H * CAM_W;
-
+static const float SMALLEST_OBJECT_SIZE = 0.01 * CAM_H * CAM_W;
 bool objLost = false;
 
 int px = 0;
@@ -144,7 +145,8 @@ Mat MeanShiftTracker::process(Mat frame)
 		calcBackProject(&hue, 1, 0, hist, backproj, &phranges, 0.5);
 		backproj &= mask;
 		try {
-			trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
+			trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 8, 1));
+			//meanShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
 		}
 		catch (Exception e) {
 			cout << "Exception in CamShift" << endl;
@@ -165,7 +167,8 @@ Mat MeanShiftTracker::process(Mat frame)
 		}
 		try
 		{
-			ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
+			rectangle(image, trackWindow, Scalar(0,0,255), 3);
+			//ellipse(image, trackBox, Scalar(0, 0, 255), 3, LINE_AA);
 		}
 		catch (Exception e)
 		{
@@ -175,13 +178,22 @@ Mat MeanShiftTracker::process(Mat frame)
 	}
 
 	int size = trackWindow.width * trackWindow.height;
-	if (size > BIGGEST_OBJECT_SIZE)
+	if (size > BIGGEST_OBJECT_SIZE || size < SMALLEST_OBJECT_SIZE)
 	{
 		objLost = true;
 	}
 
 	dx = trackBox.center.x - px;
 	dy = trackBox.center.y - py;
+	//dx = trackWindow.x - px;
+	//dy = trackWindow.y - py;
+	
+	if(abs(dx) < DX_THRESHOLD) {
+		dx = 0;
+	}
+	if(abs(dy) < DY_THRESHOLD) {
+		dy = 0;
+	}
 	// check if the object hasn't moved
 	if (dx == 0)
 	{
@@ -205,9 +217,15 @@ Mat MeanShiftTracker::process(Mat frame)
 
 	px = trackBox.center.x;
 	py = trackBox.center.y;
+	
+	//px = trackWindow.x;
+	//py = trackWindow.y;
+
 	return image;
 }
-
+Rect MeanShiftTracker::getRectangle() {
+	return trackWindow;
+}
 RotatedRect MeanShiftTracker::getObject()
 {
 	return trackBox;

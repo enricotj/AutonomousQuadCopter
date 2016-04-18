@@ -22,7 +22,7 @@ public:
 
 	Mat process(Mat frame);
 	RotatedRect getObject();
-
+	Rect getRectangle();
 	bool isObjectLost();
 
 	int getDirectionX();

@@ -10,7 +10,7 @@ const int SENSITIVITY_VALUE = 24;
 //size of blur used to smooth the intensity image output from absdiff() function
 const int BLUR_SIZE = 12;
 
-int sizeThreshLow = (int)pow(28 * CAM_W / 640, 2); // min area that a valid object can take up
+int sizeThreshLow = (int)(0.005 * CAM_W * CAM_H); // min area that a valid object can take up
 int sizeThreshHigh = (int)(0.75 * CAM_W * CAM_H); // max area that a valid object can take up
 
 int prevSize;
@@ -18,7 +18,7 @@ Point prevPos;
 
 const double MAX_SIZE_DIFF_FACTOR = 2.0;
 const double MAX_POS_DIFF_FACTOR = 0.6;
-int captureThreshold = 2;
+int captureThreshold = 1;
 int captureCurrent = -1;
 
 //some boolean variables for added functionality
@@ -138,6 +138,13 @@ Mat MotionTracker::process(Mat& frame)
 		int minY = min(objectBoundingRectangle.y, obr2.y);
 		int maxX = max(objectBoundingRectangle.x + objectBoundingRectangle.width, obr2.x + obr2.width);
 		int maxY = max(objectBoundingRectangle.y + objectBoundingRectangle.height, obr2.y + obr2.height);
+
+/*		
+		int minX = objectBoundingRectangle.x;
+		int minY = objectBoundingRectangle.y;
+		int maxX = objectBoundingRectangle.x + objectBoundingRectangle.width;
+		int maxY = objectBoundingRectangle.y + objectBoundingRectangle.height;
+*/
 		// draw the smaller rectangle
 		cout << "rect in motionTracker" << minX << minY << maxX - minX << maxY - minY << endl;
 		objectBoundingRectangle = Rect(minX, minY, maxX-minX, maxY-minY);
