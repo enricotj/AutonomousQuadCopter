@@ -60,16 +60,18 @@ int moveFlag = 0;
 const double RESET_DELAY = 5.0; // in seconds (amount of time that needs to pass
 time_t resetStartTime;
 const int RESET_STEP_THRESHOLD = 2000;
-int xsteps = 0;
 //int xdir = SERVO_STOP;
 const double RESET_TIME_THRESHOLD = 20.0; // in seconds
 time_t moveStartTime; // keeps track of the time the x servo started moving
-bool resetting = false;
 bool savedFrame = false;
 bool movingRight = false;
 bool movingLeft = false;
 bool movingUp = false;
 bool movingDown = false;
+vector<time_t> dts;
+vector<double> dxs;
+vector<double> dys;
+
 #ifdef __linux__
 bool recording = false;
 int fd;
@@ -349,6 +351,19 @@ Point aimServoTowards(Point p, double dx, double dy)
    	step = ss.str();
 	cout << "writing: " << step.c_str() << endl;
 	write(fd, step.c_str(), (unsigned) strlen(step.c_str()));
+
+	if (dy < 0)
+	{
+		dy = -dy * 3.0/4.0;
+	}
+	else if (dy > 0)
+	{
+		dy = -dy * 4.0/3.0;
+	}
+	dxs.push_back(-dx);
+	dys.push_back(dy);
+	dts.push_back(time(0));
+
 	return aim;
 }
 
@@ -694,31 +709,29 @@ int main(int argc, const char** argv)
 	cout << "**********************" << endl;
 	
 	try{
-	while (frameCounter < frameMax)
+		while (frameCounter < frameMax)
 
-	//while (videoCount < 1)
-	{
-		frameCounter++;
+		//while (videoCount < 1)
+		{
+			frameCounter++;
 #ifdef __linux__
-		Camera.grab();
-		Camera.retrieve(frame);
+			Camera.grab();
+			Camera.retrieve(frame);
 #else
-		cap.read(frame);
+			cap.read(frame);
 #endif // __linux__
 
-		if (frame.empty()){
-			cout << "FRAME EMPTY" << endl;
-			break;
-		}
-
-		if (!savedFrame) {
-			frame.copyTo(firstFrame);
-			if (frameCounter > 3){
-				savedFrame = true;
+			if (frame.empty()){
+				cout << "FRAME EMPTY" << endl;
+				break;
 			}
-		}
-		if (!resetting)
-		{
+
+			if (!savedFrame) {
+				frame.copyTo(firstFrame);
+				if (frameCounter > 3){
+					savedFrame = true;
+				}
+			}
 			if (!meanShiftMode)
 			{
 				try {
@@ -745,11 +758,15 @@ int main(int argc, const char** argv)
 					Rect r = motionTracker.getObject();
 					if (r.x > CAM_W || r.y > CAM_H || r.x < 0 || r.y < 0) {
 						cout << "Object Lost" << endl;
+#ifdef __linux__
 						stopServos();
+#endif // __linux__
 						motionTracker = MotionTracker(frame);
 						
 					}
 					else {
+						moveStartTime = time(0);
+
 						Mat binary = doDifferenceOnFrame(frame, r);
 						//imshow("Binary", binary);
 						meanShiftTracker = MeanShiftTracker(r, binary);
@@ -763,16 +780,6 @@ int main(int argc, const char** argv)
 							motionTracker = MotionTracker(frame);
 						}
 					}
-				}
-			}
-			else
-			{
-				image = meanShiftTracker.process(frame);
-				if (!(start = !meanShiftTracker.isObjectLost()))
-				{
-					stopServos();
-					cout << "Object Lost" << endl;
-					motionTracker = MotionTracker(frame);
 				}
 			}
 			
@@ -815,48 +822,63 @@ int main(int argc, const char** argv)
 			}
 
 #ifdef __linux__
-			double dt = abs(double(difftime(time(0), moveStartTime)));
-			if (xsteps > 0 && (xsteps > RESET_STEP_THRESHOLD ||  dt > RESET_TIME_THRESHOLD))
+			if (abs(double(difftime(time(0), moveStartTime))) > RESET_TIME_THRESHOLD))
 			{
 				videoCount++;
 				cout << "RESETTING" << endl;
-				resetting = true;
-				prevRotX *= -1;
-				recording = false;
+
+				// no longer needed?
+				//prevRotX *= -1;
+				//xsteps = 0;
+
+				// needed but not currently using
+				//recording = false;
 				//stopRecording();
+				
 				gpioDelay(1000000);
-				//moveServoX(prevRotX, -1* xsteps * prevRotX);
-				//moveServoX(prevRotX);
 				stopServos();
-				resetStartTime = time(0);
-				xsteps = 0;
 				motionTracker.resetInitial();
+				resetStartTime = time(0);
+
+				vector<double::iterator itx = dxs.begin();
+				vector<double::iterator ity = dys.begin();
+				vector<time_t>::iterator it = dts.begin();
+				time_t prev = *it;
+				it++;
+				for (; it != dts.end(); ++it)
+				{
+					double dx = (*itx);
+					double dy = (*ity);
+					// TODO: send write to arduino
+					std::stringstream ss;
+					std::string step;
+					ss << "T" << dy << "_P" << dx << "\n";
+					step = ss.str();
+					cout << "writing: " << step.c_str() << endl;
+					write(fd, step.c_str(), (unsigned) strlen(step.c_str()));
+
+					time_t current = *it;
+					gpioDelay(abs(double(difftime(current, prev))));
+					
+					prev = current;
+					itx++;
+					ity++;
+				}
 			}
-#endif // __linux__
-		}
-		else if (abs(double(difftime(time(0), resetStartTime))) > RESET_DELAY)
-		{
-			videoCount++;
-			resetting = false;
-			prevRotX = SERVO_NULL;
-			cout << "RESUMING" << endl;
-		}
-
-#ifdef __linux__
-		// uncomment to view motion tracking threshold image on pi
-		//image = motionTracker.getThresholdImage();
-		Mat temp;
-		image.copyTo(temp);
-		frames.push_back(temp);
+			// uncomment to view motion tracking threshold image on pi
+			//image = motionTracker.getThresholdImage();
+			Mat temp;
+			image.copyTo(temp);
+			frames.push_back(temp);
 #else
-		imshow("Track", image);
-		if (savedFrame) {
-			imshow("Difference", image - firstFrame);
-		}
-		cvWaitKey(winDelay);
+			imshow("Track", image);
+			if (savedFrame) {
+				imshow("Difference", image - firstFrame);
+			}
+			cvWaitKey(winDelay);
 #endif // __linux__
 
-	}
+		}
 	} catch(Exception e) {
 		cout << "Exception in main program" << endl;
 	}
